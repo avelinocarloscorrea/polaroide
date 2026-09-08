@@ -1,0 +1,20 @@
+# sistema / editores
+.DS_Store
+Thumbs.db
+*~
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# temporários
+/tmp/
+*.log
+*.bak
+*.orig
+
+# nada de node aqui, mas por garantia
+node_modules/
+
+# página do acervo — conteúdo do site, entregue à parte
+acervo.html

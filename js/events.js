@@ -1,0 +1,114 @@
+/* Polaroide Studio — js/events.js
+   eventos globais de teclado/drag e init()
+   (parte de app; carregado em ordem por index.html) */
+"use strict";
+
+
+/* ================= eventos globais ================= */
+
+// mostra o polegar da barra de rolagem só enquanto rola; some ~1s depois
+addEventListener('scroll',e=>{
+  const el=e.target;
+  if(el instanceof Element && el.classList.contains('scrl')){
+    el.classList.add('is-scrolling');
+    clearTimeout(el._sT); el._sT=setTimeout(()=>el.classList.remove('is-scrolling'),1500);
+  }
+},true);
+
+stage.addEventListener('pointerdown',e=>{ if(e.target===stage||e.target===sheetsEl) select(null); });
+
+/* ---- atalhos do quadro de trabalho (sem barra de rolagem visível) ---- */
+// Ctrl/Cmd + roda do mouse (ou pinça no trackpad) = zoom apontando o cursor
+stage.addEventListener('wheel',e=>{
+  if(!(e.ctrlKey||e.metaKey)) return;         // roda sem Ctrl = rolagem normal
+  e.preventDefault();
+  zoomAt(e.clientX,e.clientY,Math.exp(-e.deltaY*0.0016));
+},{passive:false});
+
+// Botão do meio arrasta = deslocar a vista (não conflita com foto/handle, que só usam o botão 0)
+let _pan=null;
+stage.addEventListener('pointerdown',e=>{
+  if(e.button!==1) return;
+  e.preventDefault();
+  _pan={x:e.clientX,y:e.clientY,sl:stage.scrollLeft,st:stage.scrollTop};
+  try{ stage.setPointerCapture(e.pointerId); }catch(_){}
+  document.body.classList.add('panning');
+},true);
+stage.addEventListener('pointermove',e=>{
+  if(!_pan) return;
+  stage.scrollLeft=_pan.sl-(e.clientX-_pan.x);
+  stage.scrollTop =_pan.st-(e.clientY-_pan.y);
+});
+const _endPan=e=>{ if(!_pan) return; _pan=null; document.body.classList.remove('panning');
+  try{ stage.releasePointerCapture(e.pointerId); }catch(_){} };
+stage.addEventListener('pointerup',_endPan);
+stage.addEventListener('pointercancel',_endPan);
+
+stage.addEventListener('scroll',()=>{
+  const L=layout(); if(L.pages<2) return;
+  const mid=stage.scrollTop+stage.clientHeight/2;
+  let best=0,bd=1e9;
+  [...sheetsEl.children].forEach((pg,i)=>{ const c=pg.offsetTop*zoom+pg.offsetHeight*zoom/2;
+    const d=Math.abs(c-mid); if(d<bd){bd=d;best=i;} });
+  if(best!==currentPage){ currentPage=best; $('#pageLbl').textContent=`${best+1} / ${L.pages}`; }
+});
+addEventListener('keydown',e=>{
+  const t=e.target;
+  const typing=t.isContentEditable||/INPUT|TEXTAREA|SELECT/.test(t.tagName);
+  if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){ e.preventDefault(); undo(); return; }
+  if((e.ctrlKey||e.metaKey)&&(e.key.toLowerCase()==='y'||(e.shiftKey&&e.key.toLowerCase()==='z'))){ e.preventDefault(); redo(); return; }
+  if(e.key==='Escape'){
+    if(!$('#menu').hidden){ $('#menu').hidden=true; return; }
+    if(zen){ zen=false; applyUI(); return; }
+    if(selectedId){ select(null); return; }
+  }
+  if(typing) return;
+  if(e.key==='['){ uiState.left=!uiState.left; applyUI(); e.preventDefault(); return; }
+  if(e.key===']'){ uiState.right=!uiState.right; applyUI(); e.preventDefault(); return; }
+  if(e.key==='.'){ zen=!zen; applyUI(); e.preventDefault(); return; }
+  const ph=cur(); if(!ph) return;
+  if(e.key==='Delete'||e.key==='Backspace'){ removePhoto(ph.id); e.preventDefault(); }
+  else if(e.key==='ArrowLeft'){ pushHistory('nudge'); ph.ox=clamp(ph.ox-2,-90,90); livePhoto(ph); save(); e.preventDefault(); }
+  else if(e.key==='ArrowRight'){ pushHistory('nudge'); ph.ox=clamp(ph.ox+2,-90,90); livePhoto(ph); save(); e.preventDefault(); }
+  else if(e.key==='ArrowUp'){ pushHistory('nudge'); ph.oy=clamp(ph.oy-2,-90,90); livePhoto(ph); save(); e.preventDefault(); }
+  else if(e.key==='ArrowDown'){ pushHistory('nudge'); ph.oy=clamp(ph.oy+2,-90,90); livePhoto(ph); save(); e.preventDefault(); }
+  else if(e.key==='+'||e.key==='='){ pushHistory('zk'); ph.zoomF=clamp(ph.zoomF+.1,1,4); fillRight(ph); livePhoto(ph); save(); }
+  else if(e.key==='-'){ pushHistory('zk'); ph.zoomF=clamp(ph.zoomF-.1,1,4); fillRight(ph); livePhoto(ph); save(); }
+});
+addEventListener('dragover',e=>{ if(e.dataTransfer&&[...e.dataTransfer.types].includes('Files')){ e.preventDefault(); document.body.classList.add('dropping'); }});
+addEventListener('dragleave',e=>{ if(e.relatedTarget===null) document.body.classList.remove('dropping'); });
+addEventListener('drop',e=>{
+  if(e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files.length){
+    e.preventDefault(); document.body.classList.remove('dropping'); addFiles(e.dataTransfer.files);
+  }
+});
+addEventListener('paste',e=>{
+  if(e.target && e.target.isContentEditable) return;   // deixa colar texto na legenda
+  const imgs=[...(e.clipboardData?.items||[])].filter(i=>i.type.startsWith('image/')).map(i=>i.getAsFile()).filter(Boolean);
+  if(imgs.length){ e.preventDefault(); addFiles(imgs); }
+});
+let rT; addEventListener('resize',()=>{ clearTimeout(rT); rT=setTimeout(()=>{ if(!userZoomed) fit(); },150); });
+addEventListener('beforeprint',()=>select(null));
+
+/* ================= init ================= */
+(async function init(){
+  injectIcons();
+  try{
+    const stored=JSON.parse(localStorage.getItem(UIKEY)||'null');
+    if(stored&&typeof stored==='object'){ uiState.left=stored.left!==false; uiState.right=stored.right!==false; }
+    else if(innerWidth<1200){ uiState.right=false; if(innerWidth<960) uiState.left=false; }
+  }catch(e){}
+  bindAll();
+  setupColorFields();
+  syncControls();
+  applyUI();
+  render();
+  fit();
+  try{
+    await Promise.race([DB.keys(), new Promise((_,r)=>setTimeout(()=>r(new Error('idb-timeout')),2500))]);
+  }catch(e){ idbFail(e); }
+  try{ await loadProject(); }catch(e){ console.error(e); }
+  syncControls();
+  render();
+  fit();
+})();
