@@ -22,7 +22,9 @@ function mRng(sel,key,fmt,forceCustom){
   el.addEventListener('input',()=>{
     state.settings[key]=parseFloat(el.value);
     if(out) out.textContent=fmt(el.value);
-    if(forceCustom && state.settings.format!=='custom') state.settings.format='custom';
+    if(forceCustom && state.settings.format!=='custom'){
+      state.settings.format='custom'; const mf=$('#me_format'); if(mf) mf.value='custom';
+    }
     applyVars(); render(); save();
   });
 }

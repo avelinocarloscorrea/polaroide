@@ -516,44 +516,53 @@
     <!-- 16 -->
     <section id="celular">
       <h2><span class="n">16</span>No celular</h2>
+      <p>Em telas estreitas o Polaroide Studio usa uma <strong>interface própria</strong>, mais
+      simples, com quatro abas na base da tela.</p>
       <figure>
-        <svg viewBox="0 0 420 260" role="img" aria-label="No celular, os painéis sobem pela base da tela como folhas; o topo com as fotos continua visível.">
-          <rect x="128" y="12" width="164" height="236" rx="20" class="d-fill-card" stroke="var(--line)" stroke-width="1.5"/>
-          <rect x="140" y="34" width="140" height="120" rx="4" class="d-fill-panel"/>
-          <rect x="140" y="22" width="140" height="12" rx="4" class="d-fill-card" stroke="var(--line)"/>
+        <svg viewBox="0 0 300 250" role="img" aria-label="No celular: barra fina no topo, o quadro no meio e quatro abas na base (Fotos, Folha, Estilo, Exportar).">
+          <rect x="70" y="8" width="160" height="234" rx="22" class="d-fill-card" stroke="var(--line)" stroke-width="1.5"/>
+          <rect x="80" y="18" width="140" height="20" rx="6" class="d-fill-panel"/>
+          <text x="88" y="32" class="d-small">Polaroide Studio</text>
+          <rect x="80" y="42" width="140" height="158" rx="5" class="d-fill-panel"/>
           <g>
-            <rect x="152" y="46" width="56" height="66" rx="2" class="d-fill-card" stroke="var(--line)"/>
-            <rect x="157" y="51" width="46" height="46" class="d-photo"/>
-            <rect x="216" y="46" width="56" height="66" rx="2" class="d-brand-s"/>
-            <rect x="221" y="51" width="46" height="46" class="d-photo"/>
+            <rect x="96" y="58" width="50" height="60" rx="2" class="d-fill-card" stroke="var(--line)"/>
+            <rect x="100" y="62" width="42" height="42" class="d-photo"/>
+            <rect x="154" y="58" width="50" height="60" rx="2" class="d-fill-card" stroke="var(--line)"/>
+            <rect x="158" y="62" width="42" height="42" class="d-photo"/>
           </g>
-          <rect x="128" y="12" width="164" height="236" rx="20" fill="var(--ink)" opacity=".16"/>
-          <rect x="132" y="150" width="156" height="94" rx="16" class="d-fill-card" stroke="var(--line)"/>
-          <rect x="196" y="158" width="28" height="4" rx="2" class="d-muted" opacity=".6"/>
-          <rect x="146" y="176" width="128" height="12" rx="3" class="d-stroke"/>
-          <rect x="146" y="198" width="128" height="12" rx="3" class="d-stroke"/>
-          <rect x="146" y="220" width="128" height="12" rx="3" class="d-stroke"/>
-          <path d="M300 175 h40" class="d-lead"/><text x="345" y="179" class="d-small">painel</text>
-          <path d="M300 70 h40" class="d-lead"/><text x="345" y="74" class="d-small">foto visível</text>
+          <circle cx="202" cy="176" r="15" class="d-brand"/>
+          <path d="M202 170v12M196 176h12" stroke="#fff" stroke-width="2.4"/>
+          <rect x="80" y="204" width="140" height="30" rx="6" class="d-fill-card" stroke="var(--line)"/>
+          <g class="d-brand"><rect x="86" y="210" width="18" height="4" rx="2"/></g>
+          <g class="d-muted">
+            <rect x="120" y="210" width="18" height="4" rx="2"/>
+            <rect x="154" y="210" width="18" height="4" rx="2"/>
+            <rect x="188" y="210" width="18" height="4" rx="2"/>
+          </g>
+          <text x="150" y="228" text-anchor="middle" class="d-small">Fotos · Folha · Estilo · Exportar</text>
         </svg>
-        <figcaption>Os painéis sobem pela base; a foto que você está editando continua à vista em cima.</figcaption>
+        <figcaption>Quatro abas: <b>Fotos</b> (o quadro), <b>Folha</b>, <b>Estilo</b> e <b>Exportar</b>.</figcaption>
       </figure>
       <ul>
-        <li>Em telas estreitas, os painéis viram <strong>folhas que sobem pela base</strong>.
-          Abra pelos botões de painel na barra ou tocando numa foto (abre o painel de edição).
-          Só um fica aberto por vez; toque na área escurecida em cima para fechar.</li>
-        <li>Ao selecionar uma foto, o quadro <strong>rola sozinho</strong> para deixá-la visível
-          acima do painel.</li>
-        <li><strong>Pinça de dois dedos</strong> dá zoom no ponto tocado.</li>
-        <li><strong>Toque duplo</strong> numa área vazia do quadro: ajusta à tela; toque duplo
-          de novo aproxima 2×.</li>
-        <li>Um dedo na foto <strong>enquadra</strong>; um dedo na área vazia <strong>rola</strong>
-          as folhas.</li>
-        <li>A barra de ferramentas quebra em linhas — nada fica escondido. Imprimir e Exportar
-          PDF também estão no menu <kbd>⋯</kbd>.</li>
+        <li><strong>Fotos</strong> — o quadro com a folha. O botão redondo <b>+</b> adiciona
+          fotos. <strong>Toque numa foto</strong> para abrir a edição (enquadramento, cor,
+          legenda, ordem) numa folha que sobe pela base — a foto continua visível em cima.</li>
+        <li><strong>Folha</strong> — papel, orientação, quantas <b>colunas × linhas</b> por
+          folha (botões <b>−</b>/<b>+</b>), espaçamento e margem. O tamanho do polaroide é
+          calculado para caber sem cortar nada.</li>
+        <li><strong>Estilo</strong> — formato do polaroide, borda, legenda (fonte e tamanho),
+          efeito no canto, cores e marcas de corte.</li>
+        <li><strong>Exportar</strong> — <b>Baixar PDF</b>, PNG, Imprimir, resolução, e
+          Salvar/Abrir projeto.</li>
       </ul>
-      <div class="tip">Reordenar arrastando funciona melhor no computador. No celular, use
-      <strong>Antes / Depois</strong> no painel da foto.</div>
+      <ul>
+        <li><strong>Pinça de dois dedos</strong> dá zoom no ponto tocado; <strong>toque
+          duplo</strong> no vazio ajusta à tela (de novo, aproxima 2×).</li>
+        <li>Um dedo na foto <strong>enquadra</strong>; um dedo no vazio <strong>rola</strong>
+          as folhas (o topo mostra “Folha 2/3”).</li>
+        <li>Reordenar arrastando funciona melhor no computador; no celular use
+          <strong>Antes / Depois</strong> na edição da foto.</li>
+      </ul>
     </section>
 
     <!-- 17 -->

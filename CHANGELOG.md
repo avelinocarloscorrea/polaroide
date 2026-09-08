@@ -1,5 +1,17 @@
 # Histórico
 
+## 0.16 — interface dedicada de celular
+- Em telas ≤ 820 px a casca de desktop (barra + painel esquerdo) dá lugar a
+  uma **interface própria** com quatro abas na base: **Fotos** (o quadro +
+  botão “+”), **Folha** (papel, orientação, colunas × linhas com −/+, margem),
+  **Estilo** (formato, borda, legenda, efeito, cores, corte) e **Exportar**
+  (PDF/PNG/Imprimir, resolução, salvar/abrir).
+- Tocar numa foto abre a edição (enquadramento, cor, **legenda** num campo
+  próprio, ordem) numa folha que sobe pela base.
+- Mesmo motor por baixo: os controles gravam em `state.settings` e chamam
+  `render()`. O desktop não muda.
+- `css/mobile.css` + `js/mobile.js`.
+
 ## 0.15 — CSP limpa e mais correções de mobile
 - **CSP enxuta**: só as diretivas que diferem de `default-src 'none'`.
   Removidos `connect-src`/`object-src`/`manifest-src` com `'none'` — eram
