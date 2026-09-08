@@ -36,14 +36,20 @@ font-src 'self';
 - `img-src` ainda aceita `data:` só para o caminho de fallback de decodificação
   de imagem (`img.src = dataURL` quando `createImageBitmap` falha); `data:`
   não permite exfiltração.
-- `style-src 'self'` — sem `'unsafe-inline'`. O CSS está em `css/app.css`; não
-  há bloco `<style>` nem atributo `style=` na página. O `@page` da impressão é
-  definido por uma `CSSStyleSheet` construída em JS e adicionada em
-  `adoptedStyleSheets` (CSSOM não passa pelo `style-src`). As manipulações de
-  `element.style` no código também são CSSOM, não `style=`.
+- `style-src 'self'` — sem `'unsafe-inline'`. O CSS está em `css/*.css`; não
+  há bloco `<style>` nem atributo `style=` na página (nem no `guia.html`). O
+  `@page` da impressão é definido por uma `CSSStyleSheet` construída em JS e
+  adicionada em `adoptedStyleSheets` (CSSOM não passa pelo `style-src`). As
+  manipulações de `element.style` no código também são CSSOM, não `style=`.
 
 Complementos: `Referrer-Policy: no-referrer`, `X-Content-Type-Options: nosniff`,
 `X-Frame-Options: DENY`, `X-Robots-Tag: noindex`.
+
+> **Antivírus que injeta script** (Kaspersky, alguns proxies): tenta inserir
+> `<script src=…>` de terceiros na página. O `script-src 'self'` **recusa** —
+> aparece um aviso no console, mas é a proteção funcionando. Alguns desses
+> produtos ainda reescrevem o cabeçalho CSP no trânsito, o que pode gerar
+> avisos de "'none' alongside other sources"; não há como o site impedir isso.
 
 ## 2. Imagens são neutralizadas
 
@@ -75,22 +81,32 @@ Toda imagem — de arquivo, colada, arrastada ou vinda de um `.json` — passa p
 
 `migrateSettings()` força:
 
-- números dentro de faixas (largura, margens, dpi, etc.);
+- números dentro de faixas (largura, margens, dpi, colunas, linhas, etc.);
+- `marginMm` nunca abaixo de `SAFE_MARGIN` (5 mm);
 - cores só se casarem `^#([0-9a-f]{3}|[0-9a-f]{6})$` — senão, o padrão;
-- `captionFont` só se estiver na lista fixa de fontes — senão, o padrão.
-  (Isso fecha injeção de CSS via `font-family`.)
+- `captionFont` só se estiver na lista fixa de fontes — senão, o padrão
+  (fecha injeção de CSS via `font-family`);
+- `tape` só um dos valores da lista fixa (`none` / `tape-…` / `staple-…` /
+  `brad-…` / `pin-…`); `pageSize` só uma chave de `PAGE_SIZES`; `format` só
+  uma chave de `FORMATS`; `columns`/`rows` só `'auto'` ou "1".."12";
+- booleanos coeridos (`autoFit`, `bgGradient`, `cornerMarks`, …).
 
 `normPhoto()` faz o mesmo para cada foto (zoom, deslocamento, rotação e todos
 os valores de filtro em faixa; `caption` vira string com `sanitizeText`).
 
+Templates e modelos de folha (`TEMPLATES`, `LAYOUTS`) são só conjuntos
+parciais de `settings`; ao aplicar, passam por `migrateSettings()` — o mesmo
+crivo. Nada vindo deles chega cru a CSS ou canvas.
+
 ## 5. Legenda
 
-O `div[contenteditable]` só aceita texto:
+A legenda é um `<textarea>` (`maxlength=500`), não HTML editável:
 
-- `paste` é interceptado e reinserido como texto puro, limitado a 200 chars;
-- `drop` no campo é cancelado;
-- no `input`, se aparecer qualquer elemento filho (HTML colado), o conteúdo é
-  achatado para texto; acima de 500 chars é cortado.
+- só texto — não há como colar marcação;
+- no `input`, `sanitizeText()` remove caracteres de controle e corta em
+  500 chars;
+- no canvas de exportação a legenda é desenhada com `fillText()` (string
+  pura), nunca interpretada.
 
 ## 6. Servidor
 
