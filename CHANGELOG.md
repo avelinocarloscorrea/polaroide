@@ -1,5 +1,20 @@
 # Histórico
 
+## 0.13 — foco em impressão: grade que nunca corta
+- Removido tudo de rede social (Story/Post/Reels, escala de imagem, dpi
+  social). Só papel: A4, Carta, A3, A5.
+- **Encaixar as fotos na folha** (ligado por padrão): informe
+  **Colunas × Linhas** por folha (1–12 cada) e o tamanho do polaroide é
+  calculado para caber exatinho na área imprimível. Trava dura: nunca passa
+  da folha; se pedir demais, reduz a grade e avisa na barra de status
+  (“limitado pela folha”).
+- **Margem de segurança** nunca abaixo de 5 mm (impressora não chega na
+  borda), com linha tracejada na tela que some na impressão/exportação.
+- **Legenda vazia = faixa em branco**, sem texto de exemplo — igual sai
+  impresso.
+- Templates e Modelos de folha refeitos só para impressão, todos já
+  encaixando na folha.
+
 ## 0.12 — template ≠ modelo de folha
 - **Template** (tela inicial): configuração completa e pronta (formato +
   folha + efeito + cores + legenda). Agora numa lista compacta de linhas com
