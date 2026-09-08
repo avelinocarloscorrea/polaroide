@@ -1,5 +1,20 @@
 # Histórico
 
+## 0.9 — efeitos no card, vidro acrílico e formatos de rede social
+- Fita e **grampo** agora ficam colados nos cantos da **foto**, dentro do card
+  (antes a fita ficava nas pontas do polaroide, para fora). Vale na tela,
+  no PDF/PNG e na impressão.
+- **Vidro acrílico**: barra, painéis e menus translúcidos com desfoque; o
+  quadro de trabalho passa por trás. Enquanto rola/arrasta/dá zoom o desfoque
+  cai sozinho para não pesar. Liga/desliga em *Exportação e interface*;
+  respeita "menos transparência" do sistema.
+- Novos tamanhos de folha para **rede social** (Story/Reels 1080×1920, post
+  quadrado, retrato e paisagem). A exportação sai no pixel exato do formato,
+  com escala 1× / 2× / 3×.
+- **Fundo em degradê** (duas cores + ângulo) — bom para stories.
+- CSS dividido em `css/*.css` por assunto (base, layout, polaroid, effects,
+  components, util, print).
+
 ## 0.8 — legenda, fontes e efeitos
 - Legenda virou `<textarea>` — acabou o bug de cursor/caret ao digitar.
 - Fonte de marca (Playfair) estava com caminho quebrado desde a divisão em

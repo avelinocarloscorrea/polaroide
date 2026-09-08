@@ -24,14 +24,23 @@ function migrateSettings(s){
   s.captionSizePt=clamp(num(s.captionSizePt,14),4,96);
   s.captionSpacing=clamp(num(s.captionSpacing,0),-2,10);
   s.captionUpper=!!s.captionUpper; s.captionShadow=!!s.captionShadow;
-  s.tape=['none','2','4','top'].includes(s.tape)?s.tape:'none';
+  // efeito de canto: compat com os valores antigos só de fita (2/4/top)
+  if(s.tape==='2') s.tape='tape-2';
+  else if(s.tape==='4') s.tape='tape-4';
+  else if(s.tape==='top') s.tape='tape-top';
+  s.tape=['none','tape-2','tape-4','tape-top','staple-2','staple-4','staple-top'].includes(s.tape)?s.tape:'none';
   s.exportDPI=clamp(Math.round(num(s.exportDPI,300)),72,600);
+  s.igScale=clamp(Math.round(num(s.igScale,2)),1,4);
+  s.acrylic=s.acrylic!==false;
+  s.bgGradient=!!s.bgGradient;
+  s.bgAngle=clamp(Math.round(num(s.bgAngle,160)),0,360);
   s.pageSize=PAGE_SIZES[s.pageSize]?s.pageSize:'a4';
   s.landscape=!!s.landscape;
   s.align=s.align==='left'?'left':'center';
   s.columns=(s.columns==='auto'||s.columns==null)?'auto':String(clamp(Math.round(num(s.columns,1)),1,20));
   s.format=FORMATS[s.format]?s.format:'custom';
   s.cardColor=hex(s.cardColor,'#ffffff'); s.pageBg=hex(s.pageBg,'#ffffff');
+  s.pageBg2=hex(s.pageBg2,'#e9e2d3');
   s.captionColor=hex(s.captionColor,'#222222'); s.cardLineColor=hex(s.cardLineColor,'#c9c9c9');
   s.tapeColor=hex(s.tapeColor,'#e7dfce');
   s.cardLine=!!s.cardLine; s.cornerMarks=!!s.cornerMarks;

@@ -1,0 +1,51 @@
+/* css/polaroid.css  (o card, a janela da foto, a legenda, alças) */
+.pol{position:relative;background:var(--cardBg,#fff);flex:none;box-sizing:border-box;
+  padding:var(--frame) var(--frame) 0 var(--frame);border-radius:var(--radius);box-shadow:var(--polShadow,none)}
+.pol.sel{outline:2px solid var(--brand)!important;outline-offset:3px}
+.pol .marks{position:absolute;inset:0;pointer-events:none;overflow:visible}
+.win{position:relative;width:100%;aspect-ratio:var(--winAspect);overflow:hidden;background:#ececec;cursor:grab}
+.win.drag{cursor:grabbing}
+.win img{position:absolute;left:50%;top:50%;width:100%;height:100%;object-fit:cover;
+  transform:translate(-50%,-50%);user-select:none;-webkit-user-drag:none}
+.win .vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,rgba(0,0,0,0) 38%,rgba(0,0,0,1) 100%)}
+/* legenda: <textarea> centrado por um wrapper flex — sem bugs de caret */
+.cap{height:var(--caption);display:flex;align-items:center;justify-content:center;
+  padding:0 2mm;box-sizing:border-box;overflow:hidden}
+.capfield{
+  width:100%;max-height:100%;box-sizing:border-box;display:block;
+  border:0;outline:0;background:transparent;resize:none;overflow:hidden;
+  text-align:center;line-height:1.14;padding:0;margin:0;
+  font-family:var(--capFont);font-size:var(--capSize);color:var(--capColor);
+  font-weight:var(--capWeight);font-style:var(--capStyle);
+  letter-spacing:var(--capSpacing,normal);text-transform:var(--capTransform,none);
+  text-shadow:var(--capShadow,none);white-space:pre-wrap;overflow-wrap:anywhere}
+.capfield::placeholder{color:#c7c7c7;text-transform:none;letter-spacing:normal}
+.capfield::-webkit-scrollbar{display:none}
+.handle{position:absolute;left:5px;top:5px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;
+  border-radius:6px;background:rgba(255,255,255,.94);border:1px solid var(--line);color:#666;cursor:grab;opacity:0;transition:opacity .12s;z-index:3;box-shadow:var(--sh-1)}
+.handle svg{width:13px;height:13px}
+.pol:hover .handle{opacity:1}
+.pol .dpi{position:absolute;right:5px;top:5px;font:600 9px/1 var(--ui);padding:3px 6px;border-radius:99px;color:#fff;opacity:0;transition:opacity .12s;z-index:3}
+.pol:hover .dpi{opacity:1}
+.pol .dpi.ok{background:var(--ok)} .pol .dpi.warn{background:var(--warn)} .pol .dpi.bad{background:var(--danger)}
+.pol.dragover{outline:2px dashed var(--brand)!important;outline-offset:4px}
+
+#empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;padding:20px}
+#empty .box{pointer-events:auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);
+  padding:42px 54px;text-align:center;box-shadow:var(--sh-2);max-width:420px}
+#empty .ring{width:64px;height:64px;border-radius:50%;background:var(--brand-soft);display:grid;place-items:center;margin:0 auto 16px}
+#empty .ring svg{width:30px;height:30px;color:var(--brand)}
+#empty h3{margin:0 0 6px;font-size:19px;color:var(--ink)}
+#empty p{margin:0 0 16px;color:var(--muted);font-size:12.5px}
+body.dropping #stage::after{content:"Solte as fotos aqui";position:absolute;inset:18px;border:2.5px dashed var(--brand);
+  border-radius:var(--r-lg);display:flex;align-items:center;justify-content:center;color:var(--brand);font:600 18px var(--display);
+  background:var(--brand-soft);pointer-events:none;z-index:6}
+
+#zenExit{position:fixed;top:14px;right:14px;z-index:40;box-shadow:var(--sh-pop)}
+
+#s_thumb{width:100%;height:130px;object-fit:contain;background:var(--line-2);border-radius:var(--r-sm);margin-bottom:10px;border:1px solid var(--line)}
+#rightEmpty{color:var(--muted);font-size:12px;line-height:1.7}
+#rightEmpty b{color:var(--ink)}
+.dpibar{display:flex;align-items:center;gap:8px;font-size:11.5px;margin-bottom:12px;color:var(--muted)}
+.dot{width:9px;height:9px;border-radius:50%;flex:none}
+.dot.ok{background:var(--ok)} .dot.warn{background:var(--warn)} .dot.bad{background:var(--danger)}

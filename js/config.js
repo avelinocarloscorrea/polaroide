@@ -112,7 +112,16 @@ function injectIcons(root=document){
 }
 
 /* ---------- dados de layout ---------- */
-const PAGE_SIZES={a4:{w:210,h:297},letter:{w:215.9,h:279.4},a3:{w:297,h:420},a5:{w:148,h:210}};
+// Papéis de impressão em mm. Os formatos de rede social guardam também o
+// tamanho exato em pixels (px:[w,h] a 96 dpi) e social:true — a exportação usa
+// esses pixels (× escala) em vez de dpi de impressão.
+const PAGE_SIZES={
+  a4:{w:210,h:297},letter:{w:215.9,h:279.4},a3:{w:297,h:420},a5:{w:148,h:210},
+  igstory:    {w:285.75,h:508,    px:[1080,1920],social:true},
+  igpost:     {w:285.75,h:285.75, px:[1080,1080],social:true},
+  igportrait: {w:285.75,h:357.19, px:[1080,1350],social:true},
+  iglandscape:{w:285.75,h:149.75, px:[1080,566], social:true},
+};
 const FORMATS={
   classic:  {label:'Polaroid clássico (600)', w:88, aw:1,  ah:1,  frame:6,   cap:23},
   sx70:     {label:'Polaroid quadrado (SX-70)',w:79, aw:1,  ah:1,  frame:5,   cap:17},
@@ -170,7 +179,8 @@ const DEFAULTS={
   captionFont:BASE_FONTS[0].v, captionSizePt:14, captionColor:'#222222',
   captionBold:false, captionItalic:false, captionUpper:false, captionSpacing:0, captionShadow:false,
   tape:'none', tapeColor:'#e7dfce',
-  cardColor:'#ffffff', pageBg:'#ffffff', screenShadow:true, exportDPI:300,
+  cardColor:'#ffffff', pageBg:'#ffffff', pageBg2:'#e9e2d3', bgGradient:false, bgAngle:160,
+  screenShadow:true, acrylic:true, exportDPI:300, igScale:2,
 };
-const COLOR_DEFAULTS={cardColor:'#ffffff',pageBg:'#ffffff',captionColor:'#222222',cardLineColor:'#c9c9c9',tapeColor:'#e7dfce'};
+const COLOR_DEFAULTS={cardColor:'#ffffff',pageBg:'#ffffff',pageBg2:'#e9e2d3',captionColor:'#222222',cardLineColor:'#c9c9c9',tapeColor:'#e7dfce'};
 const HEX=/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;

@@ -16,6 +16,13 @@ function pageDims(){
   const s=state.settings, pg=PAGE_SIZES[s.pageSize]||PAGE_SIZES.a4;
   return s.landscape?[pg.h,pg.w]:[pg.w,pg.h];
 }
+// dpi efetivo da exportação: papel usa o dpi escolhido; rede social usa
+// 96 dpi × escala (1×/2×/3×) para bater no pixel exato do formato.
+function exportDPI(){
+  const s=state.settings, pg=PAGE_SIZES[s.pageSize]||PAGE_SIZES.a4;
+  return pg.social ? 96*clamp(Math.round(num(s.igScale,2)),1,4)
+                   : clamp(Math.round(num(s.exportDPI,300)),72,600);
+}
 function layout(){
   const s=state.settings, g=geom();
   const [PW,PH]=pageDims();

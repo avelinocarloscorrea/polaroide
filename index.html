@@ -17,7 +17,13 @@
 <link rel="icon" href="assets/favicon.svg">
 <link rel="apple-touch-icon" href="assets/favicon.svg">
 <title>Polaroide Studio</title>
-<link rel="stylesheet" href="css/app.css?v=073">
+<link rel="stylesheet" href="css/base.css?v=075">
+<link rel="stylesheet" href="css/layout.css?v=075">
+<link rel="stylesheet" href="css/polaroid.css?v=075">
+<link rel="stylesheet" href="css/effects.css?v=075">
+<link rel="stylesheet" href="css/components.css?v=075">
+<link rel="stylesheet" href="css/util.css?v=075">
+<link rel="stylesheet" href="css/print.css?v=075">
 </head>
 <body>
 <div id="app">
@@ -89,12 +95,20 @@
     </div></details>
 
     <details open><summary><span data-i="page"></span> Folha e grade <span class="caret" data-i="caret"></span></summary><div class="sect">
-      <label>Tamanho do papel
+      <label>Tamanho da folha
         <select id="c_pageSize">
-          <option value="a4">A4 (210 × 297 mm)</option>
-          <option value="letter">Carta (216 × 279 mm)</option>
-          <option value="a3">A3 (297 × 420 mm)</option>
-          <option value="a5">A5 (148 × 210 mm)</option>
+          <optgroup label="Impressão">
+            <option value="a4">A4 (210 × 297 mm)</option>
+            <option value="letter">Carta (216 × 279 mm)</option>
+            <option value="a3">A3 (297 × 420 mm)</option>
+            <option value="a5">A5 (148 × 210 mm)</option>
+          </optgroup>
+          <optgroup label="Rede social (pixels)">
+            <option value="igstory">Story / Reels — 1080 × 1920</option>
+            <option value="igpost">Post quadrado — 1080 × 1080</option>
+            <option value="igportrait">Post retrato — 1080 × 1350</option>
+            <option value="iglandscape">Paisagem — 1080 × 566</option>
+          </optgroup>
         </select></label>
       <label class="row"><input type="checkbox" id="c_landscape"> Paisagem (deitado)</label>
       <label>Margem da folha <span class="v" id="v_margin"></span>
@@ -120,6 +134,10 @@
 
     <details open><summary><span data-i="palette"></span> Cores <span class="caret" data-i="caret"></span></summary><div class="sect">
       <label>Fundo da folha <input type="color" id="c_bg"></label>
+      <label class="row"><input type="checkbox" id="c_bgGrad"> Fundo em degradê (bom para stories)</label>
+      <label id="c_bg2Row" hidden>Segunda cor do fundo <input type="color" id="c_bg2"></label>
+      <label id="c_bgAngleRow" hidden>Ângulo do degradê <span class="v" id="v_bgang"></span>
+        <input type="range" id="c_bgang" min="0" max="360" step="5"></label>
       <label>Card do polaroide <input type="color" id="c_cardColor"></label>
       <label>Texto da legenda <input type="color" id="c_capColor"></label>
       <button id="c_resetColors" class="wfull">Restaurar cores padrão</button>
@@ -142,24 +160,38 @@
     </div></details>
 
     <details><summary><span data-i="sparkle"></span> Efeitos <span class="caret" data-i="caret"></span></summary><div class="sect">
-      <label>Fita adesiva
+      <label>Preso nos cantos da foto
         <select id="c_tape">
-          <option value="none">Nenhuma</option>
-          <option value="2">Nos 2 cantos de cima</option>
-          <option value="4">Nos 4 cantos</option>
-          <option value="top">Uma no topo</option>
+          <option value="none">Nada</option>
+          <optgroup label="Fita adesiva">
+            <option value="tape-2">Fita — 2 cantos de cima</option>
+            <option value="tape-4">Fita — 4 cantos</option>
+            <option value="tape-top">Fita — uma no topo</option>
+          </optgroup>
+          <optgroup label="Grampo">
+            <option value="staple-2">Grampo — 2 cantos de cima</option>
+            <option value="staple-4">Grampo — 4 cantos</option>
+            <option value="staple-top">Grampo — um no topo</option>
+          </optgroup>
         </select></label>
       <label>Cor da fita <input type="color" id="c_tapeColor"></label>
     </div></details>
 
-    <details><summary><span data-i="settings"></span> Exportação <span class="caret" data-i="caret"></span></summary><div class="sect">
+    <details><summary><span data-i="settings"></span> Exportação e interface <span class="caret" data-i="caret"></span></summary><div class="sect">
+      <label class="row"><input type="checkbox" id="c_acrylic"> Painéis de vidro acrílico</label>
       <label class="row"><input type="checkbox" id="c_shadow"> Sombra dos polaroides (só na tela)</label>
-      <label>Resolução da exportação
+      <label id="c_dpiRow">Resolução da exportação
         <select id="c_dpi">
           <option value="200">200 dpi (rascunho)</option>
           <option value="300">300 dpi (impressão)</option>
           <option value="450">450 dpi (alta)</option>
           <option value="600">600 dpi (máxima)</option>
+        </select></label>
+      <label id="c_igscaleRow" hidden>Escala da imagem
+        <select id="c_igscale">
+          <option value="1">1× — tamanho exato do formato</option>
+          <option value="2">2× — nítido para postar</option>
+          <option value="3">3× — máxima</option>
         </select></label>
       <p class="hint"><b>PDF / PNG</b> são gerados pelo próprio programa — resultado sempre igual e nítido.
       Na <b>impressão</b> direta: papel A4, margens <b>Nenhuma</b>, escala <b>100%</b>.</p>
@@ -299,14 +331,14 @@
 <!-- Script clássico (não module): funciona tanto em https:// quanto ao abrir
      o arquivo direto (file://). Nenhum script inline: script-src 'self'. -->
 <!-- carregados em ordem; compartilham o mesmo escopo global -->
-<script defer src="js/config.js?v=073"></script>
-<script defer src="js/state.js?v=073"></script>
-<script defer src="js/images.js?v=073"></script>
-<script defer src="js/layout.js?v=073"></script>
-<script defer src="js/render.js?v=073"></script>
-<script defer src="js/history.js?v=073"></script>
-<script defer src="js/export.js?v=073"></script>
-<script defer src="js/ui.js?v=073"></script>
-<script defer src="js/events.js?v=073"></script>
+<script defer src="js/config.js?v=075"></script>
+<script defer src="js/state.js?v=075"></script>
+<script defer src="js/images.js?v=075"></script>
+<script defer src="js/layout.js?v=075"></script>
+<script defer src="js/render.js?v=075"></script>
+<script defer src="js/history.js?v=075"></script>
+<script defer src="js/export.js?v=075"></script>
+<script defer src="js/ui.js?v=075"></script>
+<script defer src="js/events.js?v=075"></script>
 </body>
 </html>

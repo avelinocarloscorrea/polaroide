@@ -36,6 +36,9 @@ function syncControls(){
   setR('#c_mo',s.markOffset,s.markOffset+' mm');
   setR('#c_ml',s.markLen,s.markLen+' mm');
   $('#c_cardColor').value=s.cardColor; $('#c_bg').value=s.pageBg; $('#c_capColor').value=s.captionColor;
+  $('#c_bg2').value=s.pageBg2; $('#c_bgGrad').checked=s.bgGradient;
+  $('#c_bgang').value=s.bgAngle; $('#v_bgang').textContent=s.bgAngle+'°';
+  $('#c_bg2Row').hidden=!s.bgGradient; $('#c_bgAngleRow').hidden=!s.bgGradient;
   $('#c_tape').value=s.tape; $('#c_tapeColor').value=s.tapeColor;
   setR('#c_fs',s.captionSizePt,s.captionSizePt+' pt');
   setR('#c_ls',s.captionSpacing,(+s.captionSpacing).toFixed(1)+' px');
@@ -44,7 +47,11 @@ function syncControls(){
   $('#c_upper').classList.toggle('on',s.captionUpper);
   $('#c_shadowtxt').classList.toggle('on',s.captionShadow);
   $('#c_shadow').checked=s.screenShadow;
-  $('#c_dpi').value=s.exportDPI;
+  $('#c_acrylic').checked=s.acrylic;
+  const social=!!(PAGE_SIZES[s.pageSize]||{}).social;
+  $('#c_dpi').value=s.exportDPI; $('#c_igscale').value=s.igScale;
+  $('#c_dpiRow').hidden=social; $('#c_igscaleRow').hidden=!social;
+  document.body.classList.toggle('acrylic',!!s.acrylic);
   rebuildFontOptions(); $('#c_font').value=s.captionFont;
   refreshColorFields();
 }
@@ -167,6 +174,7 @@ function bindAll(){
   bindRange('#c_ml','markLen',v=>v+' mm');
   bindRange('#c_fs','captionSizePt',v=>v+' pt');
   bindRange('#c_ls','captionSpacing',v=>(+v).toFixed(1)+' px');
+  bindRange('#c_bgang','bgAngle',v=>v+'°');
 
   const aspChange=()=>{ pushHistory('asp');
     state.settings.aspectW=clamp(+$('#c_aw').value||1,1,60);
@@ -180,7 +188,7 @@ function bindAll(){
     $('#c_aw').value=w; $('#c_ah').value=h; aspChange(); e.target.value='';
   });
 
-  $('#c_pageSize').onchange=e=>{ pushHistory('pg'); state.settings.pageSize=e.target.value; render(); save(); fit(); };
+  $('#c_pageSize').onchange=e=>{ pushHistory('pg'); state.settings.pageSize=e.target.value; syncControls(); render(); save(); fit(); };
   $('#c_landscape').onchange=e=>{ pushHistory('pg'); state.settings.landscape=e.target.checked; render(); save(); fit(); };
   $('#c_cols').onchange=e=>{ pushHistory('cols'); state.settings.columns=e.target.value; render(); save(); };
   $('#c_align').onchange=e=>{ pushHistory('align'); state.settings.align=e.target.value; render(); save(); };
@@ -195,12 +203,20 @@ function bindAll(){
   $('#c_capColor').oninput=e=>{ state.settings.captionColor=e.target.value; applyVars(); render(); save(); };
   $('#c_cardColor').oninput=e=>{ state.settings.cardColor=e.target.value; applyVars(); render(); save(); };
   $('#c_bg').oninput=e=>{ state.settings.pageBg=e.target.value; render(); save(); };
+  $('#c_bg2').oninput=e=>{ state.settings.pageBg2=e.target.value; render(); save(); };
+  $('#c_bgGrad').onchange=e=>{ pushHistory('grad'); state.settings.bgGradient=e.target.checked; syncControls(); render(); save(); };
   $('#c_resetColors').onclick=()=>{ pushHistory('colors'); Object.assign(state.settings,COLOR_DEFAULTS);
     syncControls(); applyVars(); render(); save(); };
   $('#c_bold').onclick=()=>{ pushHistory('b'); state.settings.captionBold=!state.settings.captionBold; syncControls(); render(); save(); };
   $('#c_italic').onclick=()=>{ pushHistory('i'); state.settings.captionItalic=!state.settings.captionItalic; syncControls(); render(); save(); };
   $('#c_shadow').onchange=e=>{ state.settings.screenShadow=e.target.checked; applyVars(); save(); };
+  $('#c_acrylic').onchange=e=>{
+    state.settings.acrylic=e.target.checked;
+    document.body.classList.toggle('acrylic',e.target.checked);
+    save(); clearTimeout($('#c_acrylic')._t); $('#c_acrylic')._t=setTimeout(()=>{ if(!userZoomed) fit(); },260);
+  };
   $('#c_dpi').onchange=e=>{ state.settings.exportDPI=+e.target.value; save(); };
+  $('#c_igscale').onchange=e=>{ state.settings.igScale=+e.target.value; save(); };
   $('#c_fill').onclick=()=>{
     const s=state.settings,L=layout();
     const cols=s.columns==='auto'?L.cols:+s.columns;

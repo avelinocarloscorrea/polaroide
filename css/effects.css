@@ -1,0 +1,64 @@
+/* css/effects.css  (fita adesiva, grampo, vidro acrílico) */
+
+/* --- decoração colada nos cantos da FOTO, dentro do card ---
+   Posicionada em .pol usando as variáveis --frame e --caption: o topo da foto
+   fica a var(--frame) da borda; a base da foto fica a var(--caption) do fundo. */
+.decor{position:absolute;pointer-events:none;z-index:4}
+.decor.tape{width:20mm;height:6mm;background:var(--tapeC,#e7dfce);opacity:.76;
+  box-shadow:0 1px 2px rgba(0,0,0,.16);
+  background-image:linear-gradient(105deg,rgba(255,255,255,.42),rgba(255,255,255,0) 42%,rgba(0,0,0,.07))}
+.decor.staple{width:7mm;height:3.4mm;color:#8b9199;filter:drop-shadow(0 1px 1px rgba(0,0,0,.30))}
+.decor.staple svg{width:100%;height:100%;display:block}
+
+.decor.tl{top:var(--frame);left:var(--frame)}
+.decor.tr{top:var(--frame);right:var(--frame)}
+.decor.bl{bottom:var(--caption);left:var(--frame)}
+.decor.br{bottom:var(--caption);right:var(--frame)}
+.decor.tc{top:var(--frame);left:50%}
+
+.decor.tape.tl{transform:translate(-50%,-50%) rotate(-45deg)}
+.decor.tape.tr{transform:translate(50%,-50%) rotate(45deg)}
+.decor.tape.bl{transform:translate(-50%,50%) rotate(45deg)}
+.decor.tape.br{transform:translate(50%,50%) rotate(-45deg)}
+.decor.tape.tc{transform:translate(-50%,-50%) rotate(-2deg);width:24mm}
+
+.decor.staple.tl{transform:translate(-50%,-50%) rotate(-45deg)}
+.decor.staple.tr{transform:translate(50%,-50%) rotate(45deg)}
+.decor.staple.bl{transform:translate(-50%,50%) rotate(-135deg)}
+.decor.staple.br{transform:translate(50%,50%) rotate(135deg)}
+.decor.staple.tc{transform:translate(-50%,-50%)}
+
+/* --- vidro acrílico nos painéis / barra / menus ---
+   Ativado por body.acrylic. O quadro de trabalho (#stage) passa por trás dos
+   painéis translúcidos (ver layout.css); enquanto o usuário rola/arrasta/dá
+   zoom, o blur cai para quase nada (body.interacting) — não pesa no scroll. */
+@supports (backdrop-filter:blur(4px)) or (-webkit-backdrop-filter:blur(4px)){
+  body.acrylic #bar,
+  body.acrylic #left,
+  body.acrylic #right,
+  body.acrylic #menu,
+  body.acrylic dialog{
+    background:color-mix(in srgb, var(--surface) 68%, transparent);
+    -webkit-backdrop-filter:blur(18px) saturate(1.6);
+    backdrop-filter:blur(18px) saturate(1.6);
+  }
+  body.acrylic #left{border-right-color:color-mix(in srgb,var(--line) 55%,transparent)}
+  body.acrylic #right{border-left-color:color-mix(in srgb,var(--line) 55%,transparent)}
+  body.acrylic #bar{border-bottom-color:color-mix(in srgb,var(--line) 55%,transparent)}
+  body.acrylic.interacting #bar,
+  body.acrylic.interacting #left,
+  body.acrylic.interacting #right{
+    -webkit-backdrop-filter:blur(3px);
+    backdrop-filter:blur(3px);
+  }
+}
+/* respeita quem pediu menos transparência no sistema (só desliga se o
+   navegador entende a consulta; se não entende, o bloco é ignorado). */
+@media (prefers-reduced-transparency:reduce){
+  body.acrylic #bar,body.acrylic #left,body.acrylic #right,
+  body.acrylic #menu,body.acrylic dialog{
+    background:var(--surface);
+    -webkit-backdrop-filter:none;backdrop-filter:none;
+  }
+  body.acrylic #left,body.acrylic #right{background:var(--paper)}
+}

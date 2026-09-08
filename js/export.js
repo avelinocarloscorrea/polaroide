@@ -44,7 +44,14 @@ async function drawPage(pageIndex,dpi){
   const cv=document.createElement('canvas');
   cv.width=Math.round(px(L.PW)); cv.height=Math.round(px(L.PH));
   const ctx=cv.getContext('2d');
-  ctx.fillStyle=s.pageBg; ctx.fillRect(0,0,cv.width,cv.height);
+  if(s.bgGradient){
+    const th=s.bgAngle*Math.PI/180, dx=Math.sin(th), dy=-Math.cos(th);
+    const cx=cv.width/2, cy=cv.height/2, r=Math.hypot(cv.width,cv.height)/2;
+    const grd=ctx.createLinearGradient(cx-dx*r,cy-dy*r,cx+dx*r,cy+dy*r);
+    grd.addColorStop(0,s.pageBg); grd.addColorStop(1,s.pageBg2);
+    ctx.fillStyle=grd;
+  }else ctx.fillStyle=s.pageBg;
+  ctx.fillRect(0,0,cv.width,cv.height);
   const slice=state.photos.slice(pageIndex*L.perPage,(pageIndex+1)*L.perPage);
   const blockW=L.cols*g.polW+(L.cols-1)*s.gapMm;
   const originX=s.align==='center'?(L.PW-blockW)/2:s.marginMm;
@@ -102,7 +109,7 @@ function drawPol(ctx,px,ph,xMm,yMm,g,dpi){
     ctx.strokeStyle=s.cardLineColor||'#c9c9c9'; ctx.lineWidth=Math.max(1,px(0.2));
     roundRect(ctx,0,0,w,h,px(s.radiusMm)); ctx.stroke();
   }
-  if(s.tape && s.tape!=='none') drawTape(ctx,px,w,h,s.tape,s.tapeColor);
+  if(s.tape && s.tape!=='none') drawDecor(ctx,px,g,s.tape,s.tapeColor);
   ctx.restore();
 
   if(s.cornerMarks){
@@ -115,25 +122,44 @@ function drawPol(ctx,px,ph,xMm,yMm,g,dpi){
     seg(x+w+o,y+h,x+w+o+l,y+h); seg(x+w,y+h+o,x+w,y+h+o+l);
   }
 }
-function drawTape(ctx,px,w,h,mode,color){
-  const th=px(6.5);
-  const piece=(cx,cy,deg,twmm)=>{
-    const tw=px(twmm);
+// efeitos (fita / grampo) colados nos cantos da janela da foto, no espaço
+// local já inclinado do polaroide. g = geometria em mm; px converte mm->px.
+function drawDecor(ctx,px,g,mode,color){
+  const [kind,where]=mode.split('-');
+  const wx=px(g.frame),wy=px(g.frame),ww=px(g.winW),wh=px(g.winH);
+  const spots = where==='top'
+    ? [[wx+ww/2,wy,-2]]
+    : where==='2'
+      ? [[wx,wy,-45],[wx+ww,wy,45]]
+      : [[wx,wy,-45],[wx+ww,wy,45],[wx,wy+wh,45],[wx+ww,wy+wh,-45]];
+  spots.forEach(([cx,cy,deg])=>{
     ctx.save();
     ctx.translate(cx,cy); ctx.rotate(deg*Math.PI/180);
-    ctx.globalAlpha=0.72;
-    ctx.shadowColor='rgba(0,0,0,0.16)'; ctx.shadowBlur=Math.max(1,px(0.7)); ctx.shadowOffsetY=Math.max(1,px(0.4));
-    ctx.fillStyle=color||'#e7dfce';
-    ctx.fillRect(-tw/2,-th/2,tw,th);
-    ctx.shadowColor='transparent'; ctx.shadowBlur=0; ctx.shadowOffsetY=0;
-    const lg=ctx.createLinearGradient(-tw/2,0,tw/2,0);
-    lg.addColorStop(0,'rgba(255,255,255,0.40)'); lg.addColorStop(0.42,'rgba(255,255,255,0)'); lg.addColorStop(1,'rgba(0,0,0,0.06)');
-    ctx.fillStyle=lg; ctx.fillRect(-tw/2,-th/2,tw,th);
+    if(kind==='tape') tapePiece(ctx,px,px(where==='top'?24:20),px(6),color);
+    else staplePiece(ctx,px,px(7),px(3.4));
     ctx.restore();
-  };
-  if(mode==='top'){ piece(w/2,px(0.25),-2.5,26); return; }
-  piece(px(7),px(0.75),-43,22); piece(w-px(7),px(0.75),43,22);
-  if(mode==='4'){ piece(px(7),h-px(0.75),43,22); piece(w-px(7),h-px(0.75),-43,22); }
+  });
+}
+function tapePiece(ctx,px,tw,th,color){
+  ctx.globalAlpha=0.76;
+  ctx.shadowColor='rgba(0,0,0,0.16)'; ctx.shadowBlur=Math.max(1,px(0.7)); ctx.shadowOffsetY=Math.max(1,px(0.4));
+  ctx.fillStyle=color||'#e7dfce';
+  ctx.fillRect(-tw/2,-th/2,tw,th);
+  ctx.shadowColor='transparent'; ctx.shadowBlur=0; ctx.shadowOffsetY=0;
+  const lg=ctx.createLinearGradient(-tw/2,0,tw/2,0);
+  lg.addColorStop(0,'rgba(255,255,255,0.42)'); lg.addColorStop(0.42,'rgba(255,255,255,0)'); lg.addColorStop(1,'rgba(0,0,0,0.07)');
+  ctx.fillStyle=lg; ctx.fillRect(-tw/2,-th/2,tw,th);
+  ctx.globalAlpha=1;
+}
+function staplePiece(ctx,px,sw,sh){
+  ctx.strokeStyle='#8b9199'; ctx.lineWidth=Math.max(1,px(0.75));
+  ctx.lineJoin='round'; ctx.lineCap='round';
+  ctx.shadowColor='rgba(0,0,0,0.30)'; ctx.shadowBlur=Math.max(1,px(0.4)); ctx.shadowOffsetY=Math.max(1,px(0.3));
+  ctx.beginPath();
+  ctx.moveTo(-sw/2,sh/2); ctx.lineTo(-sw/2,-sh/2);
+  ctx.lineTo(sw/2,-sh/2); ctx.lineTo(sw/2,sh/2);
+  ctx.stroke();
+  ctx.shadowColor='transparent'; ctx.shadowBlur=0; ctx.shadowOffsetY=0;
 }
 
 /* ---------- exportações ---------- */
@@ -169,10 +195,11 @@ function pdfFromImages(imgs,wPt,hPt){
 }
 async function exportPDF(){
   if(!state.photos.length){ toast('Adicione fotos primeiro.'); return; }
-  busy('Gerando PDF em '+state.settings.exportDPI+' dpi…');
+  const dpi=exportDPI();
+  busy('Gerando PDF em '+dpi+' dpi…');
   try{
     await ensureFonts(); await ensureFullImages();
-    const L=layout(), dpi=+state.settings.exportDPI, imgs=[];
+    const L=layout(), imgs=[];
     for(let p=0;p<L.pages;p++){
       const cv=await drawPage(p,dpi);
       const blob=await new Promise(r=>cv.toBlob(r,'image/jpeg',0.92));
@@ -189,7 +216,7 @@ async function exportPNG(){
   busy('Gerando PNG da folha '+(currentPage+1)+'…');
   try{
     await ensureFonts(); await ensureFullImages();
-    const cv=await drawPage(currentPage,+state.settings.exportDPI);
+    const cv=await drawPage(currentPage,exportDPI());
     const blob=await new Promise(r=>cv.toBlob(r,'image/png'));
     downloadBlob(blob,`polaroides-folha-${currentPage+1}.png`);
   }catch(e){ console.error(e); toast('Erro ao gerar PNG.'); }

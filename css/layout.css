@@ -1,0 +1,63 @@
+/* css/layout.css  (grade do app, barra, painéis, quadro de trabalho) */
+/* ---------------- Layout ---------------- */
+#app{display:grid;grid-template-columns:296px 1fr 280px;grid-template-rows:56px 1fr;height:100vh;
+  background:var(--stage);--gut-l:296px;--gut-r:280px;
+  transition:grid-template-columns .22s ease, grid-template-rows .22s ease}
+#app.hide-left{grid-template-columns:0 1fr 280px;--gut-l:0px}
+#app.hide-right{grid-template-columns:296px 1fr 0;--gut-r:0px}
+#app.hide-left.hide-right{grid-template-columns:0 1fr 0;--gut-l:0px;--gut-r:0px}
+#app.zen{grid-template-rows:0 1fr;grid-template-columns:0 1fr 0;--gut-l:0px;--gut-r:0px}
+
+#bar{grid-column:1/4;display:flex;align-items:center;gap:7px;padding:0 12px;
+  background:var(--surface);border-bottom:1px solid var(--line);box-shadow:var(--sh-1);z-index:20;
+  overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
+#bar::-webkit-scrollbar{height:0;display:none}
+#app.zen #bar{overflow:hidden}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit;white-space:nowrap;padding-right:6px}
+.brand[href]{cursor:pointer}
+.brand[href]:hover .t1{color:var(--brand)}
+.brand .mark{width:34px;height:34px;display:grid;place-items:center;flex:none}
+.brand .mark svg{width:32px;height:32px;display:block}
+.brand .txt{display:flex;flex-direction:column;line-height:1.12}
+.brand .t1{font-family:var(--display);font-weight:700;font-size:15px;color:var(--ink);transition:color .13s}
+.brand .t2{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);font-weight:700}
+.brand .t2:empty{display:none}
+.bar-sep{width:1px;align-self:stretch;background:var(--line);margin:10px 3px;flex:none}
+.bar-grow{flex:1}
+.bar-cluster{display:flex;align-items:center;gap:5px;flex:none}
+.pagenav{display:flex;align-items:center;gap:3px;white-space:nowrap;color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums}
+#zval{min-width:46px;text-align:center;font-variant-numeric:tabular-nums;color:var(--muted);font-size:12px}
+.stat{color:var(--faint);font-size:11.5px;white-space:nowrap;padding:0 4px}
+
+aside{background:var(--paper);overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;
+  padding:12px;padding-bottom:24px;min-width:0;transition:opacity .16s ease}
+#left{border-right:1px solid var(--line)}
+#right{border-left:1px solid var(--line)}
+#app.hide-left #left,#app.hide-right #right,#app.zen aside{opacity:0;pointer-events:none}
+.aside-title{font-family:var(--display);font-weight:700;font-size:14px;color:var(--ink);margin:2px 2px 12px;display:flex;align-items:center;gap:8px}
+.aside-title svg{width:15px;height:15px;color:var(--brand)}
+h4.grp-h{margin:16px 2px 9px;font:600 10.5px/1 var(--ui);letter-spacing:.11em;text-transform:uppercase;color:var(--faint)}
+
+/* quadro de trabalho: rola por roda/arraste, mas sem barra visível */
+#stage{position:relative;overflow:auto;overscroll-behavior:contain;
+  scrollbar-width:none;-ms-overflow-style:none;background:
+   radial-gradient(circle at 50% 0,rgba(255,255,255,.35),transparent 60%),
+   var(--stage);
+  padding:30px;display:flex;justify-content:safe center;align-items:safe center;
+  transition:padding .22s ease}
+#stage::-webkit-scrollbar{width:0;height:0;display:none}
+body.panning #stage,body.panning #stage *{cursor:grabbing!important}
+
+/* acrílico: o quadro de trabalho passa por trás dos painéis translúcidos.
+   Todos os três itens da linha 2 são posicionados explicitamente para poderem
+   sobrepor-se; o recuo do #stage acompanha a largura dos painéis. */
+body.acrylic #stage{grid-column:1/4;grid-row:2;z-index:1;
+  padding-left:calc(30px + var(--gut-l));padding-right:calc(30px + var(--gut-r))}
+body.acrylic #left{grid-column:1;grid-row:2;z-index:15}
+body.acrylic #right{grid-column:3;grid-row:2;z-index:15}
+body.acrylic #empty{left:var(--gut-l);right:var(--gut-r)}
+#sheets{display:flex;flex-direction:column;align-items:center;gap:30px;height:max-content}
+.page{background:#fff;box-shadow:var(--sh-2);flex:none;position:relative;overflow:hidden;border-radius:2px}
+.grid{display:grid;align-content:start;width:100%;height:100%}
+.grid.center{justify-content:center}
+.grid.left{justify-content:start}

@@ -120,16 +120,20 @@ function polEl(ph){
     pol.appendChild(mk);
   }
 
+  pol.append(handle,badge,win,cap);
+
+  // efeitos colados nos cantos da FOTO, dentro do card (fita ou grampo)
   if(s.tape && s.tape!=='none'){
-    const spots = s.tape==='top' ? ['tc'] : s.tape==='2' ? ['tl','tr'] : ['tl','tr','bl','br'];
+    const [kind,where]=s.tape.split('-');
+    const spots = where==='top' ? ['tc'] : where==='2' ? ['tl','tr'] : ['tl','tr','bl','br'];
     spots.forEach(pos=>{
       const t=document.createElement('i');
-      t.className='tape '+pos; t.style.setProperty('--tapeC',s.tapeColor);
+      t.className='decor '+kind+' '+pos;
+      if(kind==='tape') t.style.setProperty('--tapeC',s.tapeColor);
+      else t.innerHTML='<svg viewBox="0 0 24 12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v6"/></svg>';
       pol.appendChild(t);
     });
   }
-
-  pol.append(handle,badge,win,cap);
   return pol;
 }
 function imgTransform(ph){
@@ -144,7 +148,10 @@ function render(){
   sheetsEl.innerHTML='';
   for(let p=0;p<L.pages;p++){
     const page=document.createElement('div'); page.className='page';
-    page.style.width=L.PW+'mm'; page.style.height=L.PH+'mm'; page.style.background=s.pageBg;
+    page.style.width=L.PW+'mm'; page.style.height=L.PH+'mm';
+    page.style.background=s.bgGradient
+      ? `linear-gradient(${s.bgAngle}deg, ${s.pageBg}, ${s.pageBg2})`
+      : s.pageBg;
     const grid=document.createElement('div');
     grid.className='grid '+(s.align==='center'?'center':'left');
     grid.style.padding=s.marginMm+'mm';
@@ -201,7 +208,13 @@ function livePhoto(ph){
 
 /* ================= zoom / páginas ================= */
 function applyZoom(){ sheetsEl.style.zoom=zoom; $('#zval').textContent=Math.round(zoom*100)+'%'; }
-function fit(){ const [PW]=pageDims(); zoom=clamp((stage.clientWidth-56)/(PW*MM),.12,1.8); userZoomed=false; applyZoom(); }
+function fit(){
+  const [PW]=pageDims();
+  const cs=getComputedStyle(stage);
+  const pad=(parseFloat(cs.paddingLeft)||0)+(parseFloat(cs.paddingRight)||0);
+  const avail=stage.clientWidth-pad-16;
+  zoom=clamp(avail/(PW*MM),.12,1.8); userZoomed=false; applyZoom();
+}
 // zoom mantendo o ponto sob o cursor parado (Ctrl+roda / pinça do trackpad)
 function zoomAt(clientX,clientY,factor){
   const z0=zoom, z1=clamp(z0*factor,.1,3);

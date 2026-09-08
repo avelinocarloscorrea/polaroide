@@ -1,0 +1,11 @@
+/* css/util.css  (classes utilitárias) */
+/* utilitários (substituem style= inline; permitem style-src 'self') */
+.wfull{width:100%;justify-content:center}
+.jcc{justify-content:center}
+.mt4{margin-top:4px}
+.apw{flex:none;width:92px}
+.faint{color:var(--faint)}
+
+/* link do acervo no rodapé da barra lateral (dentro do .hint "Privado") */
+.hint a{display:inline-block;margin-top:8px;color:var(--brand);font-weight:600;text-decoration:none}
+.hint a:hover{text-decoration:underline}

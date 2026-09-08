@@ -12,11 +12,12 @@ Tudo o que está versionado, **menos** `docs/`, `README.md`, `CHANGELOG.md`,
 public_html/            (ou o docroot do host)
     index.html
     .htaccess           só em Apache/LiteSpeed
-    css/app.css
-    js/*.js             (9 arquivos)
+    css/*.css            (base, layout, polaroid, effects, components, util, print)
+    js/*.js              (9 arquivos)
     assets/
         favicon.svg
         playfair.woff2
+        fonts/*.woff2
 ```
 
 Caminhos são relativos, então funciona tanto na raiz de um domínio quanto
