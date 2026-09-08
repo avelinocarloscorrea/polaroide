@@ -1,5 +1,23 @@
 # Histórico
 
+## 0.15 — CSP limpa e mais correções de mobile
+- **CSP enxuta**: só as diretivas que diferem de `default-src 'none'`.
+  Removidos `connect-src`/`object-src`/`manifest-src` com `'none'` — eram
+  redundantes (herdam de `default-src`) e geravam avisos no console
+  (“'none' alongside other sources”). A proteção é a mesma. Ajustado no
+  `<meta>`, no `.htaccess` e na guia.
+- Diálogo de Privacidade explica: se um antivírus injeta script na página
+  (ex.: Kaspersky), o navegador recusa aqui e mostra aviso — é a proteção
+  funcionando.
+- `viewport-fit=cover` — respeita as bordas de telas com notch.
+- Campos dos painéis com `font-size:16px` no celular — acaba o zoom
+  automático do iOS ao focar um campo.
+- Alturas em `dvh` (`#app`, painéis, menu) — corrige conteúdo cortado pela
+  barra de endereço do Safari.
+- Tela inicial rola quando não cabe (sem corte no topo).
+- Exportar PNG movido para o menu <kbd>⋯</kbd>; barra esconde PNG/Imprimir
+  em telas bem estreitas.
+
 ## 0.14 — celular mais fácil e sem tropeços
 - Os painéis no celular agora **sobem pela base da tela** (folha) em vez de
   gaveta lateral — a foto que você está editando continua visível em cima.
