@@ -369,6 +369,7 @@ function bindAll(){
     $('#brandLink').style.cursor='default';
   }
   $('#m_pdf').onclick=()=>{ mclose(); exportPDF(); };
+  $('#m_png').onclick=()=>{ mclose(); exportPNG(); };
   $('#m_print').onclick=()=>{ mclose(); select(null); setTimeout(()=>window.print(),80); };
   $('#m_save').onclick=()=>{ mclose(); exportProject(); };
   $('#m_open').onclick=()=>{ mclose(); $('#file_open').click(); };

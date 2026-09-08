@@ -2,28 +2,30 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light dark">
 <!-- ============================================================================
      PRIVACIDADE E SEGURANÇA
-     Tudo roda no navegador do usuário. A política abaixo bloqueia QUALQUER
-     envio de dados para fora (connect-src 'none'), qualquer script externo ou
-     inline (script-src 'self'), qualquer formulário e qualquer objeto/plugin.
-     Nenhuma foto, nome de arquivo ou configuração sai do computador.
+     Tudo roda no navegador do usuário. 'default-src none' já bloqueia QUALQUER
+     envio de dados para fora (fetch, XHR, WebSocket, formulário) e qualquer
+     objeto/plugin — só o que está listado abaixo é permitido, tudo do próprio
+     domínio. Nenhuma foto, nome de arquivo ou ajuste sai do computador.
+     (Directivas redundantes com 'default-src none' foram removidas para o
+      cabeçalho ficar limpo no console.)
      ========================================================================= -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; form-action 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; media-src 'self' blob:; font-src 'self'; connect-src 'none'; object-src 'none'; manifest-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; form-action 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; media-src 'self' blob:; font-src 'self'">
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" href="assets/favicon.svg">
 <link rel="apple-touch-icon" href="assets/favicon.svg">
 <title>Polaroide Studio</title>
-<link rel="stylesheet" href="css/base.css?v=081">
-<link rel="stylesheet" href="css/layout.css?v=081">
-<link rel="stylesheet" href="css/polaroid.css?v=081">
-<link rel="stylesheet" href="css/effects.css?v=081">
-<link rel="stylesheet" href="css/components.css?v=081">
-<link rel="stylesheet" href="css/util.css?v=081">
-<link rel="stylesheet" href="css/print.css?v=081">
+<link rel="stylesheet" href="css/base.css?v=082">
+<link rel="stylesheet" href="css/layout.css?v=082">
+<link rel="stylesheet" href="css/polaroid.css?v=082">
+<link rel="stylesheet" href="css/effects.css?v=082">
+<link rel="stylesheet" href="css/components.css?v=082">
+<link rel="stylesheet" href="css/util.css?v=082">
+<link rel="stylesheet" href="css/print.css?v=082">
 </head>
 <body>
 <div id="app">
@@ -274,6 +276,7 @@
 
 <div id="menu" class="scrl" hidden>
   <button id="m_pdf" data-i="filepdf">Exportar PDF</button>
+  <button id="m_png" data-i="imagedown">Exportar PNG (folha atual)</button>
   <button id="m_print" data-i="printer">Imprimir</button>
   <div class="msep"></div>
   <button id="m_save" data-i="save">Salvar projeto (.json)</button>
@@ -319,7 +322,7 @@
     <p>Este programa <b>não envia nada</b> para nenhum servidor. Suas fotos, legendas, nomes de arquivo e ajustes nunca saem do navegador.</p>
     <h4>Mecanismos ativos</h4>
     <p>
-      • <b>Content-Security-Policy</b> com <code>connect-src 'none'</code>: o navegador bloqueia qualquer envio de dados (fetch, XHR, formulário, WebSocket).<br>
+      • <b>Content-Security-Policy</b> com <code>default-src 'none'</code>: o navegador bloqueia qualquer envio de dados (fetch, XHR, formulário, WebSocket) e qualquer objeto/plugin.<br>
       • <b>Sem scripts externos</b> (<code>script-src 'self'</code>) e sem código embutido — nada de terceiros roda aqui.<br>
       • Toda imagem adicionada é <b>redesenhada internamente</b>: metadados (EXIF/GPS), perfis e qualquer conteúdo escondido são removidos. Arquivos que não são imagem real são recusados.<br>
       • Projetos abertos (.json) passam pela mesma limpeza; valores fora do padrão são corrigidos.<br>
@@ -327,6 +330,7 @@
     </p>
     <h4>Onde ficam os dados</h4>
     <p>Só na área privada deste navegador (IndexedDB), neste dispositivo. Para backup use <b>Salvar projeto</b>.</p>
+    <p class="faint">Se você usa um antivírus que injeta scripts nas páginas (por exemplo Kaspersky), o navegador vai <b>recusá-lo aqui</b> e mostrar um aviso no console — é a proteção funcionando, não um erro da ferramenta.</p>
     <button id="p_wipe" class="danger wfull mt4" data-i="trash">Apagar todos os dados deste navegador</button>
   </div>
 </dialog>
@@ -344,14 +348,14 @@
 <!-- Script clássico (não module): funciona tanto em https:// quanto ao abrir
      o arquivo direto (file://). Nenhum script inline: script-src 'self'. -->
 <!-- carregados em ordem; compartilham o mesmo escopo global -->
-<script defer src="js/config.js?v=081"></script>
-<script defer src="js/state.js?v=081"></script>
-<script defer src="js/images.js?v=081"></script>
-<script defer src="js/layout.js?v=081"></script>
-<script defer src="js/render.js?v=081"></script>
-<script defer src="js/history.js?v=081"></script>
-<script defer src="js/export.js?v=081"></script>
-<script defer src="js/ui.js?v=081"></script>
-<script defer src="js/events.js?v=081"></script>
+<script defer src="js/config.js?v=082"></script>
+<script defer src="js/state.js?v=082"></script>
+<script defer src="js/images.js?v=082"></script>
+<script defer src="js/layout.js?v=082"></script>
+<script defer src="js/render.js?v=082"></script>
+<script defer src="js/history.js?v=082"></script>
+<script defer src="js/export.js?v=082"></script>
+<script defer src="js/ui.js?v=082"></script>
+<script defer src="js/events.js?v=082"></script>
 </body>
 </html>

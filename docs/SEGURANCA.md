@@ -17,14 +17,15 @@ style-src 'self';
 img-src 'self' data: blob:;
 media-src 'self' blob:;
 font-src 'self';
-connect-src 'none';
-object-src 'none';
-manifest-src 'none';
 ```
 
-- `connect-src 'none'` — o navegador **bloqueia** `fetch`, `XMLHttpRequest`,
-  `sendBeacon`, WebSocket e EventSource. Não há como o código vazar dados,
-  mesmo que quisesse.
+- `default-src 'none'` — a base é "nada". Toda diretiva de busca não listada
+  (`connect-src`, `object-src`, `manifest-src`, `worker-src`, `child-src`…)
+  herda `'none'`. Ou seja: `fetch`, `XMLHttpRequest`, `sendBeacon`, WebSocket,
+  EventSource, `<object>`/`<embed>` e manifest ficam **bloqueados**. Não há
+  como o código vazar dados, mesmo que quisesse.
+  (Listar essas diretivas com `'none'` explicitamente não muda nada e ainda
+  gera aviso no console — por isso foram removidas.)
 - `script-src 'self'` — nenhum script inline e nenhum script de terceiros.
   Só `js/*.js`, do mesmo domínio. Fecha injeção de `<script>` e handlers
   `onclick=` embutidos.
