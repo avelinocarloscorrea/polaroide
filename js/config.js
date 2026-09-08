@@ -112,16 +112,12 @@ function injectIcons(root=document){
 }
 
 /* ---------- dados de layout ---------- */
-// Papéis de impressão em mm. Os formatos de rede social guardam também o
-// tamanho exato em pixels (px:[w,h] a 96 dpi) e social:true — a exportação usa
-// esses pixels (× escala) em vez de dpi de impressão.
+// Papéis de impressão em mm.
 const PAGE_SIZES={
-  a4:{w:210,h:297},letter:{w:215.9,h:279.4},a3:{w:297,h:420},a5:{w:148,h:210},
-  igstory:    {w:285.75,h:508,    px:[1080,1920],social:true},
-  igpost:     {w:285.75,h:285.75, px:[1080,1080],social:true},
-  igportrait: {w:285.75,h:357.19, px:[1080,1350],social:true},
-  iglandscape:{w:285.75,h:149.75, px:[1080,566], social:true},
+  a4:{w:210,h:297}, letter:{w:215.9,h:279.4}, a3:{w:297,h:420}, a5:{w:148,h:210},
 };
+// Margem mínima de segurança (mm) — nenhuma impressora chega até a borda.
+const SAFE_MARGIN=5;
 const FORMATS={
   classic:  {label:'Polaroid clássico (600)', w:88, aw:1,  ah:1,  frame:6,   cap:23},
   sx70:     {label:'Polaroid quadrado (SX-70)',w:79, aw:1,  ah:1,  frame:5,   cap:17},
@@ -174,13 +170,14 @@ const PRESET_LABELS={original:'Original',bw:'P&B',sepia:'Sépia',vintage:'Vintag
 const DEFAULTS={
   format:'classic', polaroidWidthMm:88, aspectW:1, aspectH:1, frameMm:6, captionMm:23,
   radiusMm:1.5, tiltDeg:0,
-  pageSize:'a4', landscape:false, marginMm:12, gapMm:8, columns:'auto', align:'center',
+  pageSize:'a4', landscape:false, marginMm:10, gapMm:8,
+  autoFit:true, columns:'auto', rows:'auto', align:'center',
   cardLine:false, cardLineColor:'#c9c9c9', cornerMarks:true, markOffset:2, markLen:4,
   captionFont:BASE_FONTS[0].v, captionSizePt:14, captionColor:'#222222',
   captionBold:false, captionItalic:false, captionUpper:false, captionSpacing:0, captionShadow:false,
   tape:'none', tapeColor:'#e7dfce',
   cardColor:'#ffffff', pageBg:'#ffffff', pageBg2:'#e9e2d3', bgGradient:false, bgAngle:160,
-  screenShadow:true, acrylic:true, exportDPI:300, igScale:2,
+  screenShadow:true, acrylic:true, exportDPI:300,
 };
 const COLOR_DEFAULTS={cardColor:'#ffffff',pageBg:'#ffffff',pageBg2:'#e9e2d3',captionColor:'#222222',cardLineColor:'#c9c9c9',tapeColor:'#e7dfce'};
 const HEX=/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
@@ -188,47 +185,39 @@ const HEX=/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
 /* ---------- TEMPLATES (tela inicial) ----------
    Um template é uma configuração COMPLETA pronta: formato + folha + efeito +
    cores + legenda. Aplicar redefine tudo (mantém só acrílico e resolução).
-   Passa por migrateSettings, então valores inválidos são corrigidos. */
+   Todos encaixam na folha automaticamente, sem polaroide cortado. */
 const TEMPLATES=[
-  {id:'memories', name:'Recordações', desc:'Clássico levemente torto, fita nos cantos, fundo bege, letra manuscrita.',
-   settings:{format:'classic',tiltDeg:3,tape:'tape-2',tapeColor:'#e7dfce',cornerMarks:false,
-     gapMm:11,pageBg:'#efe9dd',captionFont:"'Caveat','Segoe Script','Bradley Hand',cursive",captionSizePt:17}},
+  {id:'classico', name:'Polaroid clássico', desc:'A4, 3 × 3, borda branca, marcas de corte.',
+   settings:{format:'classic',autoFit:true,columns:'3',rows:'3',marginMm:10,gapMm:6,cornerMarks:true}},
+  {id:'memories', name:'Recordações', desc:'Levemente tortos, fita nos cantos, fundo bege, letra manuscrita.',
+   settings:{format:'classic',autoFit:true,columns:'2',rows:'3',tiltDeg:3,tape:'tape-2',tapeColor:'#e7dfce',
+     cornerMarks:false,gapMm:11,pageBg:'#efe9dd',captionFont:"'Caveat','Segoe Script','Bradley Hand',cursive",captionSizePt:17}},
   {id:'scrapbook', name:'Scrapbook', desc:'Quadrado, brads nos 4 cantos, fundo quente, marcador.',
-   settings:{format:'sx70',tiltDeg:4,tape:'brad-4',cornerMarks:false,gapMm:13,pageBg:'#f0e7d6',
-     captionFont:"'Permanent Marker','Comic Sans MS',cursive",captionSizePt:12}},
+   settings:{format:'sx70',autoFit:true,columns:'2',rows:'3',tiltDeg:4,tape:'brad-4',cornerMarks:false,
+     gapMm:12,pageBg:'#f0e7d6',captionFont:"'Permanent Marker','Comic Sans MS',cursive",captionSizePt:12}},
   {id:'minimal', name:'Minimalista', desc:'Borda fina, sem legenda, contorno para recortar.',
-   settings:{format:'modern',captionMm:0,gapMm:6,marginMm:14,cornerMarks:false,
-     cardLine:true,cardLineColor:'#d9d3c6'}},
+   settings:{format:'modern',autoFit:true,columns:'3',rows:'4',captionMm:0,gapMm:5,marginMm:12,
+     cornerMarks:false,cardLine:true,cardLineColor:'#d9d3c6'}},
   {id:'instax', name:'Cartela Instax Mini', desc:'Vários por folha, prontos para recortar.',
-   settings:{format:'instaxMini',gapMm:6,marginMm:10,cornerMarks:true}},
-  {id:'story', name:'Story do Instagram', desc:'1080×1920, um polaroide grande, fundo em degradê.',
-   settings:{format:'classic',pageSize:'igstory',columns:'1',marginMm:40,polaroidWidthMm:150,
-     cornerMarks:false,bgGradient:true,pageBg:'#3d5c52',pageBg2:'#a97f3d',bgAngle:160,
-     captionFont:"'Caveat','Segoe Script','Bradley Hand',cursive",captionSizePt:18}},
-  {id:'post', name:'Post quadrado', desc:'1080×1080, polaroide centralizado, degradê claro.',
-   settings:{format:'sx70',pageSize:'igpost',columns:'1',marginMm:34,polaroidWidthMm:170,
-     cornerMarks:false,bgGradient:true,pageBg:'#faf6ec',pageBg2:'#e6d9bf',bgAngle:135}},
+   settings:{format:'instaxMini',autoFit:true,columns:'4',rows:'4',gapMm:5,marginMm:8,cornerMarks:true}},
+  {id:'contato', name:'Folha de contato', desc:'Grade miúda, sem legenda, para conferir as fotos.',
+   settings:{format:'modern',autoFit:true,columns:'6',rows:'8',captionMm:0,gapMm:3,marginMm:8,
+     cornerMarks:false,cardLine:true,cardLineColor:'#d9d3c6'}},
+  {id:'retrato', name:'Retrato 10×15', desc:'Quatro por folha, formato de revelação.',
+   settings:{format:'postcard',autoFit:true,columns:'2',rows:'2',gapMm:6,marginMm:10,cornerMarks:true}},
 ];
 
 /* ---------- MODELOS DE FOLHA (painel esquerdo) ----------
-   Um modelo só mexe no DESENHO DA FOLHA — tamanho do papel, grade, margens,
-   acabamento de corte. Cores, efeitos, legenda e o formato do polaroide
-   continuam como estão. É uma mesclagem parcial, não um reset. */
+   Um modelo só mexe no DESENHO DA FOLHA — papel, quantas colunas/linhas por
+   folha, margens e acabamento de corte. Cores, efeitos, legenda e o formato do
+   polaroide continuam como estão. É uma mesclagem parcial, não um reset. */
 const LAYOUTS=[
-  {id:'a4auto', name:'A4 · grade automática',
-   settings:{pageSize:'a4',landscape:false,columns:'auto',align:'center',marginMm:12,gapMm:8,cornerMarks:true,cardLine:false}},
-  {id:'a4wide', name:'A4 · 2 colunas, folgado',
-   settings:{pageSize:'a4',landscape:false,columns:'2',align:'center',marginMm:22,gapMm:16,cornerMarks:false,cardLine:true,cardLineColor:'#d9d3c6'}},
-  {id:'tight', name:'A4 · encaixe apertado',
-   settings:{pageSize:'a4',landscape:false,columns:'auto',marginMm:6,gapMm:3,cornerMarks:true,cardLine:false}},
-  {id:'a4land', name:'A4 deitado',
-   settings:{pageSize:'a4',landscape:true,columns:'auto',marginMm:12,gapMm:8,cornerMarks:true,cardLine:false}},
-  {id:'a3', name:'A3 · pôster',
-   settings:{pageSize:'a3',landscape:false,columns:'auto',marginMm:16,gapMm:12,cornerMarks:true,cardLine:false}},
-  {id:'story', name:'Story 1080×1920',
-   settings:{pageSize:'igstory',landscape:false,columns:'1',marginMm:40,gapMm:10,polaroidWidthMm:150,cornerMarks:false,cardLine:false}},
-  {id:'post', name:'Post 1080×1080',
-   settings:{pageSize:'igpost',landscape:false,columns:'1',marginMm:34,gapMm:10,polaroidWidthMm:170,cornerMarks:false,cardLine:false}},
-  {id:'portrait', name:'Post retrato 1080×1350',
-   settings:{pageSize:'igportrait',landscape:false,columns:'1',marginMm:36,gapMm:10,polaroidWidthMm:170,cornerMarks:false,cardLine:false}},
+  {id:'a4auto',   name:'A4 · automático',       settings:{pageSize:'a4',landscape:false,autoFit:true,columns:'auto',rows:'auto',marginMm:10,gapMm:8,cornerMarks:true,cardLine:false}},
+  {id:'a4_3x3',   name:'A4 · 3 × 3',            settings:{pageSize:'a4',landscape:false,autoFit:true,columns:'3',rows:'3',marginMm:10,gapMm:6,cornerMarks:true,cardLine:false}},
+  {id:'a4_2x3',   name:'A4 · 2 × 3 (grande)',   settings:{pageSize:'a4',landscape:false,autoFit:true,columns:'2',rows:'3',marginMm:14,gapMm:10,cornerMarks:true,cardLine:false}},
+  {id:'a4_4x5',   name:'A4 · 4 × 5 (miúdo)',    settings:{pageSize:'a4',landscape:false,autoFit:true,columns:'4',rows:'5',marginMm:8,gapMm:4,cornerMarks:true,cardLine:false}},
+  {id:'a4land_5x3',name:'A4 deitado · 5 × 3',   settings:{pageSize:'a4',landscape:true,autoFit:true,columns:'5',rows:'3',marginMm:10,gapMm:6,cornerMarks:true,cardLine:false}},
+  {id:'letter_3x3',name:'Carta · 3 × 3',        settings:{pageSize:'letter',landscape:false,autoFit:true,columns:'3',rows:'3',marginMm:10,gapMm:6,cornerMarks:true,cardLine:false}},
+  {id:'a3_4x5',   name:'A3 · 4 × 5',            settings:{pageSize:'a3',landscape:false,autoFit:true,columns:'4',rows:'5',marginMm:12,gapMm:8,cornerMarks:true,cardLine:false}},
+  {id:'contorno', name:'A4 · 3 × 4 com contorno',settings:{pageSize:'a4',landscape:false,autoFit:true,columns:'3',rows:'4',marginMm:8,gapMm:5,cornerMarks:false,cardLine:true,cardLineColor:'#cfc8ba'}},
 ];

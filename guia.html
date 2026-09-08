@@ -40,7 +40,7 @@
       <a href="#efeitos">7. Efeitos (fita, grampo, brad, percevejo)</a>
       <strong>Montar a folha</strong>
       <a href="#formato">8. Formato do polaroide</a>
-      <a href="#folha">9. Folha, grade e rede social</a>
+      <a href="#folha">9. Folha e grade</a>
       <a href="#corte">10. Corte e acabamento</a>
       <a href="#cores">11. Cores e fundo</a>
       <strong>Sair com o resultado</strong>
@@ -76,8 +76,8 @@
       <ul>
         <li><strong>Impressão caseira ou gráfica</strong> — folha A4, Carta, A3 ou A5, com
           marcas de corte ou contorno para recortar certinho.</li>
-        <li><strong>Rede social</strong> — formatos Story/Reels, post quadrado, retrato e
-          paisagem, exportados no tamanho exato em pixels.</li>
+        <li><strong>Encaixe garantido</strong> — você diz quantas colunas e linhas quer por
+          folha, e o programa dimensiona os polaroides para caber sem nada cortado.</li>
         <li><strong>Offline e privado</strong> — nenhuma foto, nome de arquivo ou ajuste sai
           do navegador. Veja a <a href="#privacidade">seção 17</a>.</li>
       </ul>
@@ -89,13 +89,14 @@
 
       <div class="tip"><b>Antes disso: comece com um template (opcional)</b>
         Na tela inicial (sem fotos) aparece <strong>“Comece com um template”</strong> — uma
-        lista de configurações <em>completas</em> e prontas (Recordações, Scrapbook,
-        Minimalista, Cartela Instax, Story do Instagram, Post quadrado). Um clique ajusta
-        formato, folha, efeito, cores e legenda de uma vez; depois é só adicionar as fotos.
+        lista de configurações <em>completas</em> e prontas (Polaroid clássico, Recordações,
+        Scrapbook, Minimalista, Cartela Instax, Folha de contato, Retrato 10×15). Um clique
+        ajusta formato, folha, efeito, cores e legenda de uma vez; depois é só adicionar as
+        fotos.
         <br><br>
         Não confunda com os <strong>“Modelos de folha”</strong> no painel esquerdo: esses
-        mudam só o <em>desenho da folha</em> (papel, grade, margens, corte) e mantêm suas
-        cores, efeitos e legenda. Nenhum dos dois apaga as fotos já adicionadas.</div>
+        mudam só o <em>desenho da folha</em> (papel, quantas colunas/linhas, margens, corte) e
+        mantêm suas cores, efeitos e legenda. Nenhum dos dois apaga as fotos já adicionadas.</div>
 
       <p>Há três jeitos de pôr as fotos, e todos podem ser usados juntos:</p>
       <ol class="steps">
@@ -262,6 +263,8 @@
       <h2><span class="n">6</span>Legenda</h2>
       <p>Clique na <strong>faixa branca embaixo da foto</strong> e digite. A faixa cresce sozinha
       se o texto tiver mais de uma linha (até o limite da faixa).</p>
+      <p>Se você <strong>não escrever nada</strong>, a faixa fica simplesmente <strong>em
+      branco</strong> — igual sai na impressão. Não aparece nenhum texto de exemplo.</p>
       <p>No painel esquerdo, seção <strong>Legenda</strong>, valem para <em>todos</em> os
       polaroides da folha:</p>
       <ul>
@@ -352,7 +355,9 @@
       <ul>
         <li><strong>Modelo pronto</strong> — Polaroid clássico (600), quadrado SX-70, grande,
           Instax Mini/Square/Wide, quadrado moderno, retrato 10×15, ou Personalizado.</li>
-        <li><strong>Largura</strong> do card inteiro (em mm).</li>
+        <li><strong>Largura</strong> do card inteiro (em mm). Com <strong>Encaixar as fotos na
+          folha</strong> ligado (seção 9) essa largura passa a ser calculada pela grade — o
+          controle mostra o valor final e fica travado quando colunas e linhas são fixas.</li>
         <li><strong>Proporção da foto</strong> (L : A) — 1:1, 4:3, 3:2… ou valores livres.</li>
         <li><strong>Borda branca</strong> — a moldura ao redor da foto.</li>
         <li><strong>Faixa da legenda</strong> — altura da tira branca de baixo (0 = sem faixa).</li>
@@ -365,31 +370,34 @@
 
     <!-- 9 -->
     <section id="folha">
-      <h2><span class="n">9</span>Folha, grade e rede social</h2>
-      <p>Painel esquerdo → <strong>Folha e grade</strong>.</p>
-      <h3>Impressão</h3>
+      <h2><span class="n">9</span>Folha e grade</h2>
+      <p>Painel esquerdo → <strong>Folha e grade</strong>. Aqui você decide quantos polaroides
+      cabem em cada folha e garante que <strong>nada seja cortado</strong>.</p>
       <ul>
-        <li><strong>Tamanho da folha</strong> — A4, Carta, A3, A5.</li>
-        <li><strong>Paisagem</strong> — deita a folha.</li>
-        <li><strong>Margem da folha</strong> e <strong>Espaçamento entre fotos</strong>.</li>
-        <li><strong>Colunas</strong> — Automático (cabe o máximo) ou um número fixo.</li>
-        <li><strong>Alinhamento</strong> — grade centralizada ou à esquerda.</li>
-        <li><strong>Ajustar largura para preencher as colunas</strong> — calcula a largura do
-          polaroide para a grade ocupar a folha toda.</li>
+        <li><strong>Tamanho da folha</strong> — A4, Carta, A3 ou A5. <strong>Paisagem</strong>
+          deita a folha.</li>
+        <li><strong>Encaixar as fotos na folha (sem corte)</strong> — <em>ligado por padrão</em>.
+          O tamanho do polaroide passa a ser <strong>calculado</strong> a partir das colunas ×
+          linhas para caber exatinho na grade. Assim nenhum polaroide sai da folha nem fica
+          pela metade. Desligue só se quiser fixar a largura em milímetros na mão.</li>
+        <li><strong>Colunas por folha</strong> e <strong>Linhas por folha</strong> — Automático
+          (o programa escolhe pela largura de referência) ou um número de 1 a 12. Peça mais
+          colunas/linhas e os polaroides diminuem para caber.</li>
+        <li><strong>Margem de segurança</strong> — a faixa em branco na borda. Nunca fica
+          abaixo de <strong>5&nbsp;mm</strong>, porque nenhuma impressora imprime até a beirada.
+          Na tela, uma linha tracejada mostra esse limite (não sai na impressão).</li>
+        <li><strong>Espaçamento entre fotos</strong> e <strong>Alinhamento</strong> (grade
+          centralizada ou à esquerda).</li>
       </ul>
+      <p>A barra de status (no alto, à direita) mostra a grade real e o tamanho de cada
+      polaroide — por exemplo <em>“3 × 3 por folha · 60 × 74 mm cada”</em>. Se você pedir mais
+      do que cabe, ela avisa: <em>“limitado pela folha (pediu 6 × 8)”</em>.</p>
       <p>Quando as fotos não cabem numa folha, o programa cria <strong>mais folhas</strong>
-      automaticamente. Navegue entre elas pelos botões <kbd>‹</kbd> <kbd>›</kbd> da barra (o
-      contador mostra “2 / 3”), ou role o quadro para baixo.</p>
-      <h3>Rede social</h3>
-      <p>Escolha um formato do grupo <strong>Rede social</strong>: Story/Reels (1080×1920),
-      post quadrado (1080×1080), retrato (1080×1350) ou paisagem (1080×566). Nesse modo:</p>
-      <ul>
-        <li>a folha aparece já na proporção certa;</li>
-        <li>a exportação sai <strong>no pixel exato</strong> do formato, com a
-          <strong>escala</strong> escolhida (1× tamanho exato, 2× nítido, 3× máxima) — o campo
-          “Escala da imagem” substitui a resolução em dpi.</li>
-        <li>combine com o <strong>fundo em degradê</strong> (seção 11) para um story pronto.</li>
-      </ul>
+      automaticamente. Navegue pelos botões <kbd>‹</kbd> <kbd>›</kbd> da barra (o contador mostra
+      “2 / 3”) ou role o quadro para baixo.</p>
+      <div class="tip">Precisa de uma grade específica rápido? Use um <strong>Modelo de folha</strong>
+      (ex.: “A4 · 3 × 3”, “A4 · 4 × 5 (miúdo)”, “A3 · 4 × 5”). Veja a
+      <a href="#adicionar">seção 2</a>.</div>
     </section>
 
     <!-- 10 -->
@@ -427,13 +435,12 @@
       <div class="grid2">
         <div class="card"><h4>PDF</h4>Gera um PDF com <strong>uma folha por página</strong>,
           feito pelo próprio programa — o resultado é sempre igual, sem depender do navegador.</div>
-        <div class="card"><h4>PNG</h4>Exporta <strong>só a folha atual</strong> como imagem.
-          É o formato para postar em rede social.</div>
+        <div class="card"><h4>PNG</h4>Exporta <strong>só a folha atual</strong> como imagem
+          (útil para anexar ou pré-visualizar).</div>
         <div class="card"><h4>Imprimir</h4>Abre a janela de impressão do navegador. Use quando
           for imprimir direto, sem passar por arquivo.</div>
         <div class="card"><h4>Resolução</h4>Em <strong>Exportação e interface</strong>:
-          200&nbsp;dpi (rascunho), 300 (impressão), 450 (alta), 600 (máxima). Nos formatos de
-          rede social vira escala 1× / 2× / 3×.</div>
+          200&nbsp;dpi (rascunho), 300 (impressão — o padrão), 450 (alta), 600 (máxima).</div>
       </div>
       <h3>Ajustes ao imprimir direto</h3>
       <p>Na janela de impressão do navegador:</p>
@@ -617,10 +624,18 @@
         <div class="a"><p>Não. O formato vale para a folha inteira. Para misturar, monte folhas
         separadas (um projeto por tamanho) e junte os PDFs depois.</p></div></details>
 
-      <details><summary>Como faço um Story do Instagram?</summary>
-        <div class="a"><p>Em <strong>Folha e grade</strong>, escolha <strong>Story / Reels
-        (1080×1920)</strong>. Ajuste o polaroide e, se quiser, ligue o <strong>fundo em
-        degradê</strong> (seção 11). Exporte em <strong>PNG</strong> com escala 2×.</p></div></details>
+      <details><summary>Como faço muitos polaroides pequenos numa folha só?</summary>
+        <div class="a"><p>Deixe <strong>Encaixar as fotos na folha</strong> ligado e aumente
+        <strong>Colunas</strong> e <strong>Linhas por folha</strong> (até 12 cada). Os polaroides
+        diminuem sozinhos para caber. Para grades bem densas, use um formato de borda fina
+        (“Quadrado moderno”) ou zere a <strong>Faixa da legenda</strong> — veja o template
+        <strong>“Folha de contato”</strong>.</p></div></details>
+
+      <details><summary>Um polaroide ficou pela metade / fora da folha.</summary>
+        <div class="a"><p>Com <strong>Encaixar as fotos na folha</strong> ligado isso não
+        acontece — se estiver desligado, ligue. Se você fixou uma largura grande na mão e pediu
+        muitas colunas, a barra de status avisa <em>“limitado pela folha”</em> e o programa
+        reduz a grade para não cortar nada.</p></div></details>
 
       <details><summary>O “Acervo” no menu é o quê?</summary>
         <div class="a"><p>Uma página com outros recursos e ferramentas da Esmeralda Paper.

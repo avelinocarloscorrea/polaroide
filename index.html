@@ -17,13 +17,13 @@
 <link rel="icon" href="assets/favicon.svg">
 <link rel="apple-touch-icon" href="assets/favicon.svg">
 <title>Polaroide Studio</title>
-<link rel="stylesheet" href="css/base.css?v=079">
-<link rel="stylesheet" href="css/layout.css?v=079">
-<link rel="stylesheet" href="css/polaroid.css?v=079">
-<link rel="stylesheet" href="css/effects.css?v=079">
-<link rel="stylesheet" href="css/components.css?v=079">
-<link rel="stylesheet" href="css/util.css?v=079">
-<link rel="stylesheet" href="css/print.css?v=079">
+<link rel="stylesheet" href="css/base.css?v=080">
+<link rel="stylesheet" href="css/layout.css?v=080">
+<link rel="stylesheet" href="css/polaroid.css?v=080">
+<link rel="stylesheet" href="css/effects.css?v=080">
+<link rel="stylesheet" href="css/components.css?v=080">
+<link rel="stylesheet" href="css/util.css?v=080">
+<link rel="stylesheet" href="css/print.css?v=080">
 </head>
 <body>
 <div id="app">
@@ -102,29 +102,27 @@
     <details open><summary><span data-i="page"></span> Folha e grade <span class="caret" data-i="caret"></span></summary><div class="sect">
       <label>Tamanho da folha
         <select id="c_pageSize">
-          <optgroup label="Impressão">
-            <option value="a4">A4 (210 × 297 mm)</option>
-            <option value="letter">Carta (216 × 279 mm)</option>
-            <option value="a3">A3 (297 × 420 mm)</option>
-            <option value="a5">A5 (148 × 210 mm)</option>
-          </optgroup>
-          <optgroup label="Rede social (pixels)">
-            <option value="igstory">Story / Reels — 1080 × 1920</option>
-            <option value="igpost">Post quadrado — 1080 × 1080</option>
-            <option value="igportrait">Post retrato — 1080 × 1350</option>
-            <option value="iglandscape">Paisagem — 1080 × 566</option>
-          </optgroup>
+          <option value="a4">A4 (210 × 297 mm)</option>
+          <option value="letter">Carta (216 × 279 mm)</option>
+          <option value="a3">A3 (297 × 420 mm)</option>
+          <option value="a5">A5 (148 × 210 mm)</option>
         </select></label>
       <label class="row"><input type="checkbox" id="c_landscape"> Paisagem (deitado)</label>
-      <label>Margem da folha <span class="v" id="v_margin"></span>
-        <input type="range" id="c_margin" min="0" max="30" step="0.5"></label>
+      <label class="row"><input type="checkbox" id="c_autofit"> Encaixar as fotos na folha (sem corte)</label>
+      <label>Colunas por folha
+        <select id="c_cols"><option value="auto">Automático</option></select></label>
+      <label>Linhas por folha
+        <select id="c_rows"><option value="auto">Automático</option></select></label>
+      <label>Margem de segurança <span class="v" id="v_margin"></span>
+        <input type="range" id="c_margin" min="5" max="40" step="0.5"></label>
       <label>Espaçamento entre fotos <span class="v" id="v_gap"></span>
         <input type="range" id="c_gap" min="0" max="30" step="0.5"></label>
-      <label>Colunas
-        <select id="c_cols"><option value="auto">Automático</option></select></label>
       <label>Alinhamento
         <select id="c_align"><option value="center">Centralizado</option><option value="left">À esquerda</option></select></label>
-      <button id="c_fill" class="wfull">Ajustar largura para preencher as colunas</button>
+      <button id="c_fill" class="wfull">Ajustar a largura do polaroide para preencher as colunas</button>
+      <p class="hint">Com <b>Encaixar</b> ligado, o tamanho do polaroide é calculado para caber
+      exatamente na grade — nada fica cortado ou fora da folha. A margem nunca fica abaixo de
+      5&nbsp;mm (nenhuma impressora chega até a borda).</p>
     </div></details>
 
     <details open><summary><span data-i="scissors"></span> Corte e acabamento <span class="caret" data-i="caret"></span></summary><div class="sect">
@@ -194,21 +192,15 @@
     <details><summary><span data-i="settings"></span> Exportação e interface <span class="caret" data-i="caret"></span></summary><div class="sect">
       <label class="row"><input type="checkbox" id="c_acrylic"> Painéis de vidro acrílico</label>
       <label class="row"><input type="checkbox" id="c_shadow"> Sombra dos polaroides (só na tela)</label>
-      <label id="c_dpiRow">Resolução da exportação
+      <label>Resolução da exportação (PDF / PNG)
         <select id="c_dpi">
           <option value="200">200 dpi (rascunho)</option>
           <option value="300">300 dpi (impressão)</option>
           <option value="450">450 dpi (alta)</option>
           <option value="600">600 dpi (máxima)</option>
         </select></label>
-      <label id="c_igscaleRow" hidden>Escala da imagem
-        <select id="c_igscale">
-          <option value="1">1× — tamanho exato do formato</option>
-          <option value="2">2× — nítido para postar</option>
-          <option value="3">3× — máxima</option>
-        </select></label>
       <p class="hint"><b>PDF / PNG</b> são gerados pelo próprio programa — resultado sempre igual e nítido.
-      Na <b>impressão</b> direta: papel A4, margens <b>Nenhuma</b>, escala <b>100%</b>.</p>
+      Na <b>impressão</b> direta: escolha o mesmo papel, margens <b>Nenhuma</b> (ou Mínimas) e escala <b>100%</b>.</p>
     </div></details>
 
     <p class="hint"><span class="pill">Privado</span> &nbsp;O projeto fica só neste navegador. Para backup ou usar em outro PC, use <b>Salvar projeto</b> no menu.<a id="asideAcervo" rel="noopener noreferrer" hidden>↗ Acervo — mais ferramentas</a></p>
@@ -349,14 +341,14 @@
 <!-- Script clássico (não module): funciona tanto em https:// quanto ao abrir
      o arquivo direto (file://). Nenhum script inline: script-src 'self'. -->
 <!-- carregados em ordem; compartilham o mesmo escopo global -->
-<script defer src="js/config.js?v=079"></script>
-<script defer src="js/state.js?v=079"></script>
-<script defer src="js/images.js?v=079"></script>
-<script defer src="js/layout.js?v=079"></script>
-<script defer src="js/render.js?v=079"></script>
-<script defer src="js/history.js?v=079"></script>
-<script defer src="js/export.js?v=079"></script>
-<script defer src="js/ui.js?v=079"></script>
-<script defer src="js/events.js?v=079"></script>
+<script defer src="js/config.js?v=080"></script>
+<script defer src="js/state.js?v=080"></script>
+<script defer src="js/images.js?v=080"></script>
+<script defer src="js/layout.js?v=080"></script>
+<script defer src="js/render.js?v=080"></script>
+<script defer src="js/history.js?v=080"></script>
+<script defer src="js/export.js?v=080"></script>
+<script defer src="js/ui.js?v=080"></script>
+<script defer src="js/events.js?v=080"></script>
 </body>
 </html>

@@ -21,16 +21,22 @@ function syncControls(){
   const s=state.settings;
   const setR=(id,val,txt)=>{ $(id).value=val; $(id.replace('#c_','#v_').replace('#f_','#v_')).textContent=txt; };
   $('#c_format').value=s.format;
-  setR('#c_w',s.polaroidWidthMm,s.polaroidWidthMm+' mm');
+  const eff=geom().polW;
+  const wDerived = s.autoFit && s.columns!=='auto' && s.rows!=='auto';
+  $('#c_w').value=s.polaroidWidthMm;
+  $('#v_w').textContent = wDerived ? eff.toFixed(0)+' mm (encaixado)' : s.polaroidWidthMm+' mm';
+  $('#c_w').disabled = wDerived;
+  $('#c_fill').hidden = s.autoFit;
   $('#c_aw').value=s.aspectW; $('#c_ah').value=s.aspectH; $('#c_apreset').value='';
   setR('#c_frame',s.frameMm,s.frameMm+' mm');
   setR('#c_cap',s.captionMm,s.captionMm+' mm');
   setR('#c_radius',s.radiusMm,s.radiusMm+' mm');
   setR('#c_tilt',s.tiltDeg,s.tiltDeg+'°');
   $('#c_pageSize').value=s.pageSize; $('#c_landscape').checked=s.landscape;
+  $('#c_autofit').checked=s.autoFit;
   setR('#c_margin',s.marginMm,s.marginMm+' mm');
   setR('#c_gap',s.gapMm,s.gapMm+' mm');
-  $('#c_cols').value=s.columns; $('#c_align').value=s.align;
+  $('#c_cols').value=s.columns; $('#c_rows').value=s.rows; $('#c_align').value=s.align;
   $('#c_cardLine').checked=s.cardLine; $('#c_cardLineColor').value=s.cardLineColor;
   $('#c_marks').checked=s.cornerMarks;
   setR('#c_mo',s.markOffset,s.markOffset+' mm');
@@ -48,9 +54,7 @@ function syncControls(){
   $('#c_shadowtxt').classList.toggle('on',s.captionShadow);
   $('#c_shadow').checked=s.screenShadow;
   $('#c_acrylic').checked=s.acrylic;
-  const social=!!(PAGE_SIZES[s.pageSize]||{}).social;
-  $('#c_dpi').value=s.exportDPI; $('#c_igscale').value=s.igScale;
-  $('#c_dpiRow').hidden=social; $('#c_igscaleRow').hidden=!social;
+  $('#c_dpi').value=s.exportDPI;
   document.body.classList.toggle('acrylic',!!s.acrylic);
   rebuildFontOptions(); $('#c_font').value=s.captionFont;
   refreshColorFields();
@@ -73,22 +77,30 @@ function applyFormat(k){
 }
 
 /* ---- modelos prontos ---- */
-// miniatura esquemática da folha do modelo (proporção, nº de cards, fundo, efeito)
+// miniatura esquemática da folha do modelo (proporção, grade, fundo, efeito)
 function templateThumb(t){
   const s={...DEFAULTS,...t.settings};
   let pw=(PAGE_SIZES[s.pageSize]||PAGE_SIZES.a4).w, ph=(PAGE_SIZES[s.pageSize]||PAGE_SIZES.a4).h;
   if(s.landscape){ const x=pw; pw=ph; ph=x; }
   const VW=78, VH=Math.max(30,Math.round(VW*ph/pw));
   const aspect=(s.aspectW||1)/(s.aspectH||1), gw=s.polaroidWidthMm;
+  const M=Math.max(s.marginMm,5);
   let cols=s.columns==='auto'
-    ? Math.max(1,Math.floor((pw-2*s.marginMm+s.gapMm)/(gw+s.gapMm)))
-    : clamp(+s.columns,1,10);
-  cols=Math.min(cols,6);
-  const m=VW*(s.marginMm/pw), g=Math.max(1,VW*(s.gapMm/pw));
-  const cardW=Math.max(4,(VW-2*m-(cols-1)*g)/cols);
-  const winH=cardW/(aspect||1), frame=cardW*(s.frameMm/gw), capH=cardW*(s.captionMm/gw);
-  const cardH=frame*2+winH+capH;
-  let rows=Math.max(1,Math.floor((VH-2*m+g)/(cardH+g))); rows=Math.min(rows,4);
+    ? Math.max(1,Math.floor((pw-2*M+s.gapMm)/(gw+s.gapMm)))
+    : clamp(+s.columns,1,12);
+  let rows=s.rows==='auto'
+    ? Math.max(1,Math.floor((ph-2*M+s.gapMm)/((s.frameMm+(gw-2*s.frameMm)/aspect+s.captionMm)+s.gapMm)))
+    : clamp(+s.rows,1,12);
+  cols=Math.min(cols,8); rows=Math.min(rows,10);
+  const m=VW*(M/pw), g=Math.max(.5,VW*(s.gapMm/pw));
+  const cellW=(VW-2*m-(cols-1)*g)/cols;
+  const cellH=(VH-2*m-(rows-1)*g)/rows;
+  // razão altura/largura do card, a partir das frações de frame e legenda
+  const frR=s.frameMm/gw, capR=s.captionMm/gw;
+  const K=frR+(1-2*frR)/(aspect||1)+capR;
+  const cardW=Math.max(1.2,Math.min(cellW,cellH/K));
+  const cardH=cardW*K;
+  const frame=cardW*frR, winH=(cardW-2*frame)/(aspect||1);
   const gid='tg-'+t.id, bg=s.bgGradient?`url(#${gid})`:s.pageBg;
   const dotC=s.tape==='none'?'':s.tape.startsWith('tape')?s.tapeColor
     :s.tape.startsWith('brad')?'#a97f3d':s.tape.startsWith('pin')?'#b23b2c':'#8b9199';
@@ -110,7 +122,7 @@ function templateThumb(t){
 function applyTemplate(id){
   const t=TEMPLATES.find(x=>x.id===id); if(!t) return;
   pushHistory('template');
-  const keep={acrylic:state.settings.acrylic,exportDPI:state.settings.exportDPI,igScale:state.settings.igScale};
+  const keep={acrylic:state.settings.acrylic,exportDPI:state.settings.exportDPI};
   state.settings=migrateSettings({...DEFAULTS,...t.settings,...keep});
   selectedId=null;
   syncControls(); applyVars(); render(); save(); fit();
@@ -220,7 +232,7 @@ addEventListener('scroll',closeCF,true);
 addEventListener('resize',closeCF);
 function bindAll(){
   Object.entries(FORMATS).forEach(([k,v])=>$('#c_format').add(new Option(v.label,k)));
-  for(let i=1;i<=8;i++) $('#c_cols').add(new Option(i,i));
+  for(let i=1;i<=12;i++){ $('#c_cols').add(new Option(i,i)); $('#c_rows').add(new Option(i,i)); }
 
   // TEMPLATES — lista compacta na tela inicial (sem cartões grandes)
   const tplList=$('#tplList');
@@ -282,8 +294,10 @@ function bindAll(){
   });
 
   $('#c_pageSize').onchange=e=>{ pushHistory('pg'); state.settings.pageSize=e.target.value; syncControls(); render(); save(); fit(); };
-  $('#c_landscape').onchange=e=>{ pushHistory('pg'); state.settings.landscape=e.target.checked; render(); save(); fit(); };
-  $('#c_cols').onchange=e=>{ pushHistory('cols'); state.settings.columns=e.target.value; render(); save(); };
+  $('#c_landscape').onchange=e=>{ pushHistory('pg'); state.settings.landscape=e.target.checked; syncControls(); render(); save(); fit(); };
+  $('#c_autofit').onchange=e=>{ pushHistory('autofit'); state.settings.autoFit=e.target.checked; syncControls(); applyVars(); render(); save(); fit(); };
+  $('#c_cols').onchange=e=>{ pushHistory('cols'); state.settings.columns=e.target.value; syncControls(); applyVars(); render(); save(); };
+  $('#c_rows').onchange=e=>{ pushHistory('rows'); state.settings.rows=e.target.value; syncControls(); applyVars(); render(); save(); };
   $('#c_align').onchange=e=>{ pushHistory('align'); state.settings.align=e.target.value; render(); save(); };
   $('#c_cardLine').onchange=e=>{ pushHistory('cut'); state.settings.cardLine=e.target.checked; applyVars(); render(); save(); };
   $('#c_cardLineColor').oninput=e=>{ state.settings.cardLineColor=e.target.value; applyVars(); render(); save(); };
@@ -309,7 +323,6 @@ function bindAll(){
     save(); clearTimeout($('#c_acrylic')._t); $('#c_acrylic')._t=setTimeout(()=>{ if(!userZoomed) fit(); },260);
   };
   $('#c_dpi').onchange=e=>{ state.settings.exportDPI=+e.target.value; save(); };
-  $('#c_igscale').onchange=e=>{ state.settings.igScale=+e.target.value; save(); };
   $('#c_fill').onclick=()=>{
     const s=state.settings,L=layout();
     const cols=s.columns==='auto'?L.cols:+s.columns;

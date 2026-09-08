@@ -25,6 +25,7 @@ function applyVars(){
   r.setProperty('--capSpacing',(s.captionSpacing||0)+'px');
   r.setProperty('--capShadow',s.captionShadow?'0 1px 1px rgba(0,0,0,.30)':'none');
   r.setProperty('--cardBg',s.cardColor);
+  r.setProperty('--pm',Math.max(s.marginMm,5)+'mm');   // margem de segurança (guia na tela)
   const cut = s.cardLine ? `0 0 0 .2mm ${s.cardLineColor}` : null;
   const drop = s.screenShadow ? '0 2mm 5mm rgba(0,0,0,.16)' : null;
   r.setProperty('--polShadow',[cut,drop].filter(Boolean).join(',')||'none');
@@ -63,8 +64,9 @@ function polEl(ph){
   const cap=document.createElement('div'); cap.className='cap';
   const ta=document.createElement('textarea');
   ta.className='capfield'; ta.rows=1; ta.spellcheck=false; ta.maxLength=500;
-  ta.placeholder='legenda…'; ta.value=ph.caption||'';
+  ta.value=ph.caption||'';   // sem legenda = faixa branca (igual à impressão)
   ta.setAttribute('aria-label','Legenda da foto');
+  ta.title='Clique para escrever a legenda';
   const grow=()=>{ ta.style.height='auto'; ta.style.height=ta.scrollHeight+'px'; };
   ta.addEventListener('focus',()=>select(ph.id));
   ta.addEventListener('input',()=>{
@@ -160,7 +162,7 @@ function render(){
       : s.pageBg;
     const grid=document.createElement('div');
     grid.className='grid '+(s.align==='center'?'center':'left');
-    grid.style.padding=s.marginMm+'mm';
+    grid.style.padding=Math.max(s.marginMm,5)+'mm';
     grid.style.gap=s.gapMm+'mm';
     grid.style.gridTemplateColumns=`repeat(${L.cols}, ${geom().polW}mm)`;
     state.photos.slice(p*L.perPage,(p+1)*L.perPage).forEach(ph=>grid.appendChild(polEl(ph)));
@@ -168,7 +170,11 @@ function render(){
   }
   applyZoom();
   $('#empty').hidden=state.photos.length>0;
-  $('#stat').textContent=`${state.photos.length} foto(s) · ${L.pages} folha(s) · ${L.cols}×${L.rows} por folha`;
+  const gm=geom();
+  const capMsg=L.capped?` · limitado pela folha (pediu ${L.wantCols}×${L.wantRows})`:'';
+  $('#stat').textContent=`${state.photos.length} foto(s) · ${L.pages} folha(s) · ${L.cols}×${L.rows} por folha · `
+    +`${gm.polW.toFixed(0)}×${gm.polH.toFixed(0)} mm cada${capMsg}`;
+  if($('#c_w').disabled) $('#v_w').textContent=gm.polW.toFixed(0)+' mm (encaixado)';
   $('#pageLbl').textContent=`${currentPage+1} / ${L.pages}`;
   select(selectedId,true);
   updateHistoryButtons();

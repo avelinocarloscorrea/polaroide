@@ -17,8 +17,8 @@ function migrateSettings(s){
   s.aspectW=clamp(num(s.aspectW,1),1,100); s.aspectH=clamp(num(s.aspectH,1),1,100);
   s.radiusMm=clamp(num(s.radiusMm,1.5),0,40);
   s.tiltDeg=clamp(num(s.tiltDeg,0),0,20);
-  s.marginMm=clamp(num(s.marginMm,12),0,120);
-  s.gapMm=clamp(num(s.gapMm,8),0,120);
+  s.marginMm=clamp(num(s.marginMm,10),SAFE_MARGIN,60);   // nunca abaixo da margem de segurança
+  s.gapMm=clamp(num(s.gapMm,8),0,60);
   s.markOffset=clamp(num(s.markOffset,2),0,40);
   s.markLen=clamp(num(s.markLen,4),0,40);
   s.captionSizePt=clamp(num(s.captionSizePt,14),4,96);
@@ -34,14 +34,16 @@ function migrateSettings(s){
     'brad-2','brad-4','brad-top',
     'pin-2','pin-top'].includes(s.tape)?s.tape:'none';
   s.exportDPI=clamp(Math.round(num(s.exportDPI,300)),72,600);
-  s.igScale=clamp(Math.round(num(s.igScale,2)),1,4);
   s.acrylic=s.acrylic!==false;
+  s.autoFit=s.autoFit!==false;
   s.bgGradient=!!s.bgGradient;
   s.bgAngle=clamp(Math.round(num(s.bgAngle,160)),0,360);
   s.pageSize=PAGE_SIZES[s.pageSize]?s.pageSize:'a4';
   s.landscape=!!s.landscape;
   s.align=s.align==='left'?'left':'center';
-  s.columns=(s.columns==='auto'||s.columns==null)?'auto':String(clamp(Math.round(num(s.columns,1)),1,20));
+  const grid=v=>(v==='auto'||v==null)?'auto':String(clamp(Math.round(num(v,3)),1,12));
+  s.columns=grid(s.columns);
+  s.rows=grid(s.rows);
   s.format=FORMATS[s.format]?s.format:'custom';
   s.cardColor=hex(s.cardColor,'#ffffff'); s.pageBg=hex(s.pageBg,'#ffffff');
   s.pageBg2=hex(s.pageBg2,'#e9e2d3');

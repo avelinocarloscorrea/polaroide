@@ -9,5 +9,6 @@
   .page{box-shadow:none!important;margin:0!important;border-radius:0;break-after:page;page-break-after:always}
   .page:last-child{break-after:auto;page-break-after:auto}
   .pol{box-shadow:var(--polCut,none)!important}
+  .page::before{display:none!important}
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }

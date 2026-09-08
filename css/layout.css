@@ -113,6 +113,9 @@ body.acrylic #empty{left:var(--gut-l);right:var(--gut-r)}
 }
 #sheets{display:flex;flex-direction:column;align-items:center;gap:30px;height:max-content}
 .page{background:#fff;box-shadow:var(--sh-2);flex:none;position:relative;overflow:hidden;border-radius:2px}
+/* guia da margem de segurança — só na tela, some na impressão/exportação */
+.page::before{content:"";position:absolute;inset:var(--pm,10mm);pointer-events:none;
+  border:1px dashed color-mix(in srgb,var(--brand) 32%,transparent)}
 .grid{display:grid;align-content:start;width:100%;height:100%}
 .grid.center{justify-content:center}
 .grid.left{justify-content:start}
