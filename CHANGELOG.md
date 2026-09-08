@@ -1,5 +1,16 @@
 # Histórico
 
+## 0.12 — template ≠ modelo de folha
+- **Template** (tela inicial): configuração completa e pronta (formato +
+  folha + efeito + cores + legenda). Agora numa lista compacta de linhas com
+  miniatura pequena — acabou o cartão gigante antes de escolher as fotos.
+  6 opções: Recordações, Scrapbook, Minimalista, Cartela Instax, Story, Post.
+- **Modelos de folha** (painel esquerdo): mexem só no desenho da folha
+  (papel, grade, margens, corte) e mantêm cores, efeitos, legenda e o
+  formato do polaroide. 8 opções (A4 automático, 2 colunas, apertado,
+  deitado, A3, Story, Post, Retrato).
+- Nenhum dos dois apaga ou move as fotos já adicionadas.
+
 ## 0.11 — acrílico estável, menus no celular e modelos prontos
 - Vidro acrílico com desfoque e opacidade **constantes** (85% + blur 16) —
   não muda mais ao rolar/dar zoom, acabou o efeito de "piscar" translúcido.
