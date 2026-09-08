@@ -190,9 +190,15 @@ function select(id,keep){
   if(ph){ const el=sheetsEl.querySelector(`.pol[data-id="${ph.id}"]`); el&&el.classList.add('sel'); }
   $('#rightEmpty').hidden=!!ph; $('#rightSel').hidden=!ph;
   if(ph) fillRight(ph);
-  // no celular a gaveta cobre a foto — não abrir sozinha ao selecionar
-  const mob=matchMedia('(max-width:820px)').matches;
-  if(ph && selectedId!==had && !keep && !uiState.right && !zen && !mob){ uiState.right=true; applyUI(); }
+  // ao selecionar uma foto nova, abre o painel de edição (no celular ele é
+  // uma folha na base, então a foto continua visível em cima)
+  if(ph && selectedId!==had && !keep && !uiState.right && !zen){
+    if(typeof togglePanel==='function') togglePanel('right',true); else { uiState.right=true; applyUI(); }
+    if(matchMedia('(max-width:820px)').matches){
+      const el=sheetsEl.querySelector(`.pol[data-id="${ph.id}"]`);
+      if(el) requestAnimationFrame(()=>el.scrollIntoView({block:'center',behavior:'smooth'}));
+    }
+  }
 }
 function fillRight(ph){
   const m=media[ph.id];

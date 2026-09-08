@@ -17,13 +17,13 @@
 <link rel="icon" href="assets/favicon.svg">
 <link rel="apple-touch-icon" href="assets/favicon.svg">
 <title>Polaroide Studio</title>
-<link rel="stylesheet" href="css/base.css?v=080">
-<link rel="stylesheet" href="css/layout.css?v=080">
-<link rel="stylesheet" href="css/polaroid.css?v=080">
-<link rel="stylesheet" href="css/effects.css?v=080">
-<link rel="stylesheet" href="css/components.css?v=080">
-<link rel="stylesheet" href="css/util.css?v=080">
-<link rel="stylesheet" href="css/print.css?v=080">
+<link rel="stylesheet" href="css/base.css?v=081">
+<link rel="stylesheet" href="css/layout.css?v=081">
+<link rel="stylesheet" href="css/polaroid.css?v=081">
+<link rel="stylesheet" href="css/effects.css?v=081">
+<link rel="stylesheet" href="css/components.css?v=081">
+<link rel="stylesheet" href="css/util.css?v=081">
+<link rel="stylesheet" href="css/print.css?v=081">
 </head>
 <body>
 <div id="app">
@@ -273,6 +273,9 @@
 <button id="zenExit" class="iconbtn" data-i="eyeoff" title="Sair da tela cheia (Esc)" hidden></button>
 
 <div id="menu" class="scrl" hidden>
+  <button id="m_pdf" data-i="filepdf">Exportar PDF</button>
+  <button id="m_print" data-i="printer">Imprimir</button>
+  <div class="msep"></div>
   <button id="m_save" data-i="save">Salvar projeto (.json)</button>
   <button id="m_open" data-i="folder">Abrir projeto…</button>
   <a id="m_acervo" hidden><span data-i="grid"></span> Acervo — mais ferramentas</a>
@@ -341,14 +344,14 @@
 <!-- Script clássico (não module): funciona tanto em https:// quanto ao abrir
      o arquivo direto (file://). Nenhum script inline: script-src 'self'. -->
 <!-- carregados em ordem; compartilham o mesmo escopo global -->
-<script defer src="js/config.js?v=080"></script>
-<script defer src="js/state.js?v=080"></script>
-<script defer src="js/images.js?v=080"></script>
-<script defer src="js/layout.js?v=080"></script>
-<script defer src="js/render.js?v=080"></script>
-<script defer src="js/history.js?v=080"></script>
-<script defer src="js/export.js?v=080"></script>
-<script defer src="js/ui.js?v=080"></script>
-<script defer src="js/events.js?v=080"></script>
+<script defer src="js/config.js?v=081"></script>
+<script defer src="js/state.js?v=081"></script>
+<script defer src="js/images.js?v=081"></script>
+<script defer src="js/layout.js?v=081"></script>
+<script defer src="js/render.js?v=081"></script>
+<script defer src="js/history.js?v=081"></script>
+<script defer src="js/export.js?v=081"></script>
+<script defer src="js/ui.js?v=081"></script>
+<script defer src="js/events.js?v=081"></script>
 </body>
 </html>

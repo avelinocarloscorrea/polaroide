@@ -17,6 +17,18 @@ addEventListener('scroll',e=>{
 
 stage.addEventListener('pointerdown',e=>{ if(e.target===stage||e.target===sheetsEl) select(null); });
 
+// toque duplo no fundo do quadro: alterna entre "ajustar à tela" e zoom 2×
+let _tap=0,_tapXY=null;
+stage.addEventListener('pointerup',e=>{
+  const bg=e.target===stage||e.target===sheetsEl||e.target.classList.contains('page')||e.target.classList.contains('grid');
+  if(!bg){ _tap=0; return; }
+  const now=Date.now();
+  if(now-_tap<320 && _tapXY && Math.hypot(e.clientX-_tapXY.x,e.clientY-_tapXY.y)<32){
+    _tap=0;
+    if(userZoomed) fit(); else zoomAt(e.clientX,e.clientY,2);
+  }else{ _tap=now; _tapXY={x:e.clientX,y:e.clientY}; }
+});
+
 /* ---- atalhos do quadro de trabalho (sem barra de rolagem visível) ---- */
 // Ctrl/Cmd + roda do mouse (ou pinça no trackpad) = zoom apontando o cursor
 stage.addEventListener('wheel',e=>{

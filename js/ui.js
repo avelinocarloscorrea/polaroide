@@ -164,7 +164,9 @@ function applyUI(){
   $('#zenExit').hidden=!zen;
   syncScrim();
   try{ localStorage.setItem(UIKEY,JSON.stringify(uiState)); }catch(e){}
-  clearTimeout(applyUI._t); applyUI._t=setTimeout(()=>{ if(!userZoomed) fit(); },240);
+  // no celular os painéis são folhas sobrepostas — não mudam o tamanho do
+  // quadro, então não precisa reajustar o zoom
+  clearTimeout(applyUI._t); applyUI._t=setTimeout(()=>{ if(!userZoomed && !isMobile()) fit(); },240);
 }
 
 /* ---- seletor de cor --------------------------------------------------------
@@ -366,6 +368,8 @@ function bindAll(){
   }else{
     $('#brandLink').style.cursor='default';
   }
+  $('#m_pdf').onclick=()=>{ mclose(); exportPDF(); };
+  $('#m_print').onclick=()=>{ mclose(); select(null); setTimeout(()=>window.print(),80); };
   $('#m_save').onclick=()=>{ mclose(); exportProject(); };
   $('#m_open').onclick=()=>{ mclose(); $('#file_open').click(); };
   $('#m_help').onclick=()=>{ mclose(); $('#help').showModal(); };
