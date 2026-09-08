@@ -1,5 +1,19 @@
 # Histórico
 
+## 0.14 — celular mais fácil e sem tropeços
+- Os painéis no celular agora **sobem pela base da tela** (folha) em vez de
+  gaveta lateral — a foto que você está editando continua visível em cima.
+- **Tocar numa foto** abre o painel de edição e rola o quadro para mostrá-la
+  acima do painel.
+- **Toque duplo** numa área vazia do quadro: ajusta à tela; de novo, aproxima 2×.
+- Pinça de zoom mais estável (`touch-action` no quadro — o zoom do navegador
+  não briga mais).
+- Alvos de toque maiores nos painéis (sliders, botões, selects, cor).
+- **Imprimir** e **Exportar PDF** também no menu <kbd>⋯</kbd>; a barra some o
+  botão de imprimir em telas bem estreitas.
+- Aviso (toast) vai para o topo no celular; margens de tela (notch)
+  respeitadas.
+
 ## 0.13 — foco em impressão: grade que nunca corta
 - Removido tudo de rede social (Story/Post/Reels, escala de imagem, dpi
   social). Só papel: A4, Carta, A3, A5.
