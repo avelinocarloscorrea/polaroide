@@ -32,11 +32,29 @@
 
 #empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;padding:20px}
 #empty .box{pointer-events:auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);
-  padding:42px 54px;text-align:center;box-shadow:var(--sh-2);max-width:420px}
-#empty .ring{width:64px;height:64px;border-radius:50%;background:var(--brand-soft);display:grid;place-items:center;margin:0 auto 16px}
-#empty .ring svg{width:30px;height:30px;color:var(--brand)}
+  padding:28px 30px;text-align:center;box-shadow:var(--sh-2);max-width:680px;width:100%;
+  max-height:calc(100% - 24px);overflow-y:auto;overscroll-behavior:contain}
 #empty h3{margin:0 0 6px;font-size:19px;color:var(--ink)}
-#empty p{margin:0 0 16px;color:var(--muted);font-size:12.5px}
+#empty p{margin:0 0 14px;color:var(--muted);font-size:12.5px}
+#empty .faint{font-size:11.5px}
+
+/* modelos prontos */
+.tpl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;
+  margin:4px 0;text-align:left}
+.tpl{display:flex;flex-direction:column;padding:0;overflow:hidden;gap:0;
+  border:1px solid var(--line);border-radius:var(--r-sm);background:var(--surface);cursor:pointer;
+  transition:border-color .12s,box-shadow .12s,transform .06s}
+.tpl:hover{border-color:var(--brand);box-shadow:var(--sh-1)}
+.tpl:active{transform:translateY(1px)}
+.tpl.on{border-color:var(--brand);box-shadow:0 0 0 2px var(--brand-ring)}
+.tpl .tpl-thumb{display:flex;justify-content:center;align-items:center;background:var(--line-2);
+  border-bottom:1px solid var(--line);line-height:0;padding:6px}
+.tpl .tpl-thumb svg{width:100%;max-height:130px;height:auto;display:block}
+.tpl .tpl-name{font-weight:700;font-size:12.5px;padding:8px 10px 0;color:var(--ink)}
+.tpl .tpl-desc{font-size:11px;color:var(--muted);padding:2px 10px 10px;line-height:1.42}
+.tpl-or{display:flex;align-items:center;gap:10px;color:var(--faint);font-size:12px;margin:16px 2px 12px}
+.tpl-or::before,.tpl-or::after{content:"";flex:1;height:1px;background:var(--line)}
+#tplRow .chip.on{background:var(--brand);border-color:var(--brand);color:#fff}
 body.dropping #stage::after{content:"Solte as fotos aqui";position:absolute;inset:18px;border:2.5px dashed var(--brand);
   border-radius:var(--r-lg);display:flex;align-items:center;justify-content:center;color:var(--brand);font:600 18px var(--display);
   background:var(--brand-soft);pointer-events:none;z-index:6}

@@ -57,27 +57,21 @@
 
 /* --- vidro acrílico nos painéis / barra / menus ---
    Ativado por body.acrylic. O quadro de trabalho (#stage) passa por trás dos
-   painéis translúcidos (ver layout.css); enquanto o usuário rola/arrasta/dá
-   zoom, o blur cai para quase nada (body.interacting) — não pesa no scroll. */
+   painéis translúcidos (ver layout.css). O desfoque e a opacidade são
+   CONSTANTES — não mudam durante scroll/zoom, para o painel não "piscar". */
 @supports (backdrop-filter:blur(4px)) or (-webkit-backdrop-filter:blur(4px)){
   body.acrylic #bar,
   body.acrylic #left,
   body.acrylic #right,
   body.acrylic #menu,
   body.acrylic dialog{
-    background:color-mix(in srgb, var(--surface) 68%, transparent);
-    -webkit-backdrop-filter:blur(18px) saturate(1.6);
-    backdrop-filter:blur(18px) saturate(1.6);
+    background:color-mix(in srgb, var(--surface) 85%, transparent);
+    -webkit-backdrop-filter:blur(16px) saturate(1.5);
+    backdrop-filter:blur(16px) saturate(1.5);
   }
-  body.acrylic #left{border-right-color:color-mix(in srgb,var(--line) 55%,transparent)}
-  body.acrylic #right{border-left-color:color-mix(in srgb,var(--line) 55%,transparent)}
-  body.acrylic #bar{border-bottom-color:color-mix(in srgb,var(--line) 55%,transparent)}
-  body.acrylic.interacting #bar,
-  body.acrylic.interacting #left,
-  body.acrylic.interacting #right{
-    -webkit-backdrop-filter:blur(3px);
-    backdrop-filter:blur(3px);
-  }
+  body.acrylic #left{border-right-color:color-mix(in srgb,var(--line) 60%,transparent)}
+  body.acrylic #right{border-left-color:color-mix(in srgb,var(--line) 60%,transparent)}
+  body.acrylic #bar{border-bottom-color:color-mix(in srgb,var(--line) 60%,transparent)}
 }
 /* respeita quem pediu menos transparência no sistema (só desliga se o
    navegador entende a consulta; se não entende, o bloco é ignorado). */

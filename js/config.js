@@ -184,3 +184,32 @@ const DEFAULTS={
 };
 const COLOR_DEFAULTS={cardColor:'#ffffff',pageBg:'#ffffff',pageBg2:'#e9e2d3',captionColor:'#222222',cardLineColor:'#c9c9c9',tapeColor:'#e7dfce'};
 const HEX=/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
+
+/* ---------- modelos prontos ----------
+   Cada um é um conjunto parcial de ajustes aplicado sobre DEFAULTS. Passa por
+   migrateSettings, então valores inválidos são corrigidos. Escolher um modelo
+   não mexe nas fotos já adicionadas. */
+const TEMPLATES=[
+  {id:'classic', name:'Polaroid clássico', desc:'A4, grade automática, marcas de corte.',
+   settings:{}},
+  {id:'mural', name:'Mural com fita', desc:'Levemente tortos, fita nos cantos, fundo bege.',
+   settings:{format:'classic',tiltDeg:3,tape:'tape-2',tapeColor:'#e7dfce',cornerMarks:false,
+     gapMm:11,pageBg:'#efe9dd',captionFont:"'Caveat','Segoe Script','Bradley Hand',cursive",captionSizePt:17}},
+  {id:'scrapbook', name:'Scrapbook', desc:'Quadrado, brads nos 4 cantos, marcador.',
+   settings:{format:'sx70',tiltDeg:4,tape:'brad-4',cornerMarks:false,gapMm:13,pageBg:'#f0e7d6',
+     captionFont:"'Permanent Marker','Comic Sans MS',cursive",captionSizePt:12}},
+  {id:'instax', name:'Cartela Instax Mini', desc:'Vários por folha, prontos para recortar.',
+   settings:{format:'instaxMini',gapMm:6,marginMm:10,cornerMarks:true}},
+  {id:'revelacao', name:'10×15 para revelação', desc:'Formato retrato, encaixe apertado.',
+   settings:{format:'postcard',gapMm:4,marginMm:8,cornerMarks:true}},
+  {id:'minimal', name:'Grade minimalista', desc:'Borda fina, sem legenda, contorno para cortar.',
+   settings:{format:'modern',captionMm:0,gapMm:6,marginMm:14,cornerMarks:false,
+     cardLine:true,cardLineColor:'#d9d3c6'}},
+  {id:'story', name:'Story do Instagram', desc:'1080×1920, um polaroide grande, fundo em degradê.',
+   settings:{format:'classic',pageSize:'igstory',columns:'1',marginMm:40,polaroidWidthMm:150,
+     cornerMarks:false,bgGradient:true,pageBg:'#3d5c52',pageBg2:'#a97f3d',bgAngle:160,
+     captionFont:"'Caveat','Segoe Script','Bradley Hand',cursive",captionSizePt:18}},
+  {id:'post', name:'Post quadrado', desc:'1080×1080, polaroide centralizado, degradê claro.',
+   settings:{format:'sx70',pageSize:'igpost',columns:'1',marginMm:34,polaroidWidthMm:170,
+     cornerMarks:false,bgGradient:true,pageBg:'#faf6ec',pageBg2:'#e6d9bf',bgAngle:135}},
+];

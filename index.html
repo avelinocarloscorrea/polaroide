@@ -17,13 +17,13 @@
 <link rel="icon" href="assets/favicon.svg">
 <link rel="apple-touch-icon" href="assets/favicon.svg">
 <title>Polaroide Studio</title>
-<link rel="stylesheet" href="css/base.css?v=077">
-<link rel="stylesheet" href="css/layout.css?v=077">
-<link rel="stylesheet" href="css/polaroid.css?v=077">
-<link rel="stylesheet" href="css/effects.css?v=077">
-<link rel="stylesheet" href="css/components.css?v=077">
-<link rel="stylesheet" href="css/util.css?v=077">
-<link rel="stylesheet" href="css/print.css?v=077">
+<link rel="stylesheet" href="css/base.css?v=078">
+<link rel="stylesheet" href="css/layout.css?v=078">
+<link rel="stylesheet" href="css/polaroid.css?v=078">
+<link rel="stylesheet" href="css/effects.css?v=078">
+<link rel="stylesheet" href="css/components.css?v=078">
+<link rel="stylesheet" href="css/util.css?v=078">
+<link rel="stylesheet" href="css/print.css?v=078">
 </head>
 <body>
 <div id="app">
@@ -68,6 +68,11 @@
 
   <aside id="left" class="scrl">
     <div class="aside-title"><span data-i="sliders"></span> Ajustes da folha</div>
+
+    <details open><summary><span data-i="grid"></span> Comece por um modelo <span class="caret" data-i="caret"></span></summary><div class="sect">
+      <div class="grp" id="tplRow"></div>
+      <p class="hint">Cada modelo aplica vários ajustes de uma vez (formato, folha, efeito, cores). As fotos já adicionadas continuam.</p>
+    </div></details>
 
     <details open><summary><span data-i="polaroid"></span> Formato do polaroide <span class="caret" data-i="caret"></span></summary><div class="sect">
       <label>Modelo pronto
@@ -212,11 +217,13 @@
   <div id="stage">
     <div id="sheets"></div>
     <div id="empty" hidden>
-      <div class="box">
-        <div class="ring" data-i="imageplus"></div>
-        <h3>Comece adicionando fotos</h3>
-        <p>Arraste as imagens para cá, cole com <kbd>Ctrl</kbd>+<kbd>V</kbd>, ou:</p>
-        <button id="e_add" class="primary jcc" data-i="imageplus">Adicionar fotos</button>
+      <div class="box scrl">
+        <h3>Comece por um modelo</h3>
+        <p>Um ponto de partida pronto — você muda o que quiser depois. As fotos entram por cima.</p>
+        <div id="tplGrid" class="tpl-grid"></div>
+        <div class="tpl-or"><span>ou</span></div>
+        <button id="e_add" class="primary jcc" data-i="imageplus">Adicionar fotos direto</button>
+        <p class="faint mt4">Também dá para arrastar as imagens para a janela ou colar com <kbd>Ctrl</kbd>+<kbd>V</kbd>.</p>
       </div>
     </div>
   </div>
@@ -343,14 +350,14 @@
 <!-- Script clássico (não module): funciona tanto em https:// quanto ao abrir
      o arquivo direto (file://). Nenhum script inline: script-src 'self'. -->
 <!-- carregados em ordem; compartilham o mesmo escopo global -->
-<script defer src="js/config.js?v=077"></script>
-<script defer src="js/state.js?v=077"></script>
-<script defer src="js/images.js?v=077"></script>
-<script defer src="js/layout.js?v=077"></script>
-<script defer src="js/render.js?v=077"></script>
-<script defer src="js/history.js?v=077"></script>
-<script defer src="js/export.js?v=077"></script>
-<script defer src="js/ui.js?v=077"></script>
-<script defer src="js/events.js?v=077"></script>
+<script defer src="js/config.js?v=078"></script>
+<script defer src="js/state.js?v=078"></script>
+<script defer src="js/images.js?v=078"></script>
+<script defer src="js/layout.js?v=078"></script>
+<script defer src="js/render.js?v=078"></script>
+<script defer src="js/history.js?v=078"></script>
+<script defer src="js/export.js?v=078"></script>
+<script defer src="js/ui.js?v=078"></script>
+<script defer src="js/events.js?v=078"></script>
 </body>
 </html>

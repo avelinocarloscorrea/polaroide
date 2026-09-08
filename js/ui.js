@@ -71,12 +71,68 @@ function applyFormat(k){
   const F=FORMATS[k]; if(!F||F.custom){ state.settings.format='custom'; return; }
   Object.assign(state.settings,{format:k,polaroidWidthMm:F.w,aspectW:F.aw,aspectH:F.ah,frameMm:F.frame,captionMm:F.cap});
 }
+
+/* ---- modelos prontos ---- */
+// miniatura esquemática da folha do modelo (proporção, nº de cards, fundo, efeito)
+function templateThumb(t){
+  const s={...DEFAULTS,...t.settings};
+  let pw=(PAGE_SIZES[s.pageSize]||PAGE_SIZES.a4).w, ph=(PAGE_SIZES[s.pageSize]||PAGE_SIZES.a4).h;
+  if(s.landscape){ const x=pw; pw=ph; ph=x; }
+  const VW=78, VH=Math.max(30,Math.round(VW*ph/pw));
+  const aspect=(s.aspectW||1)/(s.aspectH||1), gw=s.polaroidWidthMm;
+  let cols=s.columns==='auto'
+    ? Math.max(1,Math.floor((pw-2*s.marginMm+s.gapMm)/(gw+s.gapMm)))
+    : clamp(+s.columns,1,10);
+  cols=Math.min(cols,6);
+  const m=VW*(s.marginMm/pw), g=Math.max(1,VW*(s.gapMm/pw));
+  const cardW=Math.max(4,(VW-2*m-(cols-1)*g)/cols);
+  const winH=cardW/(aspect||1), frame=cardW*(s.frameMm/gw), capH=cardW*(s.captionMm/gw);
+  const cardH=frame*2+winH+capH;
+  let rows=Math.max(1,Math.floor((VH-2*m+g)/(cardH+g))); rows=Math.min(rows,4);
+  const gid='tg-'+t.id, bg=s.bgGradient?`url(#${gid})`:s.pageBg;
+  const dotC=s.tape==='none'?'':s.tape.startsWith('tape')?s.tapeColor
+    :s.tape.startsWith('brad')?'#a97f3d':s.tape.startsWith('pin')?'#b23b2c':'#8b9199';
+  let cells='';
+  for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
+    const cx=m+c*(cardW+g)+cardW/2, cy=m+r*(cardH+g)+cardH/2;
+    const rot=s.tiltDeg?(((r*3+c*7)%5)-2)*(s.tiltDeg/4):0;
+    cells+=`<g transform="translate(${cx.toFixed(1)} ${cy.toFixed(1)}) rotate(${rot.toFixed(1)})">`
+      +`<rect x="${(-cardW/2).toFixed(1)}" y="${(-cardH/2).toFixed(1)}" width="${cardW.toFixed(1)}" height="${cardH.toFixed(1)}" rx="1" fill="${s.cardColor}" stroke="rgba(0,0,0,.18)" stroke-width=".5"/>`
+      +`<rect x="${(-cardW/2+frame).toFixed(1)}" y="${(-cardH/2+frame).toFixed(1)}" width="${Math.max(1,cardW-2*frame).toFixed(1)}" height="${Math.max(1,winH).toFixed(1)}" fill="#c9c0b0"/>`
+      +(dotC?`<circle cx="${(-cardW/2+frame+1.6).toFixed(1)}" cy="${(-cardH/2+frame+1).toFixed(1)}" r="1.2" fill="${dotC}"/>`:'')
+      +`</g>`;
+  }
+  const defs=s.bgGradient?`<defs><linearGradient id="${gid}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${s.pageBg}"/><stop offset="1" stop-color="${s.pageBg2}"/></linearGradient></defs>`:'';
+  return `<svg viewBox="0 0 ${VW} ${VH}" preserveAspectRatio="xMidYMid meet" aria-hidden="true">${defs}`
+    +`<rect x="0" y="0" width="${VW}" height="${VH}" rx="2" fill="${bg}" stroke="rgba(0,0,0,.14)"/>${cells}</svg>`;
+}
+function markTemplate(id){
+  $$('#tplGrid .tpl').forEach(b=>b.classList.toggle('on',b.dataset.tpl===id));
+  $$('#tplRow .chip').forEach(b=>b.classList.toggle('on',b.dataset.tpl===id));
+}
+function applyTemplate(id){
+  const t=TEMPLATES.find(x=>x.id===id); if(!t) return;
+  pushHistory('template');
+  const keep={acrylic:state.settings.acrylic,exportDPI:state.settings.exportDPI,igScale:state.settings.igScale};
+  state.settings=migrateSettings({...DEFAULTS,...t.settings,...keep});
+  selectedId=null;
+  syncControls(); applyVars(); render(); save(); fit();
+  markTemplate(id);
+  toast('Modelo aplicado: '+t.name);
+}
 const isMobile=()=>matchMedia('(max-width:820px)').matches;
+// escurece o fundo quando uma gaveta OU o menu ⋯ está aberto (só no celular)
+function syncScrim(){
+  const sc=$('#scrim'); if(!sc) return;
+  const menuOpen=!$('#menu').hidden;
+  sc.hidden=!(isMobile() && !zen && (uiState.left||uiState.right||menuOpen));
+}
 // no celular os painéis viram gavetas sobrepostas — só uma aberta por vez
 function togglePanel(side,on){
   if(on===undefined) on=!(side==='left'?uiState.left:uiState.right);
   if(side==='left'){ uiState.left=on; if(on&&isMobile()) uiState.right=false; }
   else{ uiState.right=on; if(on&&isMobile()) uiState.left=false; }
+  if(on&&isMobile()){ $('#menu').hidden=true; }
   applyUI();
 }
 function applyUI(){
@@ -87,8 +143,7 @@ function applyUI(){
   $('#b_pr').classList.toggle('on',uiState.right&&!zen);
   $('#b_zen').classList.toggle('on',zen);
   $('#zenExit').hidden=!zen;
-  const sc=$('#scrim');
-  if(sc) sc.hidden=!(isMobile() && !zen && (uiState.left||uiState.right));
+  syncScrim();
   try{ localStorage.setItem(UIKEY,JSON.stringify(uiState)); }catch(e){}
   clearTimeout(applyUI._t); applyUI._t=setTimeout(()=>{ if(!userZoomed) fit(); },240);
 }
@@ -159,6 +214,27 @@ addEventListener('resize',closeCF);
 function bindAll(){
   Object.entries(FORMATS).forEach(([k,v])=>$('#c_format').add(new Option(v.label,k)));
   for(let i=1;i<=8;i++) $('#c_cols').add(new Option(i,i));
+
+  // modelos prontos — cartões no estado vazio + atalhos no painel esquerdo
+  const tplGrid=$('#tplGrid'), tplRow=$('#tplRow');
+  TEMPLATES.forEach(t=>{
+    if(tplGrid){
+      const b=document.createElement('button');
+      b.type='button'; b.className='tpl'; b.dataset.tpl=t.id;
+      b.innerHTML='<span class="tpl-thumb">'+templateThumb(t)+'</span>'
+        +'<span class="tpl-name"></span><span class="tpl-desc"></span>';
+      b.querySelector('.tpl-name').textContent=t.name;
+      b.querySelector('.tpl-desc').textContent=t.desc;
+      b.onclick=()=>applyTemplate(t.id);
+      tplGrid.appendChild(b);
+    }
+    if(tplRow){
+      const c=document.createElement('button');
+      c.type='button'; c.className='chip'; c.dataset.tpl=t.id; c.textContent=t.name;
+      c.onclick=()=>applyTemplate(t.id);
+      tplRow.appendChild(c);
+    }
+  });
   Object.keys(PRESET_LABELS).forEach(k=>{
     const b=document.createElement('button'); b.className='chip'; b.dataset.p=k; b.textContent=PRESET_LABELS[k];
     b.onclick=()=>{ const ph=cur(); if(!ph) return; pushHistory('preset');
@@ -253,13 +329,13 @@ function bindAll(){
   $('#b_zen').onclick=()=>{ zen=!zen; applyUI(); };
   $('#zenExit').onclick=()=>{ zen=false; applyUI(); };
   const scrim=$('#scrim');
-  if(scrim) scrim.onclick=()=>{ uiState.left=false; uiState.right=false; applyUI(); };
+  if(scrim) scrim.onclick=()=>{ $('#menu').hidden=true; uiState.left=false; uiState.right=false; applyUI(); };
   const menu=$('#menu');
-  $('#b_more').onclick=e=>{ e.stopPropagation(); menu.hidden=!menu.hidden; };
+  $('#b_more').onclick=e=>{ e.stopPropagation(); menu.hidden=!menu.hidden; syncScrim(); };
   document.addEventListener('pointerdown',e=>{
-    if(!menu.hidden && !menu.contains(e.target) && !$('#b_more').contains(e.target)) menu.hidden=true;
+    if(!menu.hidden && !menu.contains(e.target) && !$('#b_more').contains(e.target)){ menu.hidden=true; syncScrim(); }
   });
-  const mclose=()=>menu.hidden=true;
+  const mclose=()=>{ menu.hidden=true; syncScrim(); };
   if(ACERVO_URL){
     const bl=$('#brandLink');
     bl.href=ACERVO_URL; bl.target='_blank'; bl.title='Acervo — mais ferramentas';

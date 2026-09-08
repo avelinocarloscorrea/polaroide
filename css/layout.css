@@ -59,21 +59,21 @@ body.acrylic #empty{left:var(--gut-l);right:var(--gut-r)}
 
 /* ---------------- Mobile / toque ---------------- */
 @media (max-width:820px){
-  #app{grid-template-columns:1fr;grid-template-rows:52px 1fr;--gut-l:0px;--gut-r:0px}
+  /* linha da barra tem altura automática — a barra quebra em 2 linhas em vez
+     de rolar na horizontal, então nenhum botão fica escondido */
+  #app{grid-template-columns:1fr;grid-template-rows:auto 1fr;--gut-l:0px;--gut-r:0px}
   #app.hide-left,#app.hide-right,#app.hide-left.hide-right{grid-template-columns:1fr}
   #app.zen{grid-template-columns:1fr;grid-template-rows:0 1fr}
 
-  #bar{gap:4px;padding:0 8px;position:relative}
-  .brand{padding-right:2px}
+  #bar{flex-wrap:wrap;height:auto;min-height:52px;padding:6px 8px;gap:5px 6px;
+    align-content:center;overflow:visible;z-index:45}
+  .brand{padding-right:4px}
   .brand .txt{display:none}
   .stat{display:none}
-  .bar-grow{flex:0 0 4px;min-width:0}
-  .bar-sep{margin:10px 1px}
-  /* mantém os controles de painel/menu sempre visíveis à direita */
-  #bar>.bar-cluster:last-child{position:sticky;right:-8px;padding:0 8px 0 6px;
-    margin-right:-8px;background:var(--surface);box-shadow:-10px 0 10px -8px rgba(0,0,0,.22)}
-  body.acrylic #bar>.bar-cluster:last-child{
-    background:color-mix(in srgb,var(--surface) 86%,transparent)}
+  .bar-grow{display:none}
+  .bar-sep{display:none}
+  .bar-cluster{gap:5px}
+  .pagenav{font-size:11px}
 
   /* painéis viram gavetas sobre o quadro de trabalho
      (prefixo #app p/ vencer body.acrylic #left/#right) */
@@ -91,16 +91,25 @@ body.acrylic #empty{left:var(--gut-l);right:var(--gut-r)}
   #stage{grid-column:1/-1!important;grid-row:2!important;padding:14px!important;z-index:0}
   body.acrylic #empty{left:0;right:0}
 
-  #scrim{position:fixed;inset:0;z-index:18;background:rgba(15,17,20,.44);
-    -webkit-backdrop-filter:blur(1px);backdrop-filter:blur(1px)}
+  #scrim{position:fixed;inset:0;z-index:40;background:rgba(15,17,20,.46)}
+
+  /* menu ⋯ vira uma folha na base da tela */
+  #menu{position:fixed;left:8px;right:8px;top:auto;bottom:8px;width:auto;min-width:0;
+    max-height:72vh;border-radius:16px;padding:8px;z-index:60}
+  #menu button,#menu a{padding:13px 14px;font-size:14.5px}
+  #menu .msep{margin:5px 6px}
 
   .iconbtn{width:38px;height:38px}
   .iconbtn svg{width:19px;height:19px}
-  #zenExit{top:auto;bottom:16px;right:16px}
-  #menu{top:48px}
+  #zenExit{top:auto;bottom:16px;right:16px;z-index:62}
+}
+@media (max-width:560px){
+  /* no toque, a pinça já faz o zoom fino — libera espaço na barra */
+  #b_zin,#b_zout,#zval{display:none}
 }
 @media (max-width:430px){
-  #zval{display:none}
+  #bar .primary{padding:7px 10px}
+  .pagenav{gap:1px}
 }
 #sheets{display:flex;flex-direction:column;align-items:center;gap:30px;height:max-content}
 .page{background:#fff;box-shadow:var(--sh-2);flex:none;position:relative;overflow:hidden;border-radius:2px}

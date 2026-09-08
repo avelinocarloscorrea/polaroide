@@ -17,19 +17,9 @@ addEventListener('scroll',e=>{
 
 stage.addEventListener('pointerdown',e=>{ if(e.target===stage||e.target===sheetsEl) select(null); });
 
-// Enquanto o usuário rola / arrasta / dá zoom, o blur do acrílico cai para
-// quase nada (body.interacting em effects.css) — mantém a interação fluida.
-let _intT;
-function markInteracting(){
-  if(!document.body.classList.contains('acrylic')) return;
-  document.body.classList.add('interacting');
-  clearTimeout(_intT); _intT=setTimeout(()=>document.body.classList.remove('interacting'),200);
-}
-
 /* ---- atalhos do quadro de trabalho (sem barra de rolagem visível) ---- */
 // Ctrl/Cmd + roda do mouse (ou pinça no trackpad) = zoom apontando o cursor
 stage.addEventListener('wheel',e=>{
-  markInteracting();
   if(!(e.ctrlKey||e.metaKey)) return;         // roda sem Ctrl = rolagem normal
   e.preventDefault();
   zoomAt(e.clientX,e.clientY,Math.exp(-e.deltaY*0.0016));
@@ -46,7 +36,6 @@ stage.addEventListener('pointerdown',e=>{
 },true);
 stage.addEventListener('pointermove',e=>{
   if(!_pan) return;
-  markInteracting();
   stage.scrollLeft=_pan.sl-(e.clientX-_pan.x);
   stage.scrollTop =_pan.st-(e.clientY-_pan.y);
 });
@@ -56,7 +45,6 @@ stage.addEventListener('pointerup',_endPan);
 stage.addEventListener('pointercancel',_endPan);
 
 stage.addEventListener('scroll',()=>{
-  markInteracting();
   const L=layout(); if(L.pages<2) return;
   const mid=stage.scrollTop+stage.clientHeight/2;
   let best=0,bd=1e9;
@@ -70,7 +58,7 @@ addEventListener('keydown',e=>{
   if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){ e.preventDefault(); undo(); return; }
   if((e.ctrlKey||e.metaKey)&&(e.key.toLowerCase()==='y'||(e.shiftKey&&e.key.toLowerCase()==='z'))){ e.preventDefault(); redo(); return; }
   if(e.key==='Escape'){
-    if(!$('#menu').hidden){ $('#menu').hidden=true; return; }
+    if(!$('#menu').hidden){ $('#menu').hidden=true; syncScrim(); return; }
     if(zen){ zen=false; applyUI(); return; }
     if(selectedId){ select(null); return; }
   }
@@ -117,7 +105,7 @@ stage.addEventListener('touchmove',e=>{
   const cx=(e.touches[0].clientX+e.touches[1].clientX)/2;
   const cy=(e.touches[0].clientY+e.touches[1].clientY)/2;
   if(_pinch.d>0 && d>0) zoomAt(cx,cy,d/_pinch.d);
-  _pinch.d=d; markInteracting();
+  _pinch.d=d;
 },{passive:false});
 const _endPinch=e=>{ if(_pinch && (!e.touches||e.touches.length<2)) _pinch=null; };
 stage.addEventListener('touchend',_endPinch);
