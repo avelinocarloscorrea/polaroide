@@ -1,5 +1,17 @@
 # Histórico
 
+## 0.10 — mais efeitos, recorte no card e uso no celular
+- Novos efeitos de canto: **mini brad** (fixador de papel, cabecinha metálica
+  com fenda) e **percevejo** (fixar a foto, cabeça em cúpula com sombra).
+- Todo efeito agora é **recortado no contorno do card** (`.decorclip` na tela,
+  `clip` no canvas): nada passa da borda do polaroide. Peças também recuam
+  ~1,5 mm para dentro da foto.
+- **Uso no celular**: em telas até 820 px os painéis viram gavetas que
+  deslizam sobre o quadro, com fundo escurecido (toque fora fecha); só uma
+  aberta por vez. Barra compacta com os controles de painel fixos à direita.
+- **Pinça de dois dedos** dá zoom no ponto tocado; arrastar a foto na moldura
+  não rola mais a folha sem querer (`touch-action`).
+
 ## 0.9 — efeitos no card, vidro acrílico e formatos de rede social
 - Fita e **grampo** agora ficam colados nos cantos da **foto**, dentro do card
   (antes a fita ficava nas pontas do polaroide, para fora). Vale na tela,

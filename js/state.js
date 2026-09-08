@@ -28,7 +28,11 @@ function migrateSettings(s){
   if(s.tape==='2') s.tape='tape-2';
   else if(s.tape==='4') s.tape='tape-4';
   else if(s.tape==='top') s.tape='tape-top';
-  s.tape=['none','tape-2','tape-4','tape-top','staple-2','staple-4','staple-top'].includes(s.tape)?s.tape:'none';
+  s.tape=['none',
+    'tape-2','tape-4','tape-top',
+    'staple-2','staple-4','staple-top',
+    'brad-2','brad-4','brad-top',
+    'pin-2','pin-top'].includes(s.tape)?s.tape:'none';
   s.exportDPI=clamp(Math.round(num(s.exportDPI,300)),72,600);
   s.igScale=clamp(Math.round(num(s.igScale,2)),1,4);
   s.acrylic=s.acrylic!==false;

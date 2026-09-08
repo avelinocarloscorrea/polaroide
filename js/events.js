@@ -75,8 +75,8 @@ addEventListener('keydown',e=>{
     if(selectedId){ select(null); return; }
   }
   if(typing) return;
-  if(e.key==='['){ uiState.left=!uiState.left; applyUI(); e.preventDefault(); return; }
-  if(e.key===']'){ uiState.right=!uiState.right; applyUI(); e.preventDefault(); return; }
+  if(e.key==='['){ togglePanel('left'); e.preventDefault(); return; }
+  if(e.key===']'){ togglePanel('right'); e.preventDefault(); return; }
   if(e.key==='.'){ zen=!zen; applyUI(); e.preventDefault(); return; }
   const ph=cur(); if(!ph) return;
   if(e.key==='Delete'||e.key==='Backspace'){ removePhoto(ph.id); e.preventDefault(); }
@@ -99,7 +99,29 @@ addEventListener('paste',e=>{
   const imgs=[...(e.clipboardData?.items||[])].filter(i=>i.type.startsWith('image/')).map(i=>i.getAsFile()).filter(Boolean);
   if(imgs.length){ e.preventDefault(); addFiles(imgs); }
 });
-let rT; addEventListener('resize',()=>{ clearTimeout(rT); rT=setTimeout(()=>{ if(!userZoomed) fit(); },150); });
+let rT; addEventListener('resize',()=>{ clearTimeout(rT); rT=setTimeout(()=>{ applyUI(); if(!userZoomed) fit(); },150); });
+
+/* ---- pinça (2 dedos) para zoom no celular ---- */
+let _pinch=null;
+const _tdist=t=>Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY);
+stage.addEventListener('touchstart',e=>{
+  if(e.touches.length===2){
+    _pinch={d:_tdist(e.touches)};
+    if(_pan){ _pan=null; document.body.classList.remove('panning'); }
+  }
+},{passive:true});
+stage.addEventListener('touchmove',e=>{
+  if(!_pinch||e.touches.length!==2) return;
+  e.preventDefault();
+  const d=_tdist(e.touches);
+  const cx=(e.touches[0].clientX+e.touches[1].clientX)/2;
+  const cy=(e.touches[0].clientY+e.touches[1].clientY)/2;
+  if(_pinch.d>0 && d>0) zoomAt(cx,cy,d/_pinch.d);
+  _pinch.d=d; markInteracting();
+},{passive:false});
+const _endPinch=e=>{ if(_pinch && (!e.touches||e.touches.length<2)) _pinch=null; };
+stage.addEventListener('touchend',_endPinch);
+stage.addEventListener('touchcancel',_endPinch);
 addEventListener('beforeprint',()=>select(null));
 
 /* ================= init ================= */

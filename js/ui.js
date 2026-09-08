@@ -71,6 +71,14 @@ function applyFormat(k){
   const F=FORMATS[k]; if(!F||F.custom){ state.settings.format='custom'; return; }
   Object.assign(state.settings,{format:k,polaroidWidthMm:F.w,aspectW:F.aw,aspectH:F.ah,frameMm:F.frame,captionMm:F.cap});
 }
+const isMobile=()=>matchMedia('(max-width:820px)').matches;
+// no celular os painéis viram gavetas sobrepostas — só uma aberta por vez
+function togglePanel(side,on){
+  if(on===undefined) on=!(side==='left'?uiState.left:uiState.right);
+  if(side==='left'){ uiState.left=on; if(on&&isMobile()) uiState.right=false; }
+  else{ uiState.right=on; if(on&&isMobile()) uiState.left=false; }
+  applyUI();
+}
 function applyUI(){
   appEl.classList.toggle('hide-left',!uiState.left);
   appEl.classList.toggle('hide-right',!uiState.right);
@@ -79,6 +87,8 @@ function applyUI(){
   $('#b_pr').classList.toggle('on',uiState.right&&!zen);
   $('#b_zen').classList.toggle('on',zen);
   $('#zenExit').hidden=!zen;
+  const sc=$('#scrim');
+  if(sc) sc.hidden=!(isMobile() && !zen && (uiState.left||uiState.right));
   try{ localStorage.setItem(UIKEY,JSON.stringify(uiState)); }catch(e){}
   clearTimeout(applyUI._t); applyUI._t=setTimeout(()=>{ if(!userZoomed) fit(); },240);
 }
@@ -238,10 +248,12 @@ function bindAll(){
   $('#b_png').onclick=exportPNG;
 
   // painéis / zen / menu
-  $('#b_pl').onclick=()=>{ uiState.left=!uiState.left; applyUI(); };
-  $('#b_pr').onclick=()=>{ uiState.right=!uiState.right; applyUI(); };
+  $('#b_pl').onclick=()=>togglePanel('left');
+  $('#b_pr').onclick=()=>togglePanel('right');
   $('#b_zen').onclick=()=>{ zen=!zen; applyUI(); };
   $('#zenExit').onclick=()=>{ zen=false; applyUI(); };
+  const scrim=$('#scrim');
+  if(scrim) scrim.onclick=()=>{ uiState.left=false; uiState.right=false; applyUI(); };
   const menu=$('#menu');
   $('#b_more').onclick=e=>{ e.stopPropagation(); menu.hidden=!menu.hidden; };
   document.addEventListener('pointerdown',e=>{

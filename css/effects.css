@@ -1,32 +1,59 @@
 /* css/effects.css  (fita adesiva, grampo, vidro acrílico) */
 
-/* --- decoração colada nos cantos da FOTO, dentro do card ---
-   Posicionada em .pol usando as variáveis --frame e --caption: o topo da foto
-   fica a var(--frame) da borda; a base da foto fica a var(--caption) do fundo. */
-.decor{position:absolute;pointer-events:none;z-index:4}
-.decor.tape{width:20mm;height:6mm;background:var(--tapeC,#e7dfce);opacity:.76;
+/* --- efeitos "presos" nos cantos da FOTO, sempre DENTRO do card ---
+   .decorclip recorta tudo no contorno do card (cantos arredondados), então
+   nenhum efeito escapa da borda do polaroide. Os itens são posicionados pelas
+   variáveis --frame (topo da foto) e --caption (base da foto), com um pequeno
+   recuo para dentro. */
+.decorclip{position:absolute;inset:0;overflow:hidden;border-radius:var(--radius);
+  pointer-events:none;z-index:4}
+.decor{position:absolute}
+.decor.tape{width:18mm;height:6mm;background:var(--tapeC,#e7dfce);opacity:.78;
   box-shadow:0 1px 2px rgba(0,0,0,.16);
   background-image:linear-gradient(105deg,rgba(255,255,255,.42),rgba(255,255,255,0) 42%,rgba(0,0,0,.07))}
 .decor.staple{width:7mm;height:3.4mm;color:#8b9199;filter:drop-shadow(0 1px 1px rgba(0,0,0,.30))}
 .decor.staple svg{width:100%;height:100%;display:block}
+/* mini brad (fixador de papel): cabecinha metálica com fenda */
+.decor.brad{width:4.6mm;height:4.6mm;border-radius:50%;
+  background:
+    radial-gradient(circle at 34% 30%,rgba(255,255,255,.92),rgba(255,255,255,0) 46%),
+    radial-gradient(circle at 68% 76%,rgba(0,0,0,.34),rgba(0,0,0,0) 55%),
+    var(--tapeC,#a97f3d);
+  box-shadow:0 .35mm .7mm rgba(0,0,0,.4),inset 0 0 0 .16mm rgba(0,0,0,.22)}
+.decor.brad::after{content:"";position:absolute;left:50%;top:50%;width:2.3mm;height:.6mm;
+  border-radius:1px;background:rgba(0,0,0,.32);transform:translate(-50%,-50%) rotate(34deg)}
+/* percevejo (fixar a foto): cabeça em cúpula que "levanta" da foto */
+.decor.pin{width:5.6mm;height:5.6mm;border-radius:50%;
+  background:
+    radial-gradient(circle at 33% 28%,rgba(255,255,255,.96),rgba(255,255,255,0) 42%),
+    radial-gradient(circle at 72% 80%,rgba(0,0,0,.42),rgba(0,0,0,0) 56%),
+    var(--tapeC,#b23b2c);
+  box-shadow:0 .9mm 1.5mm rgba(0,0,0,.42)}
+.decor.pin::after{content:"";position:absolute;left:50%;top:50%;width:1.5mm;height:1.5mm;
+  border-radius:50%;background:rgba(0,0,0,.22);transform:translate(-50%,-50%)}
 
-.decor.tl{top:var(--frame);left:var(--frame)}
-.decor.tr{top:var(--frame);right:var(--frame)}
-.decor.bl{bottom:var(--caption);left:var(--frame)}
-.decor.br{bottom:var(--caption);right:var(--frame)}
-.decor.tc{top:var(--frame);left:50%}
+.decor.tl{top:calc(var(--frame) + 1.5mm);left:calc(var(--frame) + 1.5mm)}
+.decor.tr{top:calc(var(--frame) + 1.5mm);right:calc(var(--frame) + 1.5mm)}
+.decor.bl{bottom:calc(var(--caption) + 1.5mm);left:calc(var(--frame) + 1.5mm)}
+.decor.br{bottom:calc(var(--caption) + 1.5mm);right:calc(var(--frame) + 1.5mm)}
+.decor.tc{top:calc(var(--frame) + 1mm);left:50%}
 
 .decor.tape.tl{transform:translate(-50%,-50%) rotate(-45deg)}
 .decor.tape.tr{transform:translate(50%,-50%) rotate(45deg)}
 .decor.tape.bl{transform:translate(-50%,50%) rotate(45deg)}
 .decor.tape.br{transform:translate(50%,50%) rotate(-45deg)}
-.decor.tape.tc{transform:translate(-50%,-50%) rotate(-2deg);width:24mm}
+.decor.tape.tc{transform:translate(-50%,-50%) rotate(-2deg);width:22mm}
 
 .decor.staple.tl{transform:translate(-50%,-50%) rotate(-45deg)}
 .decor.staple.tr{transform:translate(50%,-50%) rotate(45deg)}
 .decor.staple.bl{transform:translate(-50%,50%) rotate(-135deg)}
 .decor.staple.br{transform:translate(50%,50%) rotate(135deg)}
 .decor.staple.tc{transform:translate(-50%,-50%)}
+
+.decor.brad.tl,.decor.pin.tl,.decor.brad.tc,.decor.pin.tc{transform:translate(-50%,-50%)}
+.decor.brad.tr,.decor.pin.tr{transform:translate(50%,-50%)}
+.decor.brad.bl,.decor.pin.bl{transform:translate(-50%,50%)}
+.decor.brad.br,.decor.pin.br{transform:translate(50%,50%)}
 
 /* --- vidro acrílico nos painéis / barra / menus ---
    Ativado por body.acrylic. O quadro de trabalho (#stage) passa por trás dos

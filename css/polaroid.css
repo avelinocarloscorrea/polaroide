@@ -3,7 +3,7 @@
   padding:var(--frame) var(--frame) 0 var(--frame);border-radius:var(--radius);box-shadow:var(--polShadow,none)}
 .pol.sel{outline:2px solid var(--brand)!important;outline-offset:3px}
 .pol .marks{position:absolute;inset:0;pointer-events:none;overflow:visible}
-.win{position:relative;width:100%;aspect-ratio:var(--winAspect);overflow:hidden;background:#ececec;cursor:grab}
+.win{position:relative;width:100%;aspect-ratio:var(--winAspect);overflow:hidden;background:#ececec;cursor:grab;touch-action:none}
 .win.drag{cursor:grabbing}
 .win img{position:absolute;left:50%;top:50%;width:100%;height:100%;object-fit:cover;
   transform:translate(-50%,-50%);user-select:none;-webkit-user-drag:none}

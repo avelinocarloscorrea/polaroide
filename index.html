@@ -17,13 +17,13 @@
 <link rel="icon" href="assets/favicon.svg">
 <link rel="apple-touch-icon" href="assets/favicon.svg">
 <title>Polaroide Studio</title>
-<link rel="stylesheet" href="css/base.css?v=075">
-<link rel="stylesheet" href="css/layout.css?v=075">
-<link rel="stylesheet" href="css/polaroid.css?v=075">
-<link rel="stylesheet" href="css/effects.css?v=075">
-<link rel="stylesheet" href="css/components.css?v=075">
-<link rel="stylesheet" href="css/util.css?v=075">
-<link rel="stylesheet" href="css/print.css?v=075">
+<link rel="stylesheet" href="css/base.css?v=076">
+<link rel="stylesheet" href="css/layout.css?v=076">
+<link rel="stylesheet" href="css/polaroid.css?v=076">
+<link rel="stylesheet" href="css/effects.css?v=076">
+<link rel="stylesheet" href="css/components.css?v=076">
+<link rel="stylesheet" href="css/util.css?v=076">
+<link rel="stylesheet" href="css/print.css?v=076">
 </head>
 <body>
 <div id="app">
@@ -173,6 +173,15 @@
             <option value="staple-4">Grampo — 4 cantos</option>
             <option value="staple-top">Grampo — um no topo</option>
           </optgroup>
+          <optgroup label="Mini brad (fixador de papel)">
+            <option value="brad-2">Brad — 2 cantos de cima</option>
+            <option value="brad-4">Brad — 4 cantos</option>
+            <option value="brad-top">Brad — um no topo</option>
+          </optgroup>
+          <optgroup label="Percevejo (fixar a foto)">
+            <option value="pin-2">Percevejo — 2 cantos de cima</option>
+            <option value="pin-top">Percevejo — no topo</option>
+          </optgroup>
         </select></label>
       <label>Cor da fita <input type="color" id="c_tapeColor"></label>
     </div></details>
@@ -262,6 +271,7 @@
   </aside>
 </div>
 
+<div id="scrim" hidden></div>
 <button id="zenExit" class="iconbtn" data-i="eyeoff" title="Sair da tela cheia (Esc)" hidden></button>
 
 <div id="menu" class="scrl" hidden>
@@ -331,14 +341,14 @@
 <!-- Script clássico (não module): funciona tanto em https:// quanto ao abrir
      o arquivo direto (file://). Nenhum script inline: script-src 'self'. -->
 <!-- carregados em ordem; compartilham o mesmo escopo global -->
-<script defer src="js/config.js?v=075"></script>
-<script defer src="js/state.js?v=075"></script>
-<script defer src="js/images.js?v=075"></script>
-<script defer src="js/layout.js?v=075"></script>
-<script defer src="js/render.js?v=075"></script>
-<script defer src="js/history.js?v=075"></script>
-<script defer src="js/export.js?v=075"></script>
-<script defer src="js/ui.js?v=075"></script>
-<script defer src="js/events.js?v=075"></script>
+<script defer src="js/config.js?v=076"></script>
+<script defer src="js/state.js?v=076"></script>
+<script defer src="js/images.js?v=076"></script>
+<script defer src="js/layout.js?v=076"></script>
+<script defer src="js/render.js?v=076"></script>
+<script defer src="js/history.js?v=076"></script>
+<script defer src="js/export.js?v=076"></script>
+<script defer src="js/ui.js?v=076"></script>
+<script defer src="js/events.js?v=076"></script>
 </body>
 </html>

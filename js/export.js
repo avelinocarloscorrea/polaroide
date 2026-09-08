@@ -109,7 +109,12 @@ function drawPol(ctx,px,ph,xMm,yMm,g,dpi){
     ctx.strokeStyle=s.cardLineColor||'#c9c9c9'; ctx.lineWidth=Math.max(1,px(0.2));
     roundRect(ctx,0,0,w,h,px(s.radiusMm)); ctx.stroke();
   }
-  if(s.tape && s.tape!=='none') drawDecor(ctx,px,g,s.tape,s.tapeColor);
+  if(s.tape && s.tape!=='none'){
+    ctx.save();
+    roundRect(ctx,0,0,w,h,px(s.radiusMm)); ctx.clip();   // efeitos nunca saem do card
+    drawDecor(ctx,px,g,s.tape,s.tapeColor);
+    ctx.restore();
+  }
   ctx.restore();
 
   if(s.cornerMarks){
@@ -122,23 +127,47 @@ function drawPol(ctx,px,ph,xMm,yMm,g,dpi){
     seg(x+w+o,y+h,x+w+o+l,y+h); seg(x+w,y+h+o,x+w,y+h+o+l);
   }
 }
-// efeitos (fita / grampo) colados nos cantos da janela da foto, no espaço
-// local já inclinado do polaroide. g = geometria em mm; px converte mm->px.
+// efeitos (fita / grampo / mini brad / percevejo) presos nos cantos da janela
+// da foto, no espaço local já inclinado do polaroide e recortado no card.
+// g = geometria em mm; px converte mm->px.
 function drawDecor(ctx,px,g,mode,color){
   const [kind,where]=mode.split('-');
   const wx=px(g.frame),wy=px(g.frame),ww=px(g.winW),wh=px(g.winH);
+  const inx=px(1.5);
   const spots = where==='top'
-    ? [[wx+ww/2,wy,-2]]
+    ? [[wx+ww/2,wy+px(1),-2]]
     : where==='2'
-      ? [[wx,wy,-45],[wx+ww,wy,45]]
-      : [[wx,wy,-45],[wx+ww,wy,45],[wx,wy+wh,45],[wx+ww,wy+wh,-45]];
+      ? [[wx+inx,wy+inx,-45],[wx+ww-inx,wy+inx,45]]
+      : [[wx+inx,wy+inx,-45],[wx+ww-inx,wy+inx,45],[wx+inx,wy+wh-inx,45],[wx+ww-inx,wy+wh-inx,-45]];
+  const disc = kind==='brad' ? {d:px(4.6),col:'#a97f3d',shadow:0.4,blur:0.5,oy:0.35,edge:0.34,slit:true}
+             : kind==='pin'  ? {d:px(5.6),col:'#b23b2c',shadow:0.42,blur:1.4,oy:0.9,edge:0.42,dot:true}
+             : null;
   spots.forEach(([cx,cy,deg])=>{
     ctx.save();
     ctx.translate(cx,cy); ctx.rotate(deg*Math.PI/180);
-    if(kind==='tape') tapePiece(ctx,px,px(where==='top'?24:20),px(6),color);
-    else staplePiece(ctx,px,px(7),px(3.4));
+    if(kind==='tape') tapePiece(ctx,px,px(where==='top'?22:18),px(6),color);
+    else if(kind==='staple') staplePiece(ctx,px,px(7),px(3.4));
+    else if(disc) discPiece(ctx,px,disc);
     ctx.restore();
   });
+}
+function discPiece(ctx,px,o){
+  const r=o.d/2;
+  ctx.save();
+  ctx.shadowColor='rgba(0,0,0,'+o.shadow+')'; ctx.shadowBlur=Math.max(1,px(o.blur)); ctx.shadowOffsetY=Math.max(1,px(o.oy));
+  ctx.fillStyle=o.col; ctx.beginPath(); ctx.arc(0,0,r,0,Math.PI*2); ctx.fill();
+  ctx.shadowColor='transparent'; ctx.shadowBlur=0; ctx.shadowOffsetY=0;
+  ctx.beginPath(); ctx.arc(0,0,r,0,Math.PI*2); ctx.clip();
+  const hi=ctx.createRadialGradient(-r*0.35,-r*0.42,r*0.1,-r*0.1,-r*0.1,r*1.2);
+  hi.addColorStop(0,'rgba(255,255,255,0.92)'); hi.addColorStop(0.45,'rgba(255,255,255,0)');
+  ctx.fillStyle=hi; ctx.fillRect(-r,-r,o.d,o.d);
+  const sh=ctx.createRadialGradient(r*0.25,r*0.32,r*0.15,0,0,r);
+  sh.addColorStop(0.55,'rgba(0,0,0,0)'); sh.addColorStop(1,'rgba(0,0,0,'+o.edge+')');
+  ctx.fillStyle=sh; ctx.fillRect(-r,-r,o.d,o.d);
+  if(o.slit){ ctx.save(); ctx.rotate(0.6); ctx.fillStyle='rgba(0,0,0,0.32)';
+    ctx.fillRect(-r*0.55,-r*0.13,r*1.1,r*0.26); ctx.restore(); }
+  else if(o.dot){ ctx.fillStyle='rgba(0,0,0,0.22)'; ctx.beginPath(); ctx.arc(0,0,r*0.27,0,Math.PI*2); ctx.fill(); }
+  ctx.restore();
 }
 function tapePiece(ctx,px,tw,th,color){
   ctx.globalAlpha=0.76;

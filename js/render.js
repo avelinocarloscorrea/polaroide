@@ -78,11 +78,13 @@ function polEl(ph){
 
   win.addEventListener('pointerdown',e=>{
     if(e.button!==0) return;
+    if(e.pointerType==='touch' && e.isPrimary===false) return;   // 2º dedo = pinça, não arrasto
     select(ph.id);
     const rect=win.getBoundingClientRect();
     const sx=e.clientX,sy=e.clientY,sox=ph.ox,soy=ph.oy; let moved=false,hist=false;
     win.setPointerCapture(e.pointerId); win.classList.add('drag');
     const mv=ev=>{
+      if(typeof _pinch!=='undefined' && _pinch) return;          // congela a foto durante a pinça
       const dx=ev.clientX-sx,dy=ev.clientY-sy;
       if(!moved&&Math.abs(dx)+Math.abs(dy)>3){ moved=true; if(!hist){pushHistory('pan');hist=true;} }
       ph.ox=clamp(sox+dx/rect.width*100,-90,90);
@@ -122,17 +124,21 @@ function polEl(ph){
 
   pol.append(handle,badge,win,cap);
 
-  // efeitos colados nos cantos da FOTO, dentro do card (fita ou grampo)
+  // efeitos "presos" nos cantos da foto — fita, grampo, mini brad, percevejo.
+  // Vão dentro de .decorclip, que recorta tudo no contorno do card: nada
+  // escapa da borda do polaroide.
   if(s.tape && s.tape!=='none'){
     const [kind,where]=s.tape.split('-');
     const spots = where==='top' ? ['tc'] : where==='2' ? ['tl','tr'] : ['tl','tr','bl','br'];
+    const clip=document.createElement('div'); clip.className='decorclip';
     spots.forEach(pos=>{
       const t=document.createElement('i');
       t.className='decor '+kind+' '+pos;
       if(kind==='tape') t.style.setProperty('--tapeC',s.tapeColor);
-      else t.innerHTML='<svg viewBox="0 0 24 12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v6"/></svg>';
-      pol.appendChild(t);
+      else if(kind==='staple') t.innerHTML='<svg viewBox="0 0 24 12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v6"/></svg>';
+      clip.appendChild(t);
     });
+    pol.appendChild(clip);
   }
   return pol;
 }
@@ -178,7 +184,9 @@ function select(id,keep){
   if(ph){ const el=sheetsEl.querySelector(`.pol[data-id="${ph.id}"]`); el&&el.classList.add('sel'); }
   $('#rightEmpty').hidden=!!ph; $('#rightSel').hidden=!ph;
   if(ph) fillRight(ph);
-  if(ph && selectedId!==had && !keep && !uiState.right && !zen){ uiState.right=true; applyUI(); }
+  // no celular a gaveta cobre a foto — não abrir sozinha ao selecionar
+  const mob=matchMedia('(max-width:820px)').matches;
+  if(ph && selectedId!==had && !keep && !uiState.right && !zen && !mob){ uiState.right=true; applyUI(); }
 }
 function fillRight(ph){
   const m=media[ph.id];
