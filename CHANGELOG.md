@@ -1,5 +1,17 @@
 # Histórico
 
+## 0.11 — acrílico estável, menus no celular e modelos prontos
+- Vidro acrílico com desfoque e opacidade **constantes** (85% + blur 16) —
+  não muda mais ao rolar/dar zoom, acabou o efeito de "piscar" translúcido.
+- **Celular**: a barra de ferramentas quebra em linhas em vez de rolar na
+  horizontal (nenhum botão some); o menu ⋯ vira uma folha na base da tela;
+  o fundo escurecido cobre também o menu; a pinça de dois dedos dispensa os
+  botões +/- em telas estreitas.
+- **Modelos prontos**: 8 pontos de partida (Polaroid clássico, Mural com
+  fita, Scrapbook, Cartela Instax, 10×15, Grade minimalista, Story, Post),
+  com miniatura, escolhíveis no estado vazio (antes de carregar as fotos) e
+  numa seção do painel esquerdo. Aplicar um modelo não mexe nas fotos.
+
 ## 0.10 — mais efeitos, recorte no card e uso no celular
 - Novos efeitos de canto: **mini brad** (fixador de papel, cabecinha metálica
   com fenda) e **percevejo** (fixar a foto, cabeça em cúpula com sombra).
