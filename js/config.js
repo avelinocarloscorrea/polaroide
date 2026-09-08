@@ -185,26 +185,22 @@ const DEFAULTS={
 const COLOR_DEFAULTS={cardColor:'#ffffff',pageBg:'#ffffff',pageBg2:'#e9e2d3',captionColor:'#222222',cardLineColor:'#c9c9c9',tapeColor:'#e7dfce'};
 const HEX=/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
 
-/* ---------- modelos prontos ----------
-   Cada um é um conjunto parcial de ajustes aplicado sobre DEFAULTS. Passa por
-   migrateSettings, então valores inválidos são corrigidos. Escolher um modelo
-   não mexe nas fotos já adicionadas. */
+/* ---------- TEMPLATES (tela inicial) ----------
+   Um template é uma configuração COMPLETA pronta: formato + folha + efeito +
+   cores + legenda. Aplicar redefine tudo (mantém só acrílico e resolução).
+   Passa por migrateSettings, então valores inválidos são corrigidos. */
 const TEMPLATES=[
-  {id:'classic', name:'Polaroid clássico', desc:'A4, grade automática, marcas de corte.',
-   settings:{}},
-  {id:'mural', name:'Mural com fita', desc:'Levemente tortos, fita nos cantos, fundo bege.',
+  {id:'memories', name:'Recordações', desc:'Clássico levemente torto, fita nos cantos, fundo bege, letra manuscrita.',
    settings:{format:'classic',tiltDeg:3,tape:'tape-2',tapeColor:'#e7dfce',cornerMarks:false,
      gapMm:11,pageBg:'#efe9dd',captionFont:"'Caveat','Segoe Script','Bradley Hand',cursive",captionSizePt:17}},
-  {id:'scrapbook', name:'Scrapbook', desc:'Quadrado, brads nos 4 cantos, marcador.',
+  {id:'scrapbook', name:'Scrapbook', desc:'Quadrado, brads nos 4 cantos, fundo quente, marcador.',
    settings:{format:'sx70',tiltDeg:4,tape:'brad-4',cornerMarks:false,gapMm:13,pageBg:'#f0e7d6',
      captionFont:"'Permanent Marker','Comic Sans MS',cursive",captionSizePt:12}},
-  {id:'instax', name:'Cartela Instax Mini', desc:'Vários por folha, prontos para recortar.',
-   settings:{format:'instaxMini',gapMm:6,marginMm:10,cornerMarks:true}},
-  {id:'revelacao', name:'10×15 para revelação', desc:'Formato retrato, encaixe apertado.',
-   settings:{format:'postcard',gapMm:4,marginMm:8,cornerMarks:true}},
-  {id:'minimal', name:'Grade minimalista', desc:'Borda fina, sem legenda, contorno para cortar.',
+  {id:'minimal', name:'Minimalista', desc:'Borda fina, sem legenda, contorno para recortar.',
    settings:{format:'modern',captionMm:0,gapMm:6,marginMm:14,cornerMarks:false,
      cardLine:true,cardLineColor:'#d9d3c6'}},
+  {id:'instax', name:'Cartela Instax Mini', desc:'Vários por folha, prontos para recortar.',
+   settings:{format:'instaxMini',gapMm:6,marginMm:10,cornerMarks:true}},
   {id:'story', name:'Story do Instagram', desc:'1080×1920, um polaroide grande, fundo em degradê.',
    settings:{format:'classic',pageSize:'igstory',columns:'1',marginMm:40,polaroidWidthMm:150,
      cornerMarks:false,bgGradient:true,pageBg:'#3d5c52',pageBg2:'#a97f3d',bgAngle:160,
@@ -212,4 +208,27 @@ const TEMPLATES=[
   {id:'post', name:'Post quadrado', desc:'1080×1080, polaroide centralizado, degradê claro.',
    settings:{format:'sx70',pageSize:'igpost',columns:'1',marginMm:34,polaroidWidthMm:170,
      cornerMarks:false,bgGradient:true,pageBg:'#faf6ec',pageBg2:'#e6d9bf',bgAngle:135}},
+];
+
+/* ---------- MODELOS DE FOLHA (painel esquerdo) ----------
+   Um modelo só mexe no DESENHO DA FOLHA — tamanho do papel, grade, margens,
+   acabamento de corte. Cores, efeitos, legenda e o formato do polaroide
+   continuam como estão. É uma mesclagem parcial, não um reset. */
+const LAYOUTS=[
+  {id:'a4auto', name:'A4 · grade automática',
+   settings:{pageSize:'a4',landscape:false,columns:'auto',align:'center',marginMm:12,gapMm:8,cornerMarks:true,cardLine:false}},
+  {id:'a4wide', name:'A4 · 2 colunas, folgado',
+   settings:{pageSize:'a4',landscape:false,columns:'2',align:'center',marginMm:22,gapMm:16,cornerMarks:false,cardLine:true,cardLineColor:'#d9d3c6'}},
+  {id:'tight', name:'A4 · encaixe apertado',
+   settings:{pageSize:'a4',landscape:false,columns:'auto',marginMm:6,gapMm:3,cornerMarks:true,cardLine:false}},
+  {id:'a4land', name:'A4 deitado',
+   settings:{pageSize:'a4',landscape:true,columns:'auto',marginMm:12,gapMm:8,cornerMarks:true,cardLine:false}},
+  {id:'a3', name:'A3 · pôster',
+   settings:{pageSize:'a3',landscape:false,columns:'auto',marginMm:16,gapMm:12,cornerMarks:true,cardLine:false}},
+  {id:'story', name:'Story 1080×1920',
+   settings:{pageSize:'igstory',landscape:false,columns:'1',marginMm:40,gapMm:10,polaroidWidthMm:150,cornerMarks:false,cardLine:false}},
+  {id:'post', name:'Post 1080×1080',
+   settings:{pageSize:'igpost',landscape:false,columns:'1',marginMm:34,gapMm:10,polaroidWidthMm:170,cornerMarks:false,cardLine:false}},
+  {id:'portrait', name:'Post retrato 1080×1350',
+   settings:{pageSize:'igportrait',landscape:false,columns:'1',marginMm:36,gapMm:10,polaroidWidthMm:170,cornerMarks:false,cardLine:false}},
 ];

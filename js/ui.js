@@ -106,10 +106,7 @@ function templateThumb(t){
   return `<svg viewBox="0 0 ${VW} ${VH}" preserveAspectRatio="xMidYMid meet" aria-hidden="true">${defs}`
     +`<rect x="0" y="0" width="${VW}" height="${VH}" rx="2" fill="${bg}" stroke="rgba(0,0,0,.14)"/>${cells}</svg>`;
 }
-function markTemplate(id){
-  $$('#tplGrid .tpl').forEach(b=>b.classList.toggle('on',b.dataset.tpl===id));
-  $$('#tplRow .chip').forEach(b=>b.classList.toggle('on',b.dataset.tpl===id));
-}
+// TEMPLATE (tela inicial) = configuração completa; redefine tudo
 function applyTemplate(id){
   const t=TEMPLATES.find(x=>x.id===id); if(!t) return;
   pushHistory('template');
@@ -117,8 +114,18 @@ function applyTemplate(id){
   state.settings=migrateSettings({...DEFAULTS,...t.settings,...keep});
   selectedId=null;
   syncControls(); applyVars(); render(); save(); fit();
-  markTemplate(id);
-  toast('Modelo aplicado: '+t.name);
+  $$('#tplList .tpl-row').forEach(b=>b.classList.toggle('on',b.dataset.tpl===id));
+  toast('Template aplicado: '+t.name);
+}
+// MODELO DE FOLHA (painel esquerdo) = só o desenho da folha; mescla, não reseta
+function applyLayout(id){
+  const l=LAYOUTS.find(x=>x.id===id); if(!l) return;
+  pushHistory('layout');
+  Object.assign(state.settings,l.settings);
+  migrateSettings(state.settings);
+  syncControls(); applyVars(); render(); save(); fit();
+  $$('#layoutRow .chip').forEach(b=>b.classList.toggle('on',b.dataset.layout===id));
+  toast('Modelo de folha: '+l.name);
 }
 const isMobile=()=>matchMedia('(max-width:820px)').matches;
 // escurece o fundo quando uma gaveta OU o menu ⋯ está aberto (só no celular)
@@ -215,25 +222,25 @@ function bindAll(){
   Object.entries(FORMATS).forEach(([k,v])=>$('#c_format').add(new Option(v.label,k)));
   for(let i=1;i<=8;i++) $('#c_cols').add(new Option(i,i));
 
-  // modelos prontos — cartões no estado vazio + atalhos no painel esquerdo
-  const tplGrid=$('#tplGrid'), tplRow=$('#tplRow');
-  TEMPLATES.forEach(t=>{
-    if(tplGrid){
-      const b=document.createElement('button');
-      b.type='button'; b.className='tpl'; b.dataset.tpl=t.id;
-      b.innerHTML='<span class="tpl-thumb">'+templateThumb(t)+'</span>'
-        +'<span class="tpl-name"></span><span class="tpl-desc"></span>';
-      b.querySelector('.tpl-name').textContent=t.name;
-      b.querySelector('.tpl-desc').textContent=t.desc;
-      b.onclick=()=>applyTemplate(t.id);
-      tplGrid.appendChild(b);
-    }
-    if(tplRow){
-      const c=document.createElement('button');
-      c.type='button'; c.className='chip'; c.dataset.tpl=t.id; c.textContent=t.name;
-      c.onclick=()=>applyTemplate(t.id);
-      tplRow.appendChild(c);
-    }
+  // TEMPLATES — lista compacta na tela inicial (sem cartões grandes)
+  const tplList=$('#tplList');
+  if(tplList) TEMPLATES.forEach(t=>{
+    const b=document.createElement('button');
+    b.type='button'; b.className='tpl-row'; b.dataset.tpl=t.id;
+    b.innerHTML='<span class="tpl-mini">'+templateThumb(t)+'</span>'
+      +'<span class="tpl-txt"><b></b><i></i></span>';
+    b.querySelector('b').textContent=t.name;
+    b.querySelector('i').textContent=t.desc;
+    b.onclick=()=>applyTemplate(t.id);
+    tplList.appendChild(b);
+  });
+  // MODELOS DE FOLHA — chips no painel esquerdo
+  const layoutRow=$('#layoutRow');
+  if(layoutRow) LAYOUTS.forEach(l=>{
+    const c=document.createElement('button');
+    c.type='button'; c.className='chip'; c.dataset.layout=l.id; c.textContent=l.name;
+    c.onclick=()=>applyLayout(l.id);
+    layoutRow.appendChild(c);
   });
   Object.keys(PRESET_LABELS).forEach(k=>{
     const b=document.createElement('button'); b.className='chip'; b.dataset.p=k; b.textContent=PRESET_LABELS[k];
