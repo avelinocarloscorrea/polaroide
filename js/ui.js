@@ -58,6 +58,7 @@ function syncControls(){
   document.body.classList.toggle('acrylic',!!s.acrylic);
   rebuildFontOptions(); $('#c_font').value=s.captionFont;
   refreshColorFields();
+  if(typeof syncMobile==='function') syncMobile();
 }
 function bindRange(id,key,fmt){
   const el=$(id), out=$(id.replace('#c_','#v_').replace('#f_','#v_'));
@@ -355,7 +356,7 @@ function bindAll(){
   const menu=$('#menu');
   $('#b_more').onclick=e=>{ e.stopPropagation(); menu.hidden=!menu.hidden; syncScrim(); };
   document.addEventListener('pointerdown',e=>{
-    if(!menu.hidden && !menu.contains(e.target) && !$('#b_more').contains(e.target)){ menu.hidden=true; syncScrim(); }
+    if(!menu.hidden && !menu.contains(e.target) && !(e.target.closest&&e.target.closest('#b_more,#mu_more'))){ menu.hidden=true; syncScrim(); }
   });
   const mclose=()=>{ menu.hidden=true; syncScrim(); };
   if(ACERVO_URL){

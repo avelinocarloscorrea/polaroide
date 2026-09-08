@@ -62,7 +62,10 @@ stage.addEventListener('scroll',()=>{
   let best=0,bd=1e9;
   [...sheetsEl.children].forEach((pg,i)=>{ const c=pg.offsetTop*zoom+pg.offsetHeight*zoom/2;
     const d=Math.abs(c-mid); if(d<bd){bd=d;best=i;} });
-  if(best!==currentPage){ currentPage=best; $('#pageLbl').textContent=`${best+1} / ${L.pages}`; }
+  if(best!==currentPage){ currentPage=best;
+    $('#pageLbl').textContent=`${best+1} / ${L.pages}`;
+    const mpg=$('#mpg'); if(mpg) mpg.textContent=`Folha ${best+1}/${L.pages}`;
+  }
 });
 addEventListener('keydown',e=>{
   const t=e.target;
@@ -127,12 +130,15 @@ addEventListener('beforeprint',()=>select(null));
 /* ================= init ================= */
 (async function init(){
   injectIcons();
+  const mob=matchMedia('(max-width:820px)').matches;
   try{
     const stored=JSON.parse(localStorage.getItem(UIKEY)||'null');
     if(stored&&typeof stored==='object'){ uiState.left=stored.left!==false; uiState.right=stored.right!==false; }
     else if(innerWidth<1200){ uiState.right=false; if(innerWidth<960) uiState.left=false; }
   }catch(e){}
+  if(mob){ uiState.left=false; uiState.right=false; }   // no celular a casca é #mroot
   bindAll();
+  if(typeof bindMobile==='function') bindMobile();
   setupColorFields();
   syncControls();
   applyUI();

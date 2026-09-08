@@ -176,6 +176,7 @@ function render(){
     +`${gm.polW.toFixed(0)}×${gm.polH.toFixed(0)} mm cada${capMsg}`;
   if($('#c_w').disabled) $('#v_w').textContent=gm.polW.toFixed(0)+' mm (encaixado)';
   $('#pageLbl').textContent=`${currentPage+1} / ${L.pages}`;
+  { const mpg=$('#mpg'); if(mpg) mpg.textContent=L.pages>1?`Folha ${currentPage+1}/${L.pages}`:''; }
   select(selectedId,true);
   updateHistoryButtons();
 }
@@ -203,6 +204,7 @@ function select(id,keep){
 function fillRight(ph){
   const m=media[ph.id];
   $('#s_thumb').src=m?m.previewURL:'';
+  const sc=$('#s_caption'); if(sc && sc!==document.activeElement) sc.value=ph.caption||'';
   const d=photoDPI(ph);
   $('#s_dot').className='dot '+dpiClass(d);
   $('#s_dpi').textContent=d?`Impressão: ~${d} dpi ${d>=240?'(ótima)':d>=150?'(aceitável)':'(baixa — pode borrar)'}`:'—';

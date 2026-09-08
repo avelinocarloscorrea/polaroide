@@ -22,7 +22,11 @@ function applySnap(str){
 }
 function undo(){ if(!past.length) return; future.push(snap()); applySnap(past.pop()); }
 function redo(){ if(!future.length) return; past.push(snap()); applySnap(future.pop()); }
-function updateHistoryButtons(){ $('#b_undo').disabled=!past.length; $('#b_redo').disabled=!future.length; }
+function updateHistoryButtons(){
+  $('#b_undo').disabled=!past.length; $('#b_redo').disabled=!future.length;
+  const mu=$('#mu_undo'),mr=$('#mu_redo');
+  if(mu) mu.disabled=!past.length; if(mr) mr.disabled=!future.length;
+}
 
 /* ================= mutações ================= */
 function mutate(key,fn){ pushHistory(key); fn(); save(); render(); }
