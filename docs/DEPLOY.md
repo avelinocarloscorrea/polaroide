@@ -5,8 +5,9 @@ entregue arquivo: Apache/LiteSpeed, Nginx, GitHub Pages, Netlify, etc.
 
 ## O que vai para o ar
 
-Tudo o que está versionado, **menos** `docs/`, `README.md`, `CHANGELOG.md`,
-`LICENSE`, `acervo.html` e `.git` — esses são só do repositório. Na prática:
+Tudo o que está versionado, **menos** `docs/`, `marketing/`, `README.md`,
+`CHANGELOG.md`, `LICENSE`, `acervo.html` e `.git` — esses são só do
+repositório. Na prática:
 
 ```
 public_html/            (ou o docroot do host)

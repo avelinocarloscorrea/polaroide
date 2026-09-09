@@ -1,0 +1,69 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
+<!-- EXPORTAR: 1600 × 1000 -->
+<title>Polaroide Studio — efeitos</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Caveat:wght@600&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--em:#3d5c52;--gold:#a97f3d;--paper:#f2eee6;--ink:#23272c;--muted:#6d6a62;--line:#e5dfd3;
+    --serif:'Playfair Display',Georgia,serif;--ui:'Inter','Open Sans',system-ui,sans-serif;--hand:'Caveat',cursive}
+  *{box-sizing:border-box;margin:0}
+  body{width:1600px;height:1000px;background:
+      radial-gradient(1100px 600px at 80% 110%,#fff7ec,transparent 60%),var(--paper);
+    font-family:var(--ui);padding:80px 90px;overflow:hidden}
+  .kicker{font-size:14px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);font-weight:700}
+  h1{font-family:var(--serif);font-size:52px;color:var(--ink);margin:12px 0 6px}
+  .sub{font-size:18px;color:var(--muted);margin-bottom:44px}
+  .row{display:flex;gap:44px;justify-content:center}
+  .item{text-align:center}
+  .pol{width:250px;background:#fff;padding:14px 14px 0;box-shadow:0 16px 32px -10px rgba(35,39,44,.32);position:relative}
+  .pol .ph{aspect-ratio:1;background:linear-gradient(160deg,#f6cf9f,#e88f6b 55%,#7a5b74)}
+  .item:nth-child(2) .ph{background:linear-gradient(160deg,#c3e2e7,#7fb3bf 55%,#3f6f7a)}
+  .item:nth-child(3) .ph{background:linear-gradient(160deg,#e2e8cd,#a9bd8a 55%,#6f8f6a)}
+  .item:nth-child(4) .ph{background:linear-gradient(160deg,#f4dbe3,#d99fb0 55%,#8b6b86)}
+  .pol .cap{height:38px;display:flex;align-items:center;justify-content:center;font-family:var(--hand);font-size:22px;color:#3a3a3a}
+  .tag{position:absolute;font:600 13px var(--ui);color:var(--em);background:#fff;border:1px solid var(--line);
+    border-radius:99px;padding:5px 12px;box-shadow:0 4px 10px rgba(0,0,0,.06)}
+  .name{margin-top:20px;font-family:var(--serif);font-size:20px;color:var(--ink)}
+  /* efeitos, dentro do card */
+  .fita{position:absolute;top:30px;left:18px;width:60px;height:20px;background:rgba(214,196,140,.72);
+    transform:rotate(-45deg);box-shadow:0 1px 3px rgba(0,0,0,.16)}
+  .fita.r{left:auto;right:18px;transform:rotate(45deg)}
+  .grampo{position:absolute;top:26px;left:24px;width:26px;height:16px;border:3.5px solid #8b9199;border-bottom:0;
+    border-radius:4px 4px 0 0;transform:rotate(-45deg)}
+  .grampo.r{left:auto;right:24px;transform:rotate(45deg)}
+  .brad{position:absolute;top:30px;left:24px;width:16px;height:16px;border-radius:50%;
+    background:radial-gradient(circle at 34% 30%,#fff,rgba(255,255,255,0) 46%),#a97f3d;box-shadow:0 1px 2px rgba(0,0,0,.4)}
+  .brad.r{left:auto;right:24px}
+  .brad.b{top:auto;bottom:64px}
+  .pin{position:absolute;top:26px;left:50%;transform:translateX(-50%);width:22px;height:22px;border-radius:50%;
+    background:radial-gradient(circle at 33% 28%,#fff,rgba(255,255,255,0) 42%),#b23b2c;box-shadow:0 3px 6px rgba(0,0,0,.4)}
+  .wm{position:absolute;left:90px;bottom:44px;font:700 13px var(--ui);color:var(--gold);letter-spacing:.14em;text-transform:uppercase}
+  .url{position:absolute;right:90px;bottom:44px;font:400 14px var(--ui);color:var(--muted)}
+</style></head><body>
+
+  <div class="kicker">Efeitos de canto</div>
+  <h1>Os detalhes que fazem parecer feito à mão.</h1>
+  <div class="sub">O efeito fica <b>dentro do card</b> e sai igual no papel.</div>
+
+  <div class="row">
+    <div class="item">
+      <div class="pol"><i class="fita"></i><i class="fita r"></i><div class="ph"></div><div class="cap">viagem</div></div>
+      <div class="name">Fita adesiva</div>
+    </div>
+    <div class="item">
+      <div class="pol"><i class="grampo"></i><i class="grampo r"></i><div class="ph"></div><div class="cap">domingo</div></div>
+      <div class="name">Grampo</div>
+    </div>
+    <div class="item">
+      <div class="pol"><i class="brad"></i><i class="brad r"></i><i class="brad b"></i><i class="brad r b"></i><div class="ph"></div><div class="cap">quintal</div></div>
+      <div class="name">Mini brad</div>
+    </div>
+    <div class="item">
+      <div class="pol"><i class="pin"></i><div class="ph"></div><div class="cap">mural</div></div>
+      <div class="name">Percevejo</div>
+    </div>
+  </div>
+
+  <div class="wm">Polaroide Studio</div>
+  <div class="url">polaroidestudio.esmeraldapaper.com.br</div>
+
+</body></html>
