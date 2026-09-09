@@ -58,6 +58,7 @@ const ICONS={
   imageplus:'<rect x="3" y="3" width="18" height="18" rx="2.5"/><circle cx="9" cy="9" r="1.7"/><path d="M4 15.5l4-3.6a2 2 0 0 1 2.7 0L20 19"/>',
   printer:'<path d="M7 9V3h10v6"/><rect x="6" y="14" width="12" height="7" rx="1"/><path d="M6 18H4a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-2"/>',
   filepdf:'<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/>',
+  filenew:'<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M12 12v6M9 15h6"/>',
   imagedown:'<rect x="3" y="3" width="18" height="13" rx="2.5"/><circle cx="8.5" cy="8" r="1.5"/><path d="M4 13l4-3.2a2 2 0 0 1 2.6 0L15 13"/><path d="M12 17v5m0 0l2.5-2.5M12 22l-2.5-2.5"/>',
   save:'<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8"/><path d="M7 3v5h7"/>',
   folder:'<path d="M3 7a2 2 0 0 1 2-2h4l2 2h6a2 2 0 0 1 2 2v1"/><path d="M3.2 9h17.6l-1.8 9.2A2 2 0 0 1 17 20H7a2 2 0 0 1-2-1.8z"/>',
@@ -187,23 +188,23 @@ const HEX=/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
    cores + legenda. Aplicar redefine tudo (mantém só acrílico e resolução).
    Todos encaixam na folha automaticamente, sem polaroide cortado. */
 const TEMPLATES=[
-  {id:'classico', name:'Polaroid clássico', desc:'A4, 3 × 3, borda branca, marcas de corte.',
+  {id:'classico', name:'Polaroid clássico', desc:'A4 · 3×3 · marcas de corte',
    settings:{format:'classic',autoFit:true,columns:'3',rows:'3',marginMm:10,gapMm:6,cornerMarks:true}},
-  {id:'memories', name:'Recordações', desc:'Levemente tortos, fita nos cantos, fundo bege, letra manuscrita.',
+  {id:'memories', name:'Recordações', desc:'torto · fita · fundo bege · manuscrita',
    settings:{format:'classic',autoFit:true,columns:'2',rows:'3',tiltDeg:3,tape:'tape-2',tapeColor:'#e7dfce',
      cornerMarks:false,gapMm:11,pageBg:'#efe9dd',captionFont:"'Caveat','Segoe Script','Bradley Hand',cursive",captionSizePt:17}},
-  {id:'scrapbook', name:'Scrapbook', desc:'Quadrado, brads nos 4 cantos, fundo quente, marcador.',
+  {id:'scrapbook', name:'Scrapbook', desc:'quadrado · brads · marcador',
    settings:{format:'sx70',autoFit:true,columns:'2',rows:'3',tiltDeg:4,tape:'brad-4',cornerMarks:false,
      gapMm:12,pageBg:'#f0e7d6',captionFont:"'Permanent Marker','Comic Sans MS',cursive",captionSizePt:12}},
-  {id:'minimal', name:'Minimalista', desc:'Borda fina, sem legenda, contorno para recortar.',
+  {id:'minimal', name:'Minimalista', desc:'borda fina · sem legenda · contorno',
    settings:{format:'modern',autoFit:true,columns:'3',rows:'4',captionMm:0,gapMm:5,marginMm:12,
      cornerMarks:false,cardLine:true,cardLineColor:'#d9d3c6'}},
-  {id:'instax', name:'Cartela Instax Mini', desc:'Vários por folha, prontos para recortar.',
+  {id:'instax', name:'Instax Mini', desc:'cartela · vários por folha',
    settings:{format:'instaxMini',autoFit:true,columns:'4',rows:'4',gapMm:5,marginMm:8,cornerMarks:true}},
-  {id:'contato', name:'Folha de contato', desc:'Grade miúda, sem legenda, para conferir as fotos.',
+  {id:'contato', name:'Folha de contato', desc:'grade miúda · sem legenda',
    settings:{format:'modern',autoFit:true,columns:'6',rows:'8',captionMm:0,gapMm:3,marginMm:8,
      cornerMarks:false,cardLine:true,cardLineColor:'#d9d3c6'}},
-  {id:'retrato', name:'Retrato 10×15', desc:'Quatro por folha, formato de revelação.',
+  {id:'retrato', name:'Retrato 10×15', desc:'4 por folha · revelação',
    settings:{format:'postcard',autoFit:true,columns:'2',rows:'2',gapMm:6,marginMm:10,cornerMarks:true}},
 ];
 

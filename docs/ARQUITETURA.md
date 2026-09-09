@@ -133,9 +133,9 @@ recortando os efeitos no contorno do card; `exportPNG()` baixa esse canvas,
 | `js/images.js`  | `dataURLtoBlob` `decode` `toBlob` `bakeImage` `processFile` `acceptable` `addFiles` `rebuildDerived` `rotate90` |
 | `js/layout.js`  | `pageDims` `printArea` `polHFromW` `gridCount` `fitWidth` `geom` `exportDPI` `layout` `tiltOf` `cssFilter` `photoDPI` `dpiClass` |
 | `js/render.js`  | `pageSheet`; `applyVars` `polEl` `imgTransform` `styleImg` `render` `cur` `select` `fillRight` `livePhoto` `applyZoom` `fit` `zoomAt` `gotoPage` |
-| `js/history.js` | `past`/`future`; `pushHistory` `applySnap` `undo` `redo` `updateHistoryButtons` `mutate` `move` `removePhoto` `duplicate` `doClear` `wipeAll` |
+| `js/history.js` | `past`/`future`; `pushHistory` `applySnap` `undo` `redo` `updateHistoryButtons` `mutate` `move` `removePhoto` `duplicate` `doClear` `newProject` `wipeAll` |
 | `js/export.js`  | `roundRect` `wrapText` `ensureFullImages` `ensureFonts` `drawPage` `drawPol` `drawDecor` `pdfFromImages` `exportPDF` `exportPNG` `blobToDataURL` `exportProject` `importProject` |
-| `js/ui.js`      | `toast` `busy` `unbusy`; `rebuildFontOptions` `syncControls` `bindRange` `applyFormat` `templateThumb` `applyTemplate` `applyLayout`; `isMobile` `syncScrim` `togglePanel` `applyUI`; seletor de cor (`setupColorFields` `openCF`); `bindAll()` |
+| `js/ui.js`      | `toast` `busy` `unbusy`; `rebuildFontOptions` `syncControls` `bindRange` `applyFormat` `applyTemplate` `applyLayout`; `isMobile` `syncScrim` `togglePanel` `applyUI`; seletor de cor (`setupColorFields` `openCF`); `bindAll()` |
 | `js/mobile.js`  | helpers de casca (`mSeg` `mSegSet` `mStepSet` `mRng` …); `mSetTab`; `syncMobile()` (chamada por `syncControls()`); `bindMobile()` (chamada por `init()`) |
 | `js/events.js`  | listeners globais (teclado, roda/pinça, arraste do meio, toque duplo, drag&drop, paste, resize, print) + `init()` |
 

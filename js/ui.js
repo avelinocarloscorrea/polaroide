@@ -77,48 +77,6 @@ function applyFormat(k){
   Object.assign(state.settings,{format:k,polaroidWidthMm:F.w,aspectW:F.aw,aspectH:F.ah,frameMm:F.frame,captionMm:F.cap});
 }
 
-/* ---- modelos prontos ---- */
-// miniatura esquemática da folha do modelo (proporção, grade, fundo, efeito)
-function templateThumb(t){
-  const s={...DEFAULTS,...t.settings};
-  let pw=(PAGE_SIZES[s.pageSize]||PAGE_SIZES.a4).w, ph=(PAGE_SIZES[s.pageSize]||PAGE_SIZES.a4).h;
-  if(s.landscape){ const x=pw; pw=ph; ph=x; }
-  const VW=78, VH=Math.max(30,Math.round(VW*ph/pw));
-  const aspect=(s.aspectW||1)/(s.aspectH||1), gw=s.polaroidWidthMm;
-  const M=Math.max(s.marginMm,5);
-  let cols=s.columns==='auto'
-    ? Math.max(1,Math.floor((pw-2*M+s.gapMm)/(gw+s.gapMm)))
-    : clamp(+s.columns,1,12);
-  let rows=s.rows==='auto'
-    ? Math.max(1,Math.floor((ph-2*M+s.gapMm)/((s.frameMm+(gw-2*s.frameMm)/aspect+s.captionMm)+s.gapMm)))
-    : clamp(+s.rows,1,12);
-  cols=Math.min(cols,8); rows=Math.min(rows,10);
-  const m=VW*(M/pw), g=Math.max(.5,VW*(s.gapMm/pw));
-  const cellW=(VW-2*m-(cols-1)*g)/cols;
-  const cellH=(VH-2*m-(rows-1)*g)/rows;
-  // razão altura/largura do card, a partir das frações de frame e legenda
-  const frR=s.frameMm/gw, capR=s.captionMm/gw;
-  const K=frR+(1-2*frR)/(aspect||1)+capR;
-  const cardW=Math.max(1.2,Math.min(cellW,cellH/K));
-  const cardH=cardW*K;
-  const frame=cardW*frR, winH=(cardW-2*frame)/(aspect||1);
-  const gid='tg-'+t.id, bg=s.bgGradient?`url(#${gid})`:s.pageBg;
-  const dotC=s.tape==='none'?'':s.tape.startsWith('tape')?s.tapeColor
-    :s.tape.startsWith('brad')?'#a97f3d':s.tape.startsWith('pin')?'#b23b2c':'#8b9199';
-  let cells='';
-  for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
-    const cx=m+c*(cardW+g)+cardW/2, cy=m+r*(cardH+g)+cardH/2;
-    const rot=s.tiltDeg?(((r*3+c*7)%5)-2)*(s.tiltDeg/4):0;
-    cells+=`<g transform="translate(${cx.toFixed(1)} ${cy.toFixed(1)}) rotate(${rot.toFixed(1)})">`
-      +`<rect x="${(-cardW/2).toFixed(1)}" y="${(-cardH/2).toFixed(1)}" width="${cardW.toFixed(1)}" height="${cardH.toFixed(1)}" rx="1" fill="${s.cardColor}" stroke="rgba(0,0,0,.18)" stroke-width=".5"/>`
-      +`<rect x="${(-cardW/2+frame).toFixed(1)}" y="${(-cardH/2+frame).toFixed(1)}" width="${Math.max(1,cardW-2*frame).toFixed(1)}" height="${Math.max(1,winH).toFixed(1)}" fill="#c9c0b0"/>`
-      +(dotC?`<circle cx="${(-cardW/2+frame+1.6).toFixed(1)}" cy="${(-cardH/2+frame+1).toFixed(1)}" r="1.2" fill="${dotC}"/>`:'')
-      +`</g>`;
-  }
-  const defs=s.bgGradient?`<defs><linearGradient id="${gid}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${s.pageBg}"/><stop offset="1" stop-color="${s.pageBg2}"/></linearGradient></defs>`:'';
-  return `<svg viewBox="0 0 ${VW} ${VH}" preserveAspectRatio="xMidYMid meet" aria-hidden="true">${defs}`
-    +`<rect x="0" y="0" width="${VW}" height="${VH}" rx="2" fill="${bg}" stroke="rgba(0,0,0,.14)"/>${cells}</svg>`;
-}
 // TEMPLATE (tela inicial) = configuração completa; redefine tudo
 function applyTemplate(id){
   const t=TEMPLATES.find(x=>x.id===id); if(!t) return;
@@ -237,15 +195,13 @@ function bindAll(){
   Object.entries(FORMATS).forEach(([k,v])=>$('#c_format').add(new Option(v.label,k)));
   for(let i=1;i<=12;i++){ $('#c_cols').add(new Option(i,i)); $('#c_rows').add(new Option(i,i)); }
 
-  // TEMPLATES — lista compacta na tela inicial (sem cartões grandes)
+  // TEMPLATES — pílulas na tela inicial (nome + miniatura; descrição no title)
   const tplList=$('#tplList');
   if(tplList) TEMPLATES.forEach(t=>{
     const b=document.createElement('button');
     b.type='button'; b.className='tpl-row'; b.dataset.tpl=t.id;
-    b.innerHTML='<span class="tpl-mini">'+templateThumb(t)+'</span>'
-      +'<span class="tpl-txt"><b></b><i></i></span>';
-    b.querySelector('b').textContent=t.name;
-    b.querySelector('i').textContent=t.desc;
+    if(t.desc) b.title=t.desc;
+    b.textContent=t.name;
     b.onclick=()=>applyTemplate(t.id);
     tplList.appendChild(b);
   });
@@ -372,6 +328,7 @@ function bindAll(){
   $('#m_pdf').onclick=()=>{ mclose(); exportPDF(); };
   $('#m_png').onclick=()=>{ mclose(); exportPNG(); };
   $('#m_print').onclick=()=>{ mclose(); select(null); setTimeout(()=>window.print(),80); };
+  $('#m_new').onclick=()=>{ mclose(); newProject(); };
   $('#m_save').onclick=()=>{ mclose(); exportProject(); };
   $('#m_open').onclick=()=>{ mclose(); $('#file_open').click(); };
   $('#m_help').onclick=()=>{ mclose(); $('#help').showModal(); };

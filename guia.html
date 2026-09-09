@@ -45,7 +45,7 @@
       <a href="#cores">11. Cores e fundo</a>
       <strong>Sair com o resultado</strong>
       <a href="#exportar">12. PDF, PNG e impressão</a>
-      <a href="#projeto">13. Salvar e abrir projeto</a>
+      <a href="#projeto">13. Novo projeto, salvar e abrir</a>
       <strong>Mais</strong>
       <a href="#interface">14. Painéis, tela cheia, acrílico</a>
       <a href="#atalhos">15. Atalhos de teclado</a>
@@ -87,12 +87,11 @@
     <section id="adicionar">
       <h2><span class="n">2</span>Adicionar fotos</h2>
 
-      <div class="tip"><b>Antes disso: comece com um template (opcional)</b>
-        Na tela inicial (sem fotos) aparece <strong>“Comece com um template”</strong> — uma
-        lista de configurações <em>completas</em> e prontas (Polaroid clássico, Recordações,
-        Scrapbook, Minimalista, Cartela Instax, Folha de contato, Retrato 10×15). Um clique
-        ajusta formato, folha, efeito, cores e legenda de uma vez; depois é só adicionar as
-        fotos.
+      <div class="tip"><b>Comece por um modelo (opcional)</b>
+        Na tela inicial (sem fotos), abaixo do botão de adicionar, há pílulas com <em>templates</em>
+        — configurações completas e prontas (Polaroid clássico, Recordações, Scrapbook,
+        Minimalista, Instax Mini, Folha de contato, Retrato 10×15). Um clique ajusta formato,
+        folha, efeito, cores e legenda de uma vez; depois é só adicionar as fotos.
         <br><br>
         Não confunda com os <strong>“Modelos de folha”</strong> no painel esquerdo: esses
         mudam só o <em>desenho da folha</em> (papel, quantas colunas/linhas, margens, corte) e
@@ -100,8 +99,8 @@
 
       <p>Há três jeitos de pôr as fotos, e todos podem ser usados juntos:</p>
       <ol class="steps">
-        <li><strong>Botão “Adicionar fotos”</strong> na barra de cima (ou o botão grande no
-          centro, quando a folha está vazia). Dá para escolher várias de uma vez.</li>
+        <li><strong>Botão “Adicionar fotos”</strong> — na barra de cima, ou no centro da tela
+          quando a folha está vazia. Dá para escolher várias de uma vez.</li>
         <li><strong>Arrastar</strong> as imagens do computador e soltar em qualquer lugar da
           janela — aparece “Solte as fotos aqui”.</li>
         <li><strong>Colar</strong> com <kbd>Ctrl</kbd>+<kbd>V</kbd> (uma imagem copiada de
@@ -220,9 +219,10 @@
           <li><b>F</b><strong>Painéis</strong> — ocultar esquerdo, ocultar direito, tela cheia, menu <kbd>⋯</kbd>.</li>
         </ul>
       </figure>
-      <p>O menu <kbd>⋯</kbd> reúne: <strong>Salvar projeto</strong>, <strong>Abrir projeto</strong>,
-      <strong>Acervo</strong>, este guia, <strong>Atalhos</strong>, <strong>Privacidade</strong>,
-      <strong>Sobre</strong> e <strong>Limpar todas as fotos</strong>.</p>
+      <p>O menu <kbd>⋯</kbd> reúne: <strong>Exportar PDF / PNG / Imprimir</strong>,
+      <strong>Novo projeto</strong>, <strong>Salvar projeto</strong>, <strong>Abrir projeto</strong>,
+      este guia, <strong>Atalhos</strong>, <strong>Privacidade</strong>, <strong>Sobre</strong> e
+      <strong>Limpar todas as fotos</strong>.</p>
     </section>
 
     <!-- 4 -->
@@ -462,10 +462,12 @@
 
     <!-- 13 -->
     <section id="projeto">
-      <h2><span class="n">13</span>Salvar e abrir projeto</h2>
-      <p>Menu <kbd>⋯</kbd> → <strong>Salvar projeto (.json)</strong> baixa um arquivo com
-      <em>tudo</em>: as fotos, os ajustes, as legendas. É o seu backup e o jeito de continuar
-      em <strong>outro computador</strong>.</p>
+      <h2><span class="n">13</span>Novo projeto, salvar e abrir</h2>
+      <p>Menu <kbd>⋯</kbd> → <strong>Novo projeto</strong> descarta as fotos e os ajustes atuais
+      e volta tudo ao padrão (pede confirmação).</p>
+      <p><strong>Salvar projeto (.json)</strong> baixa um arquivo com <em>tudo</em>: as fotos,
+      os ajustes, as legendas. É o seu backup e o jeito de continuar em <strong>outro
+      computador</strong>.</p>
       <p><strong>Abrir projeto…</strong> carrega esse arquivo de volta (substitui o trabalho
       atual). Os arquivos de projeto passam pela mesma limpeza das imagens ao abrir.</p>
       <div class="note"><b>Por que salvar?</b>
@@ -573,7 +575,7 @@
       <h2><span class="n">17</span>Privacidade e segurança</h2>
       <ul>
         <li><strong>Nada é enviado</strong> a servidor nenhum. A política de segurança da
-          página (CSP <code>connect-src 'none'</code>) faz o navegador <em>bloquear</em>
+          página (CSP <code>default-src 'none'</code>) faz o navegador <em>bloquear</em>
           qualquer envio — fetch, formulário, WebSocket.</li>
         <li><strong>Sem scripts de terceiros</strong> e sem código embutido.</li>
         <li>Toda imagem é <strong>redesenhada internamente</strong> ao entrar: metadados
@@ -688,12 +690,12 @@
         <tr><td>Abri um <code>.json</code> e algumas fotos não vieram.</td>
           <td>Imagens ilegíveis dentro do projeto são puladas; o resto carrega. Uma mensagem diz
           quantas falharam.</td></tr>
-        <tr><td>No celular a barra “corta” botões.</td>
-          <td>A barra rola na horizontal; os controles de painel ficam fixos à direita. Deslize
-          a barra para ver o resto.</td></tr>
+        <tr><td>No celular não acho um ajuste.</td>
+          <td>Use as quatro abas na base: <strong>Fotos</strong>, <strong>Folha</strong>,
+          <strong>Estilo</strong>, <strong>Exportar</strong>. Tocar numa foto abre a edição dela.</td></tr>
         <tr><td>Quero recomeçar do zero.</td>
-          <td>Menu <kbd>⋯</kbd> → <strong>Limpar todas as fotos</strong> (mantém os ajustes) ou
-          <strong>Privacidade</strong> → apagar todos os dados.</td></tr>
+          <td>Menu <kbd>⋯</kbd> → <strong>Novo projeto</strong> (descarta fotos e ajustes) ou
+          <strong>Limpar todas as fotos</strong> (mantém os ajustes).</td></tr>
       </table>
     </section>
 

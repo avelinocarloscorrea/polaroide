@@ -1,5 +1,13 @@
 # Histórico
 
+## 0.17 — tela inicial enxuta e “Novo projeto”
+- A tela inicial (sem fotos) perdeu o cartão: agora é só o logo, o botão
+  **Adicionar fotos** e os templates como pílulas de texto (a descrição
+  aparece ao passar o mouse). Mais limpa.
+- Menu <kbd>⋯</kbd> → **Novo projeto**: descarta fotos e ajustes e volta ao
+  padrão (com confirmação).
+- Textos de ajuda encurtados nos painéis "Modelos de folha" e "Folha e grade".
+
 ## 0.16 — interface dedicada de celular
 - Em telas ≤ 820 px a casca de desktop (barra + painel esquerdo) dá lugar a
   uma **interface própria** com quatro abas na base: **Fotos** (o quadro +

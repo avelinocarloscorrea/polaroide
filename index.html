@@ -19,14 +19,14 @@
 <link rel="icon" href="assets/favicon.svg">
 <link rel="apple-touch-icon" href="assets/favicon.svg">
 <title>Polaroide Studio</title>
-<link rel="stylesheet" href="css/base.css?v=084">
-<link rel="stylesheet" href="css/layout.css?v=084">
-<link rel="stylesheet" href="css/polaroid.css?v=084">
-<link rel="stylesheet" href="css/effects.css?v=084">
-<link rel="stylesheet" href="css/components.css?v=084">
-<link rel="stylesheet" href="css/util.css?v=084">
-<link rel="stylesheet" href="css/print.css?v=084">
-<link rel="stylesheet" href="css/mobile.css?v=084">
+<link rel="stylesheet" href="css/base.css?v=085">
+<link rel="stylesheet" href="css/layout.css?v=085">
+<link rel="stylesheet" href="css/polaroid.css?v=085">
+<link rel="stylesheet" href="css/effects.css?v=085">
+<link rel="stylesheet" href="css/components.css?v=085">
+<link rel="stylesheet" href="css/util.css?v=085">
+<link rel="stylesheet" href="css/print.css?v=085">
+<link rel="stylesheet" href="css/mobile.css?v=085">
 </head>
 <body>
 <div id="app">
@@ -74,7 +74,7 @@
 
     <details open><summary><span data-i="grid"></span> Modelos de folha <span class="caret" data-i="caret"></span></summary><div class="sect">
       <div class="grp" id="layoutRow"></div>
-      <p class="hint">Muda só o <b>desenho da folha</b> — papel, grade, margens e corte. Cores, efeitos, legenda e o formato do polaroide continuam como estão.</p>
+      <p class="hint">Papel, grade e acabamento. Não mexe nas cores, efeitos nem no formato do polaroide.</p>
     </div></details>
 
     <details open><summary><span data-i="polaroid"></span> Formato do polaroide <span class="caret" data-i="caret"></span></summary><div class="sect">
@@ -123,9 +123,7 @@
       <label>Alinhamento
         <select id="c_align"><option value="center">Centralizado</option><option value="left">À esquerda</option></select></label>
       <button id="c_fill" class="wfull">Ajustar a largura do polaroide para preencher as colunas</button>
-      <p class="hint">Com <b>Encaixar</b> ligado, o tamanho do polaroide é calculado para caber
-      exatamente na grade — nada fica cortado ou fora da folha. A margem nunca fica abaixo de
-      5&nbsp;mm (nenhuma impressora chega até a borda).</p>
+      <p class="hint">Com <b>Encaixar</b> ligado, o polaroide se ajusta para caber na grade. Margem mínima: 5&nbsp;mm.</p>
     </div></details>
 
     <details open><summary><span data-i="scissors"></span> Corte e acabamento <span class="caret" data-i="caret"></span></summary><div class="sect">
@@ -213,11 +211,12 @@
     <div id="sheets"></div>
     <div id="empty" hidden>
       <div class="box scrl">
-        <h3>Comece com um template</h3>
-        <p>Uma configuração completa e pronta. Ou pule e monte do zero.</p>
+        <span class="mark"><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="9" y="7" width="46" height="50" rx="5" fill="var(--surface)" stroke="var(--brand)" stroke-width="3.5"/><rect x="15" y="13" width="34" height="27" rx="2" fill="var(--brand)"/><circle cx="32" cy="26.5" r="7.5" fill="var(--surface)"/><circle cx="32" cy="26.5" r="3.4" fill="var(--brand)"/></svg></span>
+        <h3>Polaroide Studio</h3>
+        <p>Adicione fotos, ou comece por um modelo.</p>
+        <button id="e_add" class="primary jcc" data-i="imageplus">Adicionar fotos</button>
         <div id="tplList" class="tpl-list"></div>
-        <button id="e_add" class="primary jcc wfull" data-i="imageplus">Pular — adicionar fotos</button>
-        <p class="faint mt4">Também dá para arrastar as imagens para a janela ou colar com <kbd>Ctrl</kbd>+<kbd>V</kbd>.</p>
+        <p class="faint">Arraste imagens para a janela · <kbd>Ctrl</kbd>+<kbd>V</kbd> para colar</p>
       </div>
     </div>
   </div>
@@ -314,7 +313,7 @@
       <input type="range" id="mf_gap" min="0" max="20" step="0.5"></div>
     <div class="mrange-wrap"><label>Margem de segurança <span class="v" id="mf_marginv"></span></label>
       <input type="range" id="mf_margin" min="5" max="25" step="0.5"></div>
-    <p class="hint">O tamanho do polaroide é calculado para caber exatinho — nada fica cortado ou fora da folha.</p>
+    <p class="hint">O polaroide se ajusta para caber na grade. Nada fica cortado.</p>
   </section>
 
   <section class="mpanel" id="mp_estilo" hidden>
@@ -396,6 +395,7 @@
   <button id="m_png" data-i="imagedown">Exportar PNG (folha atual)</button>
   <button id="m_print" data-i="printer">Imprimir</button>
   <div class="msep"></div>
+  <button id="m_new" data-i="filenew">Novo projeto</button>
   <button id="m_save" data-i="save">Salvar projeto (.json)</button>
   <button id="m_open" data-i="folder">Abrir projeto…</button>
   <a id="m_acervo" hidden><span data-i="grid"></span> Acervo — mais ferramentas</a>
@@ -465,15 +465,15 @@
 <!-- Script clássico (não module): funciona tanto em https:// quanto ao abrir
      o arquivo direto (file://). Nenhum script inline: script-src 'self'. -->
 <!-- carregados em ordem; compartilham o mesmo escopo global -->
-<script defer src="js/config.js?v=084"></script>
-<script defer src="js/state.js?v=084"></script>
-<script defer src="js/images.js?v=084"></script>
-<script defer src="js/layout.js?v=084"></script>
-<script defer src="js/render.js?v=084"></script>
-<script defer src="js/history.js?v=084"></script>
-<script defer src="js/export.js?v=084"></script>
-<script defer src="js/ui.js?v=084"></script>
-<script defer src="js/mobile.js?v=084"></script>
-<script defer src="js/events.js?v=084"></script>
+<script defer src="js/config.js?v=085"></script>
+<script defer src="js/state.js?v=085"></script>
+<script defer src="js/images.js?v=085"></script>
+<script defer src="js/layout.js?v=085"></script>
+<script defer src="js/render.js?v=085"></script>
+<script defer src="js/history.js?v=085"></script>
+<script defer src="js/export.js?v=085"></script>
+<script defer src="js/ui.js?v=085"></script>
+<script defer src="js/mobile.js?v=085"></script>
+<script defer src="js/events.js?v=085"></script>
 </body>
 </html>
