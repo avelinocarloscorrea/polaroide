@@ -1,5 +1,17 @@
 # Histórico
 
+## 0.19 — celular reconstruído
+- A interface de celular foi refeita numa **grade** (`#mroot`: barra / corpo /
+  abas). O quadro de trabalho e o painel da foto agora são **movidos** para
+  dentro dela — não há mais duas cópias dos controles a dessincronizar.
+- O gesto de **arrastar pra baixo** passou a viver só na barrinha (pega) no
+  topo de cada folha. Antes o gesto cobria o painel inteiro e tropeçava nos
+  sliders, nos steppers e na rolagem.
+- Tocar numa foto abre a folha de edição; tocar fora (ou desmarcar) fecha.
+- Código dividido: `css/mobile.css` → `css/m-shell.css` + `m-panels.css` +
+  `m-sheet.css`; `js/mobile.js` → `js/m-core.js` + `m-panels.js` +
+  `m-sheet.js` + `m-install.js`. O desktop não muda.
+
 ## 0.18 — instalar como app e gestos no celular
 - **Instalar na tela de início** (PWA): `manifest.webmanifest` + `assets/icon.svg`.
   Menu <kbd>⋯</kbd> → “Instalar na tela de início” (Android/Chrome mostra na

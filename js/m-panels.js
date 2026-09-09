@@ -1,13 +1,12 @@
-/* Polaroide Studio — js/mobile.js
-   Casca de celular (abas Fotos / Folha / Estilo / Exportar). Os controles
-   escrevem no mesmo state.settings e chamam render(), igual aos do desktop.
-   Só roda se #mroot existir; no desktop os elementos ficam com display:none. */
+/* Polaroide Studio — js/m-panels.js
+   Controles das abas Folha / Estilo / Exportar do celular. Escrevem no mesmo
+   state.settings e chamam render(), igual aos do desktop. */
 "use strict";
 
-/* ---------- helpers ---------- */
+/* ---------- helpers de widget ---------- */
 function mSegSet(sel,val){
   const c=$(sel); if(!c) return;
-  c.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===String(val)));
+  c.querySelectorAll('button').forEach(b=>b.classList.toggle('on', b.dataset.v===String(val)));
 }
 function mSeg(sel,cb){
   const c=$(sel); if(!c) return;
@@ -18,7 +17,7 @@ function mStepSet(key,val){
 }
 function mRng(sel,key,fmt,forceCustom){
   const el=$(sel), out=$(sel+'v'); if(!el) return;
-  el.addEventListener('pointerdown',()=>pushHistory('mr_'+key));
+  el.addEventListener('pointerdown',()=>{ if(typeof pushHistory==='function') pushHistory('mr_'+key); });
   el.addEventListener('input',()=>{
     state.settings[key]=parseFloat(el.value);
     if(out) out.textContent=fmt(el.value);
@@ -30,55 +29,10 @@ function mRng(sel,key,fmt,forceCustom){
 }
 function mRngSet(sel,v,txt){ const el=$(sel); if(!el) return; el.value=v; const o=$(sel+'v'); if(o) o.textContent=txt; }
 
-/* ---------- arrastar pra baixo = fechar ----------
-   Engata só quando o conteúdo está no topo e o dedo desce na vertical; senão
-   é rolagem normal. Segue o dedo; solta passando do limite → onClose(). */
-function makeDismiss(el,onClose,getScroller){
-  if(!el) return;
-  const scr=()=>getScroller?getScroller():el;
-  let sy=0,sx=0,dy=0,armed=false,active=false,t0=0;
-  el.addEventListener('touchstart',e=>{
-    if(e.touches.length!==1){ armed=false; return; }
-    sy=e.touches[0].clientY; sx=e.touches[0].clientX; dy=0; t0=Date.now();
-    armed=scr().scrollTop<=0; active=false;
-  },{passive:true});
-  el.addEventListener('touchmove',e=>{
-    if(!armed) return;
-    dy=e.touches[0].clientY-sy; const dx=e.touches[0].clientX-sx;
-    if(!active){
-      if(dy>10 && dy>Math.abs(dx)*1.3 && scr().scrollTop<=0){ active=true; el.style.transition='none'; }
-      else if(dy<-4 || Math.abs(dx)>14){ armed=false; return; }
-      else return;
-    }
-    if(dy<0) dy=0;
-    el.style.transform='translateY('+dy+'px)';
-    if(e.cancelable) e.preventDefault();
-  },{passive:false});
-  el.addEventListener('touchend',()=>{
-    if(!active){ armed=false; return; }
-    active=false; armed=false;
-    const vy=dy/Math.max(1,Date.now()-t0);
-    el.style.transition=''; el.style.transform='';
-    if(dy>120 || (dy>46 && vy>0.55)) onClose();
-  },{passive:true});
-}
-
-/* ---------- abas ---------- */
-const M_TABS=['fotos','folha','estilo','exportar'];
-function mSetTab(name){
-  M_TABS.forEach(t=>{
-    document.body.classList.toggle('mtab-'+t,t===name);
-    const p=$('#mp_'+t); if(p) p.hidden=(t!==name);
-  });
-  $$('#mtabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab===name));
-  uiState.right=false; $('#menu').hidden=true; applyUI();
-  if(name==='fotos' && !userZoomed) requestAnimationFrame(fit);
-}
-
-/* ---------- sincroniza os controles com o estado ---------- */
-function syncMobile(){
-  if(!$('#mroot')||!$('#mf_paper')) return;
-  const s=state.settings, G=gridCount();
+/* ---------- reflete o estado nos controles do celular ---------- */
+function mSync(){
+  if(!mMob() || !$('#mroot') || !$('#mf_paper')) return;
+  const s=state.settings, G=(typeof gridCount==='function')?gridCount():{cols:0,rows:0};
   $('#mf_paper').value=s.pageSize;
   mSegSet('#mf_orient', s.landscape?'l':'p');
   mStepSet('columns', s.columns==='auto'?G.cols:+s.columns);
@@ -100,14 +54,14 @@ function syncMobile(){
   if(typeof refreshColorFields==='function') refreshColorFields();
 }
 
-/* ---------- ligações ---------- */
-function bindMobile(){
-  if(!$('#mroot')) return;
+/* ---------- liga os controles ---------- */
+function mBindPanels(){
+  if(!$('#mroot')||!$('#me_format')) return;
 
   Object.entries(FORMATS).forEach(([k,v])=>$('#me_format').add(new Option(v.label,k)));
   BASE_FONTS.forEach(f=>$('#me_capfont').add(new Option(f.label,f.v)));
 
-  // modelos de folha (mesma lista do desktop)
+  // modelos de folha
   const lr=$('#mLayoutRow');
   if(lr && typeof LAYOUTS!=='undefined') LAYOUTS.forEach(l=>{
     const b=document.createElement('button');
@@ -116,28 +70,13 @@ function bindMobile(){
     lr.appendChild(b);
   });
 
-  // abas
-  $$('#mtabs button').forEach(b=>{ b.onclick=()=>mSetTab(b.dataset.tab); });
-  document.body.classList.add('mtab-fotos');
-
-  // arrastar pra baixo fecha: folha de edição da foto, menu e os painéis de aba
-  makeDismiss($('#right'), ()=>{ uiState.right=false; applyUI(); });
-  makeDismiss($('#menu'), ()=>{ $('#menu').hidden=true; syncScrim(); });
-  ['folha','estilo','exportar'].forEach(t=>makeDismiss($('#mp_'+t), ()=>mSetTab('fotos')));
-
-  // topo
-  $('#mfab').onclick=()=>$('#file_add').click();
-  $('#mu_undo').onclick=undo;
-  $('#mu_redo').onclick=redo;
-  $('#mu_more').onclick=e=>{ e.stopPropagation(); const m=$('#menu'); m.hidden=!m.hidden; syncScrim(); };
-
-  // steppers (colunas, linhas, tamanho da legenda)
+  // steppers: colunas, linhas, tamanho da legenda
   $$('.stepper').forEach(st=>{
     const key=st.dataset.key, mn=+st.dataset.min||1, mx=+st.dataset.max||12;
     st.querySelectorAll('button').forEach(btn=>{
       btn.onclick=()=>{
         const d=+btn.dataset.d;
-        pushHistory('mstep_'+key);
+        if(typeof pushHistory==='function') pushHistory('mstep_'+key);
         let cur;
         if(key==='columns') cur=state.settings.columns==='auto'?gridCount().cols:+state.settings.columns;
         else if(key==='rows') cur=state.settings.rows==='auto'?gridCount().rows:+state.settings.rows;
@@ -151,8 +90,8 @@ function bindMobile(){
   });
 
   // Folha
-  $('#mf_paper').onchange=e=>{ pushHistory('pg'); state.settings.pageSize=e.target.value; syncControls(); render(); save(); fit(); };
-  mSeg('#mf_orient',v=>{ pushHistory('pg'); state.settings.landscape=(v==='l'); syncControls(); render(); save(); fit(); });
+  $('#mf_paper').onchange=e=>{ pushHistory('pg'); state.settings.pageSize=e.target.value; syncControls(); render(); save(); if(typeof fit==='function') fit(); };
+  mSeg('#mf_orient',v=>{ pushHistory('pg'); state.settings.landscape=(v==='l'); syncControls(); render(); save(); if(typeof fit==='function') fit(); });
   mRng('#mf_gap','gapMm',v=>v+' mm');
   mRng('#mf_margin','marginMm',v=>v+' mm');
 
@@ -171,21 +110,21 @@ function bindMobile(){
 
   // Exportar
   mSeg('#mx_dpi',v=>{ state.settings.exportDPI=+v; syncControls(); save(); });
-  $('#mx_pdf').onclick=exportPDF;
-  $('#mx_png').onclick=exportPNG;
-  $('#mx_print').onclick=()=>{ select(null); setTimeout(()=>window.print(),80); };
-  $('#mx_save').onclick=exportProject;
-  $('#mx_open').onclick=()=>$('#file_open').click();
+  $('#mx_pdf').onclick=()=>{ if(typeof exportPDF==='function') exportPDF(); };
+  $('#mx_png').onclick=()=>{ if(typeof exportPNG==='function') exportPNG(); };
+  $('#mx_print').onclick=()=>{ if(typeof select==='function') select(null); setTimeout(()=>window.print(),80); };
+  $('#mx_save').onclick=()=>{ if(typeof exportProject==='function') exportProject(); };
+  $('#mx_open').onclick=()=>{ const f=$('#file_open'); if(f) f.click(); };
 
-  // legenda no painel da foto (mobile)
+  // legenda no painel da foto
   const sc=$('#s_caption');
   if(sc) sc.addEventListener('input',()=>{
-    const ph=cur(); if(!ph) return;
+    const ph=(typeof cur==='function')?cur():null; if(!ph) return;
     ph.caption=sanitizeText(sc.value,500);
     const t=sheetsEl.querySelector(`.pol[data-id="${ph.id}"] .capfield`);
     if(t) t.value=ph.caption;
     save();
   });
 
-  syncMobile();
+  mSync();
 }

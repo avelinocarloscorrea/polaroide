@@ -14,7 +14,9 @@ css/
   components.css      menu, toast, busy, diálogos, seletor de cor
   util.css           utilitários
   print.css          @media print
-  mobile.css         casca de celular (≤ 820 px)
+  m-shell.css        celular: grade #mroot, barra, palco, abas (≤ 820 px)
+  m-panels.css       celular: painéis Folha / Estilo / Exportar e seus widgets
+  m-sheet.css        celular: folhas de baixo (#medit, #menu) e o #scrim
   guia.css           estilo do guia
 js/config.js         constantes, utilitários, ícones, PAGE_SIZES, FORMATS,
                      BASE_FONTS, CAPTION_STYLES, TEMPLATES, LAYOUTS, DEFAULTS
@@ -25,7 +27,10 @@ js/render.js         render da tela (DOM), seleção, zoom, painel direito
 js/history.js        desfazer/refazer e mutações da lista de fotos
 js/export.js         canvas -> PDF/PNG e projeto .json
 js/ui.js             feedback, seletor de cor, painéis, templates, bindAll()
-js/mobile.js         casca de celular: abas, steppers, syncMobile(), bindMobile()
+js/m-core.js         celular: move #stage/#rightSel p/ #mroot, abas, mDragClose
+js/m-panels.js       celular: liga Folha/Estilo/Exportar, mSync(), mBindPanels()
+js/m-sheet.js        celular: amarra #medit / #menu (mBindSheet())
+js/m-install.js      instalar como app (beforeinstallprompt, initInstall())
 js/events.js         eventos globais (teclado, toque, drag) + init()
 assets/              favicon.svg, playfair.woff2, fonts/*.woff2
 ```
@@ -34,8 +39,8 @@ Sem framework, sem bundler, sem passo de build.
 
 Os `js/*.js` são **scripts clássicos** (não módulos ES) carregados em ordem
 pelo `index.html`. Compartilham o mesmo escopo global — cada arquivo é uma
-"seção". Ordem importa: `config` primeiro (define os utilitários), `mobile`
-depois de `ui` (usa suas funções), `events` por último (chama `init()`).
+"seção". Ordem importa: `config` primeiro (define os utilitários), os
+`m-*` depois de `ui` (usam suas funções), `events` por último (chama `init()`).
 Motivo de não usar `type="module"`: módulos não carregam por `file://` (CORS),
 e a ferramenta também precisa abrir com dois cliques.
 
@@ -137,8 +142,11 @@ recortando os efeitos no contorno do card; `exportPNG()` baixa esse canvas,
 | `js/history.js` | `past`/`future`; `pushHistory` `applySnap` `undo` `redo` `updateHistoryButtons` `mutate` `move` `removePhoto` `duplicate` `doClear` `newProject` `wipeAll` |
 | `js/export.js`  | `roundRect` `wrapText` `ensureFullImages` `ensureFonts` `drawPage` `drawPol` `drawDecor` `pdfFromImages` `exportPDF` `exportPNG` `blobToDataURL` `exportProject` `importProject` |
 | `js/ui.js`      | `toast` `busy` `unbusy`; `rebuildFontOptions` `syncControls` `bindRange` `applyFormat` `applyTemplate` `applyLayout`; `isMobile` `syncScrim` `togglePanel` `applyUI`; seletor de cor (`setupColorFields` `openCF`); `bindAll()` |
-| `js/mobile.js`  | helpers de casca (`mSeg` `mSegSet` `mStepSet` `mRng` …); `makeDismiss` (arrastar pra baixo = fechar); `mSetTab`; `syncMobile()` (chamada por `syncControls()`); `bindMobile()` (chamada por `init()`) |
-| `js/events.js`  | listeners globais (teclado, roda/pinça, arraste do meio, toque duplo, drag&drop, paste, resize, print); `initInstall()` (PWA — `beforeinstallprompt` / `#m_install`); `init()` |
+| `js/m-core.js`   | `mMob()`; `mPlace()` (move `#stage`/`#rightSel` entre `#app` e `#mroot` no breakpoint); `mTab()` (abas); `mEdit()` `mMenu()` `mScrim()` (folhas de baixo); `mDragClose()` (arrastar a pega `.m-grab` = fechar); `mSetup()` (chamada por `init()`) |
+| `js/m-panels.js` | helpers de widget (`mSeg` `mSegSet` `mStepSet` `mRng` `mRngSet`); `mSync()` (chamada por `syncControls()`); `mBindPanels()` (liga Folha/Estilo/Exportar + steppers + `#s_caption`; chamada por `init()`) |
+| `js/m-sheet.js`  | `mBindSheet()` — itens do menu ⋯ fecham a folha no celular (chamada por `init()`) |
+| `js/m-install.js`| PWA sem service worker: `beforeinstallprompt`/`appinstalled`, `initInstall()` (item `#m_install`; iOS cai num aviso) |
+| `js/events.js`  | listeners globais (teclado, roda/pinça, arraste do meio, toque duplo, drag&drop, paste, resize, print); `init()` |
 
 Cada arquivo tem `"use strict";` e um cabeçalho curto. Não há `export`/`import`.
 
@@ -155,18 +163,25 @@ em `mm`, então o que aparece é fiel ao papel. Uma linha tracejada
 
 ## Interface de celular
 
-Em telas ≤ 820 px, `css/mobile.css` esconde o `#app` de desktop (barra +
-painel esquerdo) e mostra `#mroot`:
+Em telas ≤ 820 px, `css/m-shell.css` esconde o `#app` de desktop e mostra
+`#mroot`, uma **grade** de três linhas (`grid-template-rows:auto 1fr auto`):
 
 - `#mtop` — barra fina (nome, "Folha 2/3", desfazer/refazer, menu ⋯);
-- `#stage` (o mesmo) fica `position:fixed` entre a barra e as abas;
-- `#mtabs` — abas **Fotos / Folha / Estilo / Exportar**. As três últimas são
-  `.mpanel` que cobrem o quadro; a de Fotos deixa o quadro à vista com um FAB
-  de "adicionar";
-- tocar numa foto abre a **folha de edição** (o mesmo `#right` do desktop,
-  como bottom sheet), que inclui um campo de legenda `#s_caption` (`.mob-only`).
+- `#mbody` — o corpo (`position:relative;overflow:hidden`). O `m-core.js`
+  **move para dentro dele** o `#stage` (o mesmo do desktop, agora
+  `position:absolute;inset:0`) e, quando volta ao desktop, devolve o `#stage`
+  para o `#app`. Sobre o `#stage`, quando uma aba está aberta, entra um
+  `.mpanel`;
+- `#medit` — a folha de edição da foto. O `m-core.js` **move o `#rightSel`**
+  (o mesmo do desktop) para dentro; sobe como bottom sheet ao tocar numa foto.
+  Inclui o campo de legenda `#s_caption` (`.mob-only`);
+- `#mtabs` — abas **Fotos / Folha / Estilo / Exportar**.
 
-`js/mobile.js` só liga os controles novos ao **mesmo** `state.settings` +
-`render()`. `syncControls()` chama `syncMobile()` no fim, então qualquer
-mudança (venha de onde vier) reflete nos dois lados. O motor (layout, canvas,
-PDF, histórico, persistência) é idêntico ao do desktop.
+Cada folha (`.mpanel`, `#medit`, `#menu`) tem uma pega `.m-grab` no topo;
+o gesto de arrastar-pra-baixo vive **só nela** (`touch-action:none`), então
+nunca briga com a rolagem, os sliders ou os steppers.
+
+`js/m-panels.js` liga os controles ao **mesmo** `state.settings` + `render()`.
+`syncControls()` chama `mSync()` no fim, então qualquer mudança (venha de onde
+vier) reflete nos dois lados. O motor (layout, canvas, PDF, histórico,
+persistência) é idêntico ao do desktop.

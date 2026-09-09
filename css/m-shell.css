@@ -1,0 +1,64 @@
+/* css/m-shell.css — casca de celular: grade #mroot, barra, corpo, palco, abas.
+   Só ≤ 820 px. No desktop #mroot fica display:none e o #app normal aparece. */
+
+#mroot{display:none}
+.mob-only{display:none}
+.m-grab{display:none}
+
+@media (max-width:820px){
+  /* a interface de desktop sai de cena inteira */
+  #app{display:none!important}
+  #zenExit{display:none}
+
+  /* evita o zoom automático do iOS ao focar um campo */
+  select,textarea:not(.capfield),input:not([type=range]):not([type=color]){font-size:16px}
+
+  /* ---------------- grade da casca ---------------- */
+  #mroot{display:grid;grid-template-rows:auto minmax(0,1fr) auto;
+    height:100vh;height:100dvh;background:var(--stage);overflow:hidden;
+    font-family:var(--ui)}
+
+  /* barra superior */
+  #mtop{display:flex;align-items:center;gap:2px;padding:0 6px;min-height:50px;
+    padding-top:env(safe-area-inset-top,0px);
+    background:var(--surface);border-bottom:1px solid var(--line)}
+  #mtop .mbrand{font:700 15px/1 var(--display);color:var(--ink);white-space:nowrap;margin-right:12px}
+  #mtop .mpg{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;margin-right:auto}
+  .miconbtn{width:42px;height:42px;flex:none;display:flex;align-items:center;justify-content:center;
+    border:0;background:transparent;border-radius:11px;color:var(--ink);padding:0}
+  .miconbtn:active{background:var(--brand-soft)}
+  .miconbtn:disabled{opacity:.3}
+  .miconbtn svg{width:22px;height:22px}
+
+  /* corpo: o palco OU um painel de aba ocupam esta área (grade linha 2) */
+  #mbody{position:relative;overflow:hidden;min-height:0;background:var(--stage)}
+
+  #stage{position:absolute!important;inset:0;padding:14px!important;
+    background:var(--stage);grid-area:auto!important;overflow:auto;
+    touch-action:pan-x pan-y}
+  body.acrylic #stage{padding:14px!important}
+
+  #empty{position:absolute;inset:0;overflow-y:auto}
+  #empty .box{margin:auto;max-width:none;padding:22px 20px}
+
+  /* FAB adicionar (só na aba Fotos) */
+  #mfab{position:absolute;right:16px;bottom:16px;z-index:8;
+    width:56px;height:56px;border-radius:50%;background:var(--brand);color:#fff;border:0;
+    box-shadow:0 6px 20px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center}
+  #mfab:active{background:var(--brand-deep)}
+  #mfab svg{width:26px;height:26px}
+  #mroot:not(.tab-fotos) #mfab{display:none}
+
+  /* abas inferiores */
+  #mtabs{display:flex;background:var(--surface);border-top:1px solid var(--line);
+    padding-bottom:env(safe-area-inset-bottom,0px)}
+  #mtabs button{flex:1;border:0;background:transparent;padding:8px 2px 7px;
+    display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--faint)}
+  #mtabs button svg{width:23px;height:23px}
+  #mtabs button i{font-size:11px;font-style:normal;font-weight:600}
+  #mtabs button.on{color:var(--brand)}
+  #mtabs button:active{background:var(--brand-soft)}
+
+  #toast{bottom:auto;top:calc(56px + env(safe-area-inset-top,0px));max-width:calc(100vw - 24px);z-index:80}
+  #busy{z-index:95}
+}

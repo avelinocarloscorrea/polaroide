@@ -22,10 +22,11 @@ index.html            marcação (interface de desktop + #mroot de celular)
 guia.html             guia do usuário (página à parte)
 css/
   base layout polaroid effects components util print   estilo do desktop
-  mobile.css          casca de celular (≤ 820 px)
+  m-shell m-panels m-sheet   casca de celular (≤ 820 px)
   guia.css            estilo do guia
-js/                    10 scripts clássicos, carregados em ordem
-  config state images layout render history export ui mobile events
+js/                    13 scripts clássicos, carregados em ordem
+  config state images layout render history export ui
+  m-core m-panels m-sheet m-install events
 assets/
   favicon.svg
   playfair.woff2       fonte de marca (OFL)

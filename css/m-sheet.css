@@ -1,0 +1,44 @@
+/* css/m-sheet.css — folhas de baixo do celular: #medit (editar foto), #menu
+   (⋯) e o #scrim. Só ≤ 820 px.
+   As bases .mob-only{display:none} e .m-grab{display:none} ficam em
+   m-shell.css (carrega primeiro), para os overrides abaixo ganharem. */
+
+@media (max-width:820px){
+  .mob-only{display:block}
+  .m-grab{display:flex}
+
+  /* ---------------- folha de edição da foto ---------------- */
+  #medit{position:fixed;left:0;right:0;bottom:0;z-index:56;
+    max-height:min(72dvh,540px);display:flex;flex-direction:column;
+    background:var(--surface);border-radius:20px 20px 0 0;
+    box-shadow:0 -10px 44px rgba(0,0,0,.34);
+    transform:translateY(103%);transition:transform .26s cubic-bezier(.2,.8,.2,1);
+    padding-bottom:env(safe-area-inset-bottom,0px)}
+  #medit.open{transform:translateY(0)}
+  #medit:not(.open){pointer-events:none}
+  #medit .m-grab{height:34px}
+
+  #medit #rightSel{flex:1;overflow-y:auto;overscroll-behavior:contain;
+    -webkit-overflow-scrolling:touch;padding:0 16px 20px;touch-action:pan-y}
+  #medit #rightSel .aside-title{position:sticky;top:0;background:var(--surface);
+    padding:2px 0 8px;z-index:1}
+  #rightEmpty{display:none}
+
+  /* alvos de toque maiores nos controles reaproveitados */
+  #medit #rightSel input[type=range]{height:38px}
+  #medit #rightSel .btnrow{gap:8px}
+  #medit #rightSel .btnrow > *{min-height:44px}
+  #medit #rightSel .grp .chip{min-height:38px;padding:8px 12px}
+  #rightSel label.mob-only{display:block;margin:6px 0 14px;font-weight:600}
+  #rightSel label.mob-only input{width:100%;height:44px;border-radius:11px;font-size:16px;margin-top:5px}
+
+  /* ---------------- menu ⋯ ---------------- */
+  #scrim{position:fixed;inset:0;z-index:28;background:rgba(15,17,20,.5)}
+  #menu{position:fixed;left:10px;right:10px;top:auto;
+    bottom:calc(64px + env(safe-area-inset-bottom,0px));
+    width:auto;min-width:0;max-height:70dvh;border-radius:18px;
+    padding:4px 8px 8px;z-index:60;transition:transform .2s ease}
+  #menu .m-grab{height:26px;margin:-2px 0 2px}
+  #menu button,#menu a{padding:15px 14px;font-size:15px;border-radius:12px}
+  #menu svg{width:18px;height:18px}
+}

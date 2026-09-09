@@ -191,14 +191,19 @@ function select(id,keep){
   if(ph){ const el=sheetsEl.querySelector(`.pol[data-id="${ph.id}"]`); el&&el.classList.add('sel'); }
   $('#rightEmpty').hidden=!!ph; $('#rightSel').hidden=!ph;
   if(ph) fillRight(ph);
-  // ao selecionar uma foto nova, abre o painel de edição (no celular ele é
-  // uma folha na base, então a foto continua visível em cima)
+  const mob=matchMedia('(max-width:820px)').matches;
+  if(mob){
+    // no celular a edição é a folha #medit — sobe ao escolher uma foto nova,
+    // desce ao desmarcar
+    if(typeof mEdit==='function'){
+      if(ph && selectedId!==had && !keep) mEdit(true);
+      else if(!ph) mEdit(false);
+    }
+    return;
+  }
+  // no desktop, abre o painel direito ao selecionar uma foto nova
   if(ph && selectedId!==had && !keep && !uiState.right && !zen){
     if(typeof togglePanel==='function') togglePanel('right',true); else { uiState.right=true; applyUI(); }
-    if(matchMedia('(max-width:820px)').matches){
-      const el=sheetsEl.querySelector(`.pol[data-id="${ph.id}"]`);
-      if(el) requestAnimationFrame(()=>el.scrollIntoView({block:'center',behavior:'smooth'}));
-    }
   }
 }
 function fillRight(ph){

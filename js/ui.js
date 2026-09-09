@@ -58,7 +58,7 @@ function syncControls(){
   document.body.classList.toggle('acrylic',!!s.acrylic);
   rebuildFontOptions(); $('#c_font').value=s.captionFont;
   refreshColorFields();
-  if(typeof syncMobile==='function') syncMobile();
+  if(typeof mSync==='function') mSync();
 }
 function bindRange(id,key,fmt){
   const el=$(id), out=$(id.replace('#c_','#v_').replace('#f_','#v_'));
@@ -102,8 +102,9 @@ const isMobile=()=>matchMedia('(max-width:820px)').matches;
 // escurece o fundo quando uma gaveta OU o menu ⋯ está aberto (só no celular)
 function syncScrim(){
   const sc=$('#scrim'); if(!sc) return;
-  const menuOpen=!$('#menu').hidden;
-  sc.hidden=!(isMobile() && !zen && (uiState.left||uiState.right||menuOpen));
+  // no celular o escurecido é controlado por mScrim() (m-core.js)
+  if(isMobile()){ if(typeof mScrim==='function') mScrim(); return; }
+  sc.hidden=true;
 }
 // no celular os painéis viram gavetas sobrepostas — só uma aberta por vez
 function togglePanel(side,on){

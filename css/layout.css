@@ -58,7 +58,7 @@ body.acrylic #left{grid-column:1;grid-row:2;z-index:15}
 body.acrylic #right{grid-column:3;grid-row:2;z-index:15}
 body.acrylic #empty{left:var(--gut-l);right:var(--gut-r)}
 
-/* A interface de celular (≤820px) fica em css/mobile.css + js/mobile.js. */
+/* A interface de celular (≤820px) fica em css/m-*.css + js/m-*.js. */
 
 #sheets{display:flex;flex-direction:column;align-items:center;gap:30px;height:max-content}
 .page{background:#fff;box-shadow:var(--sh-2);flex:none;position:relative;overflow:hidden;border-radius:2px}

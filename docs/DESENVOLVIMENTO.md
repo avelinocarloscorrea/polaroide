@@ -33,10 +33,11 @@ acesse pelo IP da máquina do próprio telefone.
 
 ## Editar
 
-- Estilo: `css/*.css` por assunto. `css/mobile.css` carrega por último e
-  ganha nos empates — **toda** regra de celular (≤ 820 px) mora lá.
+- Estilo: `css/*.css` por assunto. Os `css/m-*.css` carregam por último e
+  ganham nos empates — **toda** regra de celular (≤ 820 px) mora neles
+  (`m-shell` = casca, `m-panels` = abas, `m-sheet` = folhas de baixo).
 - Lógica: `js/*.js`. Cada arquivo é uma seção; a ordem no `index.html`
-  importa (`config` primeiro, `mobile` depois de `ui`, `events` por último).
+  importa (`config` primeiro, os `m-*` depois de `ui`, `events` por último).
   Não há `import`/`export`.
 - Ícones: objeto `ICONS` em `js/config.js` (SVG 24×24, só o miolo do `<svg>`).
   Um `data-i="nome"` em qualquer elemento vira o ícone no `init()`.
@@ -44,7 +45,7 @@ acesse pelo IP da máquina do próprio telefone.
   `state.settings` num handler em `bindAll()` (`js/ui.js`), reflita em
   `syncControls()`, e **valide** o campo em `migrateSettings()`
   (`js/state.js`). Se ele também deve aparecer no celular, espelhe em
-  `js/mobile.js` (`bindMobile()` + `syncMobile()`).
+  `js/m-panels.js` (`mBindPanels()` + `mSync()`).
 - Ao mover código entre arquivos: nada no topo de um arquivo pode usar algo
   definido num arquivo posterior (funções chamadas em runtime tudo bem).
 

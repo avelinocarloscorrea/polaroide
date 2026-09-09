@@ -57,7 +57,7 @@ curl -sI $BASE/ | grep -i -e '^HTTP' -e content-security-policy \
 curl -s -o /dev/null -w '%{http_code}\n' $BASE/.htaccess       # 403
 curl -s -o /dev/null -w '%{http_code}\n' $BASE/qualquer.php    # 403 ou 404
 curl -s -o /dev/null -w '%{http_code}\n' $BASE/js/config.js    # 200, text/javascript
-curl -s -o /dev/null -w '%{http_code}\n' $BASE/css/mobile.css  # 200, text/css
+curl -s -o /dev/null -w '%{http_code}\n' $BASE/css/m-shell.css  # 200, text/css
 curl -s -o /dev/null -w '%{http_code}\n' $BASE/guia.html       # 200, text/html
 curl -sI $BASE/manifest.webmanifest | grep -i -e '^HTTP' -e content-type  # 200, application/manifest+json
 ```

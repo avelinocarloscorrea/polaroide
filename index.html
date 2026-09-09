@@ -25,14 +25,16 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Polaroide">
 <title>Polaroide Studio</title>
-<link rel="stylesheet" href="css/base.css?v=086">
-<link rel="stylesheet" href="css/layout.css?v=086">
-<link rel="stylesheet" href="css/polaroid.css?v=086">
-<link rel="stylesheet" href="css/effects.css?v=086">
-<link rel="stylesheet" href="css/components.css?v=086">
-<link rel="stylesheet" href="css/util.css?v=086">
-<link rel="stylesheet" href="css/print.css?v=086">
-<link rel="stylesheet" href="css/mobile.css?v=086">
+<link rel="stylesheet" href="css/base.css?v=087">
+<link rel="stylesheet" href="css/layout.css?v=087">
+<link rel="stylesheet" href="css/polaroid.css?v=087">
+<link rel="stylesheet" href="css/effects.css?v=087">
+<link rel="stylesheet" href="css/components.css?v=087">
+<link rel="stylesheet" href="css/util.css?v=087">
+<link rel="stylesheet" href="css/print.css?v=087">
+<link rel="stylesheet" href="css/m-shell.css?v=087">
+<link rel="stylesheet" href="css/m-panels.css?v=087">
+<link rel="stylesheet" href="css/m-sheet.css?v=087">
 </head>
 <body>
 <div id="app">
@@ -281,10 +283,10 @@
 </div>
 
 <!-- ============================================================================
-     INTERFACE DE CELULAR — só aparece em telas ≤ 820 px (css/mobile.css).
-     Reaproveita o mesmo motor: os controles abaixo escrevem em state.settings
-     e chamam render(), igual aos do desktop. O palco (#stage) e a folha de
-     edição da foto (#right) são os mesmos.
+     INTERFACE DE CELULAR (≤ 820 px)  —  css/m-*.css  +  js/m-*.js
+     Casca própria em grade: barra em cima, corpo no meio (#mbody: o palco OU
+     um painel de aba), abas embaixo. #stage e #rightSel são MOVIDOS para cá
+     pelo m-core.js; o motor (render/layout/export) é o mesmo do desktop.
      ========================================================================= -->
 <div id="mroot">
   <header id="mtop">
@@ -295,95 +297,113 @@
     <button class="miconbtn" id="mu_more" data-i="more" title="Mais"></button>
   </header>
 
-  <button id="mfab" data-i="imageplus" title="Adicionar fotos"></button>
+  <div id="mbody">
+    <!-- #stage entra aqui (m-core.js) -->
 
-  <section class="mpanel" id="mp_folha" hidden>
-    <h3>Modelos de folha</h3>
-    <div class="mchips" id="mLayoutRow"></div>
-    <h3>Papel</h3>
-    <div class="mrow"><span class="k">Tamanho</span>
-      <select id="mf_paper">
-        <option value="a4">A4</option><option value="letter">Carta</option>
-        <option value="a3">A3</option><option value="a5">A5</option>
-      </select></div>
-    <div class="mrow"><span class="k">Orientação</span>
-      <div class="mseg" id="mf_orient">
-        <button data-v="p" class="on">Retrato</button><button data-v="l">Paisagem</button>
-      </div></div>
-    <h3>Grade (fotos por folha)</h3>
-    <div class="mrow"><span class="k">Colunas</span>
-      <div class="stepper" data-key="columns"><button data-d="-1">−</button><b></b><button data-d="1">+</button></div></div>
-    <div class="mrow"><span class="k">Linhas</span>
-      <div class="stepper" data-key="rows"><button data-d="-1">−</button><b></b><button data-d="1">+</button></div></div>
-    <div class="mrange-wrap"><label>Espaço entre as fotos <span class="v" id="mf_gapv"></span></label>
-      <input type="range" id="mf_gap" min="0" max="20" step="0.5"></div>
-    <div class="mrange-wrap"><label>Margem de segurança <span class="v" id="mf_marginv"></span></label>
-      <input type="range" id="mf_margin" min="5" max="25" step="0.5"></div>
-    <p class="hint">O polaroide se ajusta para caber na grade. Nada fica cortado.</p>
-  </section>
+    <section class="mpanel" id="mp_folha" hidden>
+      <div class="m-grab"><i></i></div>
+      <div class="mp-scroll">
+        <h3>Modelos de folha</h3>
+        <div class="mchips" id="mLayoutRow"></div>
+        <h3>Papel</h3>
+        <div class="mrow"><span class="k">Tamanho</span>
+          <select id="mf_paper">
+            <option value="a4">A4</option><option value="letter">Carta</option>
+            <option value="a3">A3</option><option value="a5">A5</option>
+          </select></div>
+        <div class="mrow"><span class="k">Orientação</span>
+          <div class="mseg" id="mf_orient">
+            <button data-v="p" class="on">Retrato</button><button data-v="l">Paisagem</button>
+          </div></div>
+        <h3>Grade (fotos por folha)</h3>
+        <div class="mrow"><span class="k">Colunas</span>
+          <div class="stepper" data-key="columns"><button data-d="-1">−</button><b></b><button data-d="1">+</button></div></div>
+        <div class="mrow"><span class="k">Linhas</span>
+          <div class="stepper" data-key="rows"><button data-d="-1">−</button><b></b><button data-d="1">+</button></div></div>
+        <div class="mrange-wrap"><label>Espaço entre as fotos <span class="v" id="mf_gapv"></span></label>
+          <input type="range" id="mf_gap" min="0" max="20" step="0.5"></div>
+        <div class="mrange-wrap"><label>Margem de segurança <span class="v" id="mf_marginv"></span></label>
+          <input type="range" id="mf_margin" min="5" max="25" step="0.5"></div>
+        <p class="hint">O polaroide se ajusta para caber na grade. Nada fica cortado.</p>
+      </div>
+    </section>
 
-  <section class="mpanel" id="mp_estilo" hidden>
-    <h3>Polaroide</h3>
-    <div class="mrow"><span class="k">Formato</span><select id="me_format"></select></div>
-    <div class="mrange-wrap"><label>Borda branca <span class="v" id="me_framev"></span></label>
-      <input type="range" id="me_frame" min="1" max="16" step="0.5"></div>
-    <div class="mrange-wrap"><label>Faixa da legenda <span class="v" id="me_capv"></span></label>
-      <input type="range" id="me_cap" min="0" max="40" step="0.5"></div>
-    <div class="mrange-wrap"><label>Inclinação <span class="v" id="me_tiltv"></span></label>
-      <input type="range" id="me_tilt" min="0" max="8" step="0.5"></div>
-    <h3>Legenda</h3>
-    <div class="mrow"><span class="k">Fonte</span><select id="me_capfont"></select></div>
-    <div class="mrow"><span class="k">Tamanho</span>
-      <div class="stepper" data-key="captionSizePt" data-min="6" data-max="40"><button data-d="-1">−</button><b></b><button data-d="1">+</button></div></div>
-    <h3>Efeito no canto</h3>
-    <div class="mrow"><span class="k">Tipo</span>
-      <select id="me_effect">
-        <option value="none">Nada</option>
-        <option value="tape-2">Fita — 2 cantos</option>
-        <option value="tape-4">Fita — 4 cantos</option>
-        <option value="tape-top">Fita — no topo</option>
-        <option value="staple-2">Grampo — 2 cantos</option>
-        <option value="staple-4">Grampo — 4 cantos</option>
-        <option value="staple-top">Grampo — no topo</option>
-        <option value="brad-2">Brad — 2 cantos</option>
-        <option value="brad-4">Brad — 4 cantos</option>
-        <option value="brad-top">Brad — no topo</option>
-        <option value="pin-2">Percevejo — 2 cantos</option>
-        <option value="pin-top">Percevejo — no topo</option>
-      </select></div>
-    <h3>Cores</h3>
-    <div class="mrow"><span class="k">Fundo da folha</span><input type="color" id="me_bg"></div>
-    <div class="mrow"><span class="k">Card do polaroide</span><input type="color" id="me_card"></div>
-    <div class="mrow"><span class="k">Texto da legenda</span><input type="color" id="me_capcolor"></div>
-    <h3>Acabamento</h3>
-    <div class="mrow"><span class="k">Marcas de corte</span>
-      <div class="mseg" id="me_marks"><button data-v="0">Não</button><button data-v="1" class="on">Sim</button></div></div>
-    <div class="mrow"><span class="k">Contorno para recortar</span>
-      <div class="mseg" id="me_cardline"><button data-v="0" class="on">Não</button><button data-v="1">Sim</button></div></div>
-  </section>
+    <section class="mpanel" id="mp_estilo" hidden>
+      <div class="m-grab"><i></i></div>
+      <div class="mp-scroll">
+        <h3>Polaroide</h3>
+        <div class="mrow"><span class="k">Formato</span><select id="me_format"></select></div>
+        <div class="mrange-wrap"><label>Borda branca <span class="v" id="me_framev"></span></label>
+          <input type="range" id="me_frame" min="1" max="16" step="0.5"></div>
+        <div class="mrange-wrap"><label>Faixa da legenda <span class="v" id="me_capv"></span></label>
+          <input type="range" id="me_cap" min="0" max="40" step="0.5"></div>
+        <div class="mrange-wrap"><label>Inclinação <span class="v" id="me_tiltv"></span></label>
+          <input type="range" id="me_tilt" min="0" max="8" step="0.5"></div>
+        <h3>Legenda</h3>
+        <div class="mrow"><span class="k">Fonte</span><select id="me_capfont"></select></div>
+        <div class="mrow"><span class="k">Tamanho</span>
+          <div class="stepper" data-key="captionSizePt" data-min="6" data-max="40"><button data-d="-1">−</button><b></b><button data-d="1">+</button></div></div>
+        <h3>Efeito no canto</h3>
+        <div class="mrow"><span class="k">Tipo</span>
+          <select id="me_effect">
+            <option value="none">Nada</option>
+            <option value="tape-2">Fita — 2 cantos</option>
+            <option value="tape-4">Fita — 4 cantos</option>
+            <option value="tape-top">Fita — no topo</option>
+            <option value="staple-2">Grampo — 2 cantos</option>
+            <option value="staple-4">Grampo — 4 cantos</option>
+            <option value="staple-top">Grampo — no topo</option>
+            <option value="brad-2">Brad — 2 cantos</option>
+            <option value="brad-4">Brad — 4 cantos</option>
+            <option value="brad-top">Brad — no topo</option>
+            <option value="pin-2">Percevejo — 2 cantos</option>
+            <option value="pin-top">Percevejo — no topo</option>
+          </select></div>
+        <h3>Cores</h3>
+        <div class="mrow"><span class="k">Fundo da folha</span><input type="color" id="me_bg"></div>
+        <div class="mrow"><span class="k">Card do polaroide</span><input type="color" id="me_card"></div>
+        <div class="mrow"><span class="k">Texto da legenda</span><input type="color" id="me_capcolor"></div>
+        <h3>Acabamento</h3>
+        <div class="mrow"><span class="k">Marcas de corte</span>
+          <div class="mseg" id="me_marks"><button data-v="0">Não</button><button data-v="1" class="on">Sim</button></div></div>
+        <div class="mrow"><span class="k">Contorno para recortar</span>
+          <div class="mseg" id="me_cardline"><button data-v="0" class="on">Não</button><button data-v="1">Sim</button></div></div>
+      </div>
+    </section>
 
-  <section class="mpanel" id="mp_exportar" hidden>
-    <h3>Baixar</h3>
-    <button class="mbig primary" id="mx_pdf" data-i="filepdf">Baixar PDF</button>
-    <div class="m2">
-      <button class="mbig" id="mx_png" data-i="imagedown">PNG</button>
-      <button class="mbig" id="mx_print" data-i="printer">Imprimir</button>
-    </div>
-    <div class="mrow"><span class="k">Resolução</span>
-      <div class="mseg" id="mx_dpi">
-        <button data-v="200">200</button><button data-v="300" class="on">300</button>
-        <button data-v="450">450</button><button data-v="600">600</button>
-      </div></div>
-    <p class="hint">Para imprimir sem margem branca: no menu de impressão escolha <b>Margens: Nenhuma</b> e <b>Escala: 100%</b>.</p>
-    <h3>Projeto</h3>
-    <div class="m2">
-      <button class="mbig" id="mx_save" data-i="save">Salvar</button>
-      <button class="mbig" id="mx_open" data-i="folder">Abrir</button>
-    </div>
-    <p class="hint">O trabalho fica só neste aparelho. <b>Salvar</b> baixa um arquivo <code>.json</code> para backup ou para abrir em outro lugar.</p>
-    <h3>Ajuda</h3>
-    <a class="mbig" id="mx_guide" href="guia.html" target="_blank" rel="noopener noreferrer" data-i="page">Guia do usuário</a>
-  </section>
+    <section class="mpanel" id="mp_exportar" hidden>
+      <div class="m-grab"><i></i></div>
+      <div class="mp-scroll">
+        <h3>Baixar</h3>
+        <button class="mbig primary" id="mx_pdf" data-i="filepdf">Baixar PDF</button>
+        <div class="m2">
+          <button class="mbig" id="mx_png" data-i="imagedown">PNG</button>
+          <button class="mbig" id="mx_print" data-i="printer">Imprimir</button>
+        </div>
+        <div class="mrow"><span class="k">Resolução</span>
+          <div class="mseg" id="mx_dpi">
+            <button data-v="200">200</button><button data-v="300" class="on">300</button>
+            <button data-v="450">450</button><button data-v="600">600</button>
+          </div></div>
+        <p class="hint">Para imprimir sem margem branca: no menu de impressão escolha <b>Margens: Nenhuma</b> e <b>Escala: 100%</b>.</p>
+        <h3>Projeto</h3>
+        <div class="m2">
+          <button class="mbig" id="mx_save" data-i="save">Salvar</button>
+          <button class="mbig" id="mx_open" data-i="folder">Abrir</button>
+        </div>
+        <p class="hint">O trabalho fica só neste aparelho. <b>Salvar</b> baixa um <code>.json</code> para backup ou para abrir em outro lugar.</p>
+        <h3>Ajuda</h3>
+        <a class="mbig" id="mx_guide" href="guia.html" target="_blank" rel="noopener noreferrer" data-i="page">Guia do usuário</a>
+      </div>
+    </section>
+
+    <button id="mfab" data-i="imageplus" title="Adicionar fotos"></button>
+  </div>
+
+  <div id="medit" hidden>
+    <div class="m-grab"><i></i></div>
+    <!-- #rightSel entra aqui (m-core.js) -->
+  </div>
 
   <nav id="mtabs">
     <button data-tab="fotos" class="on"><span data-i="image"></span><i>Fotos</i></button>
@@ -472,15 +492,18 @@
 <!-- Script clássico (não module): funciona tanto em https:// quanto ao abrir
      o arquivo direto (file://). Nenhum script inline: script-src 'self'. -->
 <!-- carregados em ordem; compartilham o mesmo escopo global -->
-<script defer src="js/config.js?v=086"></script>
-<script defer src="js/state.js?v=086"></script>
-<script defer src="js/images.js?v=086"></script>
-<script defer src="js/layout.js?v=086"></script>
-<script defer src="js/render.js?v=086"></script>
-<script defer src="js/history.js?v=086"></script>
-<script defer src="js/export.js?v=086"></script>
-<script defer src="js/ui.js?v=086"></script>
-<script defer src="js/mobile.js?v=086"></script>
-<script defer src="js/events.js?v=086"></script>
+<script defer src="js/config.js?v=087"></script>
+<script defer src="js/state.js?v=087"></script>
+<script defer src="js/images.js?v=087"></script>
+<script defer src="js/layout.js?v=087"></script>
+<script defer src="js/render.js?v=087"></script>
+<script defer src="js/history.js?v=087"></script>
+<script defer src="js/export.js?v=087"></script>
+<script defer src="js/ui.js?v=087"></script>
+<script defer src="js/m-core.js?v=087"></script>
+<script defer src="js/m-panels.js?v=087"></script>
+<script defer src="js/m-sheet.js?v=087"></script>
+<script defer src="js/m-install.js?v=087"></script>
+<script defer src="js/events.js?v=087"></script>
 </body>
 </html>
