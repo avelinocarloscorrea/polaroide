@@ -43,4 +43,5 @@ Site do produto: `polaroidestudio.esmeraldapaper.com.br`
 3. **Formatos reais** — Polaroid, Instax, 10×15 — com marcas de corte.
 4. **Efeitos** — fita, grampo, mini brad, percevejo — dentro do card.
 5. **PDF pronto pra gráfica** ou pra impressora de casa.
-6. **De graça, sem cadastro, sem anúncio.**
+6. **Instala na tela de início** e abre como app (Android e iPhone).
+7. **De graça, sem cadastro, sem anúncio.**
