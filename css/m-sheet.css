@@ -7,9 +7,11 @@
   .mob-only{display:block}
   .m-grab{display:flex}
 
-  /* ---------------- folha de edição da foto ---------------- */
+  /* ---------------- folha de edição da foto ----------------
+     Curta de propósito (~metade da tela): a foto marcada fica visível em cima
+     enquanto se mexe nos controles. m-core.js rola a foto para essa faixa. */
   #medit{position:fixed;left:0;right:0;bottom:0;z-index:56;
-    max-height:min(72dvh,540px);display:flex;flex-direction:column;
+    height:52dvh;max-height:440px;min-height:280px;display:flex;flex-direction:column;
     background:var(--surface);border-radius:20px 20px 0 0;
     box-shadow:0 -10px 44px rgba(0,0,0,.34);
     transform:translateY(103%);transition:transform .26s cubic-bezier(.2,.8,.2,1);

@@ -25,16 +25,16 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Polaroide">
 <title>Polaroide Studio</title>
-<link rel="stylesheet" href="css/base.css?v=087">
-<link rel="stylesheet" href="css/layout.css?v=087">
-<link rel="stylesheet" href="css/polaroid.css?v=087">
-<link rel="stylesheet" href="css/effects.css?v=087">
-<link rel="stylesheet" href="css/components.css?v=087">
-<link rel="stylesheet" href="css/util.css?v=087">
-<link rel="stylesheet" href="css/print.css?v=087">
-<link rel="stylesheet" href="css/m-shell.css?v=087">
-<link rel="stylesheet" href="css/m-panels.css?v=087">
-<link rel="stylesheet" href="css/m-sheet.css?v=087">
+<link rel="stylesheet" href="css/base.css?v=088">
+<link rel="stylesheet" href="css/layout.css?v=088">
+<link rel="stylesheet" href="css/polaroid.css?v=088">
+<link rel="stylesheet" href="css/effects.css?v=088">
+<link rel="stylesheet" href="css/components.css?v=088">
+<link rel="stylesheet" href="css/util.css?v=088">
+<link rel="stylesheet" href="css/print.css?v=088">
+<link rel="stylesheet" href="css/m-shell.css?v=088">
+<link rel="stylesheet" href="css/m-panels.css?v=088">
+<link rel="stylesheet" href="css/m-sheet.css?v=088">
 </head>
 <body>
 <div id="app">
@@ -400,6 +400,14 @@
     <button id="mfab" data-i="imageplus" title="Adicionar fotos"></button>
   </div>
 
+  <!-- barra da foto selecionada: legenda rápida + "Ajustar" (abre #medit).
+       Aparece só quando uma foto está marcada; o quadro continua visível. -->
+  <div id="mselbar" hidden>
+    <button id="msb_close" class="msb-x" data-i="x" title="Desmarcar foto"></button>
+    <input type="text" id="msb_cap" maxlength="500" placeholder="Escreva a legenda…" autocomplete="off">
+    <button id="msb_edit" class="msb-e"><span data-i="sliders"></span>Ajustar</button>
+  </div>
+
   <div id="medit" hidden>
     <div class="m-grab"><i></i></div>
     <!-- #rightSel entra aqui (m-core.js) -->
@@ -492,18 +500,18 @@
 <!-- Script clássico (não module): funciona tanto em https:// quanto ao abrir
      o arquivo direto (file://). Nenhum script inline: script-src 'self'. -->
 <!-- carregados em ordem; compartilham o mesmo escopo global -->
-<script defer src="js/config.js?v=087"></script>
-<script defer src="js/state.js?v=087"></script>
-<script defer src="js/images.js?v=087"></script>
-<script defer src="js/layout.js?v=087"></script>
-<script defer src="js/render.js?v=087"></script>
-<script defer src="js/history.js?v=087"></script>
-<script defer src="js/export.js?v=087"></script>
-<script defer src="js/ui.js?v=087"></script>
-<script defer src="js/m-core.js?v=087"></script>
-<script defer src="js/m-panels.js?v=087"></script>
-<script defer src="js/m-sheet.js?v=087"></script>
-<script defer src="js/m-install.js?v=087"></script>
-<script defer src="js/events.js?v=087"></script>
+<script defer src="js/config.js?v=088"></script>
+<script defer src="js/state.js?v=088"></script>
+<script defer src="js/images.js?v=088"></script>
+<script defer src="js/layout.js?v=088"></script>
+<script defer src="js/render.js?v=088"></script>
+<script defer src="js/history.js?v=088"></script>
+<script defer src="js/export.js?v=088"></script>
+<script defer src="js/ui.js?v=088"></script>
+<script defer src="js/m-core.js?v=088"></script>
+<script defer src="js/m-panels.js?v=088"></script>
+<script defer src="js/m-sheet.js?v=088"></script>
+<script defer src="js/m-install.js?v=088"></script>
+<script defer src="js/events.js?v=088"></script>
 </body>
 </html>

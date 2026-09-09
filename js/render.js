@@ -81,6 +81,28 @@ function polEl(ph){
   win.addEventListener('pointerdown',e=>{
     if(e.button!==0) return;
     if(e.pointerType==='touch' && e.isPrimary===false) return;   // 2º dedo = pinça, não arrasto
+
+    // No celular, reenquadrar só acontece com a folha "Ajustar" aberta. Fora
+    // dela o toque na foto seleciona e o arraste rola a folha — nunca move a
+    // imagem sem querer.
+    const mob=matchMedia('(max-width:820px)').matches;
+    const med=document.getElementById('medit');
+    const editing=!!med && med.classList.contains('open');
+    if(mob && !editing){
+      // sem captura de ponteiro: a folha rola normalmente. Só detecta se foi
+      // um toque parado (marca a foto) ou um arraste (deixa rolar).
+      const sx=e.clientX,sy=e.clientY; let moved2=false;
+      const mvT=ev=>{ if(Math.abs(ev.clientX-sx)+Math.abs(ev.clientY-sy)>10) moved2=true; };
+      const done=()=>{ clearTimeout(safety);
+        win.removeEventListener('pointermove',mvT); win.removeEventListener('pointerup',upT);
+        win.removeEventListener('pointercancel',done); };
+      const upT=()=>{ done(); if(!moved2) select(ph.id); };
+      const safety=setTimeout(done,600);
+      win.addEventListener('pointermove',mvT); win.addEventListener('pointerup',upT);
+      win.addEventListener('pointercancel',done);
+      return;
+    }
+
     select(ph.id);
     const rect=win.getBoundingClientRect();
     const sx=e.clientX,sy=e.clientY,sox=ph.ox,soy=ph.oy; let moved=false,hist=false;
@@ -193,12 +215,10 @@ function select(id,keep){
   if(ph) fillRight(ph);
   const mob=matchMedia('(max-width:820px)').matches;
   if(mob){
-    // no celular a edição é a folha #medit — sobe ao escolher uma foto nova,
-    // desce ao desmarcar
-    if(typeof mEdit==='function'){
-      if(ph && selectedId!==had && !keep) mEdit(true);
-      else if(!ph) mEdit(false);
-    }
+    // no celular, marcar uma foto só mostra a barra da foto (legenda +
+    // "Ajustar"). A folha de edição NÃO abre sozinha — o quadro fica à vista.
+    if(typeof mSelBar==='function') mSelBar(ph||null);
+    if(!ph && typeof mEdit==='function') mEdit(false);
     return;
   }
   // no desktop, abre o painel direito ao selecionar uma foto nova
@@ -210,6 +230,7 @@ function fillRight(ph){
   const m=media[ph.id];
   $('#s_thumb').src=m?m.previewURL:'';
   const sc=$('#s_caption'); if(sc && sc!==document.activeElement) sc.value=ph.caption||'';
+  const mcap=$('#msb_cap'); if(mcap && mcap!==document.activeElement) mcap.value=ph.caption||'';
   const d=photoDPI(ph);
   $('#s_dot').className='dot '+dpiClass(d);
   $('#s_dpi').textContent=d?`Impressão: ~${d} dpi ${d>=240?'(ótima)':d>=150?'(aceitável)':'(baixa — pode borrar)'}`:'—';

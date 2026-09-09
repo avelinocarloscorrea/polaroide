@@ -40,9 +40,22 @@ function mTab(name){
 /* ---------- folha de edição da foto (#medit) e menu (#menu) ---------- */
 function mEdit(open){
   const m=$('#medit'); if(!m) return;
-  if(open){ m.hidden=false; m.style.transform=''; requestAnimationFrame(()=>m.classList.add('open')); }
-  else m.classList.remove('open');
+  if(open){
+    m.hidden=false; m.style.transform='';
+    requestAnimationFrame(()=>{ m.classList.add('open'); mScrollSel(); });
+  }else m.classList.remove('open');
   mScrim();
+}
+/* põe a foto marcada na faixa de cima do palco, acima da folha de edição */
+function mScrollSel(){
+  const el=(typeof sheetsEl!=='undefined') && sheetsEl.querySelector('.pol.sel');
+  const sc=$('#stage'); if(!el||!sc) return;
+  requestAnimationFrame(()=>{
+    try{
+      const er=el.getBoundingClientRect(), sr=sc.getBoundingClientRect();
+      sc.scrollBy({top:(er.top+er.height/2)-(sr.top+sr.height*0.28),behavior:'smooth'});
+    }catch(_){ }
+  });
 }
 function mMenu(open){
   const m=$('#menu'); if(!m) return;
@@ -103,7 +116,9 @@ function mSetup(){
   ['folha','estilo','exportar'].forEach(t=>{
     const p=$('#mp_'+t); if(p) mDragClose(p.querySelector('.m-grab'), p, ()=>mTab('fotos'));
   });
-  const med=$('#medit'); if(med) mDragClose(med.querySelector('.m-grab'), med, ()=>{ if(typeof select==='function') select(null); else mEdit(false); });
+  // arrastar a folha de edição pra baixo só a fecha — a foto segue marcada
+  // (a barra da foto continua embaixo p/ legenda ou reabrir)
+  const med=$('#medit'); if(med) mDragClose(med.querySelector('.m-grab'), med, ()=>mEdit(false));
   const men=$('#menu');  if(men){
     let g=men.querySelector('.m-grab');
     if(!g){ g=document.createElement('div'); g.className='m-grab'; g.appendChild(document.createElement('i')); men.insertBefore(g, men.firstChild); }

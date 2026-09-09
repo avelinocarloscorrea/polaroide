@@ -1,5 +1,16 @@
 # Histórico
 
+## 0.20 — celular: marcar ≠ editar, e sem mexer na foto sem querer
+- Tocar numa foto **não abre mais** a folha de edição sozinha. Aparece uma
+  **barra da foto** embaixo (legenda + botão **Ajustar**) e o quadro fica
+  todo à vista.
+- **Ajustar** abre uma folha **curta** (± meia tela); a foto marcada rola
+  para a faixa de cima e continua visível enquanto se mexe nos controles.
+- **Enquadrar** (arrastar dentro da moldura) só vale com a folha Ajustar
+  aberta. Fora dela, o dedo na foto **rola a folha** — nunca reposiciona a
+  imagem por acidente. Toque simples ainda marca a foto.
+- Arrastar a folha Ajustar pra baixo só a fecha; a foto segue marcada.
+
 ## 0.19 — celular reconstruído
 - A interface de celular foi refeita numa **grade** (`#mroot`: barra / corpo /
   abas). O quadro de trabalho e o painel da foto agora são **movidos** para
