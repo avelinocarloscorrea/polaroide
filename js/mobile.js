@@ -30,6 +30,39 @@ function mRng(sel,key,fmt,forceCustom){
 }
 function mRngSet(sel,v,txt){ const el=$(sel); if(!el) return; el.value=v; const o=$(sel+'v'); if(o) o.textContent=txt; }
 
+/* ---------- arrastar pra baixo = fechar ----------
+   Engata só quando o conteúdo está no topo e o dedo desce na vertical; senão
+   é rolagem normal. Segue o dedo; solta passando do limite → onClose(). */
+function makeDismiss(el,onClose,getScroller){
+  if(!el) return;
+  const scr=()=>getScroller?getScroller():el;
+  let sy=0,sx=0,dy=0,armed=false,active=false,t0=0;
+  el.addEventListener('touchstart',e=>{
+    if(e.touches.length!==1){ armed=false; return; }
+    sy=e.touches[0].clientY; sx=e.touches[0].clientX; dy=0; t0=Date.now();
+    armed=scr().scrollTop<=0; active=false;
+  },{passive:true});
+  el.addEventListener('touchmove',e=>{
+    if(!armed) return;
+    dy=e.touches[0].clientY-sy; const dx=e.touches[0].clientX-sx;
+    if(!active){
+      if(dy>10 && dy>Math.abs(dx)*1.3 && scr().scrollTop<=0){ active=true; el.style.transition='none'; }
+      else if(dy<-4 || Math.abs(dx)>14){ armed=false; return; }
+      else return;
+    }
+    if(dy<0) dy=0;
+    el.style.transform='translateY('+dy+'px)';
+    if(e.cancelable) e.preventDefault();
+  },{passive:false});
+  el.addEventListener('touchend',()=>{
+    if(!active){ armed=false; return; }
+    active=false; armed=false;
+    const vy=dy/Math.max(1,Date.now()-t0);
+    el.style.transition=''; el.style.transform='';
+    if(dy>120 || (dy>46 && vy>0.55)) onClose();
+  },{passive:true});
+}
+
 /* ---------- abas ---------- */
 const M_TABS=['fotos','folha','estilo','exportar'];
 function mSetTab(name){
@@ -86,6 +119,11 @@ function bindMobile(){
   // abas
   $$('#mtabs button').forEach(b=>{ b.onclick=()=>mSetTab(b.dataset.tab); });
   document.body.classList.add('mtab-fotos');
+
+  // arrastar pra baixo fecha: folha de edição da foto, menu e os painéis de aba
+  makeDismiss($('#right'), ()=>{ uiState.right=false; applyUI(); });
+  makeDismiss($('#menu'), ()=>{ $('#menu').hidden=true; syncScrim(); });
+  ['folha','estilo','exportar'].forEach(t=>makeDismiss($('#mp_'+t), ()=>mSetTab('fotos')));
 
   // topo
   $('#mfab').onclick=()=>$('#file_add').click();

@@ -1,0 +1,19 @@
+{
+  "name": "Polaroide Studio",
+  "short_name": "Polaroide",
+  "description": "Monte polaroides numa folha pronta para imprimir. Roda no navegador, sem enviar nada.",
+  "lang": "pt-BR",
+  "start_url": "./index.html",
+  "scope": "./",
+  "id": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "any",
+  "background_color": "#e6e0d4",
+  "theme_color": "#3d5c52",
+  "categories": ["photo", "productivity", "utilities"],
+  "icons": [
+    { "src": "assets/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "assets/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}

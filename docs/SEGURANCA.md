@@ -17,15 +17,19 @@ style-src 'self';
 img-src 'self' data: blob:;
 media-src 'self' blob:;
 font-src 'self';
+manifest-src 'self';
 ```
 
 - `default-src 'none'` — a base é "nada". Toda diretiva de busca não listada
-  (`connect-src`, `object-src`, `manifest-src`, `worker-src`, `child-src`…)
-  herda `'none'`. Ou seja: `fetch`, `XMLHttpRequest`, `sendBeacon`, WebSocket,
-  EventSource, `<object>`/`<embed>` e manifest ficam **bloqueados**. Não há
-  como o código vazar dados, mesmo que quisesse.
-  (Listar essas diretivas com `'none'` explicitamente não muda nada e ainda
-  gera aviso no console — por isso foram removidas.)
+  (`connect-src`, `object-src`, `worker-src`, `child-src`…) herda `'none'`.
+  Ou seja: `fetch`, `XMLHttpRequest`, `sendBeacon`, WebSocket, EventSource,
+  `<object>`/`<embed>` ficam **bloqueados**. Não há como o código vazar dados,
+  mesmo que quisesse. (Listar essas diretivas com `'none'` explicitamente não
+  muda nada e ainda gera aviso no console — por isso ficaram de fora.)
+- `manifest-src 'self'` — única exceção, e apenas para carregar o
+  `manifest.webmanifest` (permite instalar o app na tela de início / PWA). É
+  um arquivo de metadados estático do próprio domínio; não abre canal de rede
+  nem executa nada. Não há service worker.
 - `script-src 'self'` — nenhum script inline e nenhum script de terceiros.
   Só `js/*.js`, do mesmo domínio. Fecha injeção de `<script>` e handlers
   `onclick=` embutidos.

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Polaroide Studio">
+  <rect width="512" height="512" rx="112" fill="#3d5c52"/>
+  <g transform="translate(77 77) scale(5.6)" fill="none" stroke="none">
+    <rect x="9" y="7" width="46" height="50" rx="5" fill="#f4ecdd"/>
+    <rect x="15" y="13" width="34" height="27" rx="2" fill="#3d5c52"/>
+    <circle cx="32" cy="26.5" r="7.5" fill="#f4ecdd"/>
+    <circle cx="32" cy="26.5" r="3.4" fill="#3d5c52"/>
+  </g>
+</svg>

@@ -34,9 +34,9 @@ Options -Indexes
 # Cabecalhos de seguranca
 # ----------------------------------------------------------------------------
 <IfModule mod_headers.c>
-    # 'default-src none' já cobre connect-src, object-src, manifest-src, etc.
-    # (listá-los explicitamente com 'none' gera aviso no console e não muda nada).
-    Header always set Content-Security-Policy "default-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; media-src 'self' blob:; font-src 'self'"
+    # Base 'none'. Só o proprio dominio ('self'). 'manifest-src self' existe
+    # apenas para o app ser instalavel na tela de inicio. Nada sai do aparelho.
+    Header always set Content-Security-Policy "default-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; media-src 'self' blob:; font-src 'self'; manifest-src 'self'"
     Header always set Strict-Transport-Security "max-age=31536000"
     Header always set X-Content-Type-Options "nosniff"
     Header always set X-Frame-Options "DENY"
@@ -59,10 +59,11 @@ Options -Indexes
     AddType image/svg+xml .svg
     AddType font/woff2 .woff2
     AddType text/css .css
+    AddType application/manifest+json .webmanifest
     AddDefaultCharset UTF-8
 </IfModule>
 <IfModule mod_headers.c>
-    <FilesMatch "\.(js|css|svg)$">
+    <FilesMatch "\.(js|css|svg|webmanifest)$">
         Header set Cache-Control "public, max-age=3600"
     </FilesMatch>
     <FilesMatch "\.(woff2)$">

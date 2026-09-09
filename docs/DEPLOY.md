@@ -13,6 +13,7 @@ repositório. Na prática:
 public_html/            (ou o docroot do host)
     index.html
     guia.html
+    manifest.webmanifest   (PWA — instalar na tela de início)
     .htaccess           só em Apache/LiteSpeed
     css/*.css           base, layout, polaroid, effects, components, util,
                         print, mobile, guia
@@ -20,6 +21,7 @@ public_html/            (ou o docroot do host)
                         history, export, ui, mobile, events)
     assets/
         favicon.svg
+        icon.svg           ícone do app (192/512, maskable)
         playfair.woff2
         fonts/*.woff2
 ```
@@ -34,7 +36,7 @@ Se o host compartilha espaço com outro app (um WordPress, por exemplo), use um
 em comum.
 
 ```
-scp -P <porta> -r index.html guia.html .htaccess css js assets \
+scp -P <porta> -r index.html guia.html manifest.webmanifest .htaccess css js assets \
     <usuario>@<host>:<caminho-do-docroot>/
 
 ssh -p <porta> <usuario>@<host> \
@@ -57,6 +59,7 @@ curl -s -o /dev/null -w '%{http_code}\n' $BASE/qualquer.php    # 403 ou 404
 curl -s -o /dev/null -w '%{http_code}\n' $BASE/js/config.js    # 200, text/javascript
 curl -s -o /dev/null -w '%{http_code}\n' $BASE/css/mobile.css  # 200, text/css
 curl -s -o /dev/null -w '%{http_code}\n' $BASE/guia.html       # 200, text/html
+curl -sI $BASE/manifest.webmanifest | grep -i -e '^HTTP' -e content-type  # 200, application/manifest+json
 ```
 
 O HTML servido não pode ter nenhuma URL externa além do link `<a>` para o

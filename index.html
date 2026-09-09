@@ -6,27 +6,33 @@
 <meta name="color-scheme" content="light dark">
 <!-- ============================================================================
      PRIVACIDADE E SEGURANÇA
-     Tudo roda no navegador do usuário. 'default-src none' já bloqueia QUALQUER
-     envio de dados para fora (fetch, XHR, WebSocket, formulário) e qualquer
-     objeto/plugin — só o que está listado abaixo é permitido, tudo do próprio
-     domínio. Nenhuma foto, nome de arquivo ou ajuste sai do computador.
-     (Directivas redundantes com 'default-src none' foram removidas para o
-      cabeçalho ficar limpo no console.)
+     'default-src none' bloqueia QUALQUER coisa não listada abaixo — inclusive
+     todo envio de dados para fora (fetch, XHR, WebSocket, formulário) e plugins.
+     O permitido vem só do próprio domínio ('self'). 'manifest-src self' existe
+     apenas para o app poder ser instalado na tela de início. Nenhuma foto,
+     nome de arquivo ou ajuste sai do aparelho.
      ========================================================================= -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; form-action 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; media-src 'self' blob:; font-src 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; form-action 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; media-src 'self' blob:; font-src 'self'; manifest-src 'self'">
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" href="assets/favicon.svg">
-<link rel="apple-touch-icon" href="assets/favicon.svg">
+<link rel="apple-touch-icon" href="assets/icon.svg">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#f2eee6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#14161a" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Polaroide">
 <title>Polaroide Studio</title>
-<link rel="stylesheet" href="css/base.css?v=085">
-<link rel="stylesheet" href="css/layout.css?v=085">
-<link rel="stylesheet" href="css/polaroid.css?v=085">
-<link rel="stylesheet" href="css/effects.css?v=085">
-<link rel="stylesheet" href="css/components.css?v=085">
-<link rel="stylesheet" href="css/util.css?v=085">
-<link rel="stylesheet" href="css/print.css?v=085">
-<link rel="stylesheet" href="css/mobile.css?v=085">
+<link rel="stylesheet" href="css/base.css?v=086">
+<link rel="stylesheet" href="css/layout.css?v=086">
+<link rel="stylesheet" href="css/polaroid.css?v=086">
+<link rel="stylesheet" href="css/effects.css?v=086">
+<link rel="stylesheet" href="css/components.css?v=086">
+<link rel="stylesheet" href="css/util.css?v=086">
+<link rel="stylesheet" href="css/print.css?v=086">
+<link rel="stylesheet" href="css/mobile.css?v=086">
 </head>
 <body>
 <div id="app">
@@ -400,6 +406,7 @@
   <button id="m_open" data-i="folder">Abrir projeto…</button>
   <a id="m_acervo" hidden><span data-i="grid"></span> Acervo — mais ferramentas</a>
   <div class="msep"></div>
+  <button id="m_install" data-i="download" hidden>Instalar na tela de início</button>
   <a id="m_guide" href="guia.html" target="_blank" rel="noopener noreferrer"><span data-i="page"></span> Guia do usuário</a>
   <button id="m_help" data-i="help">Atalhos de teclado</button>
   <button id="m_privacy" data-i="shield">Privacidade e segurança</button>
@@ -465,15 +472,15 @@
 <!-- Script clássico (não module): funciona tanto em https:// quanto ao abrir
      o arquivo direto (file://). Nenhum script inline: script-src 'self'. -->
 <!-- carregados em ordem; compartilham o mesmo escopo global -->
-<script defer src="js/config.js?v=085"></script>
-<script defer src="js/state.js?v=085"></script>
-<script defer src="js/images.js?v=085"></script>
-<script defer src="js/layout.js?v=085"></script>
-<script defer src="js/render.js?v=085"></script>
-<script defer src="js/history.js?v=085"></script>
-<script defer src="js/export.js?v=085"></script>
-<script defer src="js/ui.js?v=085"></script>
-<script defer src="js/mobile.js?v=085"></script>
-<script defer src="js/events.js?v=085"></script>
+<script defer src="js/config.js?v=086"></script>
+<script defer src="js/state.js?v=086"></script>
+<script defer src="js/images.js?v=086"></script>
+<script defer src="js/layout.js?v=086"></script>
+<script defer src="js/render.js?v=086"></script>
+<script defer src="js/history.js?v=086"></script>
+<script defer src="js/export.js?v=086"></script>
+<script defer src="js/ui.js?v=086"></script>
+<script defer src="js/mobile.js?v=086"></script>
+<script defer src="js/events.js?v=086"></script>
 </body>
 </html>

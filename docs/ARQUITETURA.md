@@ -5,6 +5,7 @@
 ```
 index.html           marcação — #app (desktop) + #mroot (celular) + diálogos
 guia.html            guia do usuário (independente)
+manifest.webmanifest PWA — instalável na tela de início (sem service worker)
 css/
   base.css           fontes, tokens, resets, botões, campos
   layout.css         grade do #app, barra, painéis, quadro de trabalho
@@ -136,8 +137,8 @@ recortando os efeitos no contorno do card; `exportPNG()` baixa esse canvas,
 | `js/history.js` | `past`/`future`; `pushHistory` `applySnap` `undo` `redo` `updateHistoryButtons` `mutate` `move` `removePhoto` `duplicate` `doClear` `newProject` `wipeAll` |
 | `js/export.js`  | `roundRect` `wrapText` `ensureFullImages` `ensureFonts` `drawPage` `drawPol` `drawDecor` `pdfFromImages` `exportPDF` `exportPNG` `blobToDataURL` `exportProject` `importProject` |
 | `js/ui.js`      | `toast` `busy` `unbusy`; `rebuildFontOptions` `syncControls` `bindRange` `applyFormat` `applyTemplate` `applyLayout`; `isMobile` `syncScrim` `togglePanel` `applyUI`; seletor de cor (`setupColorFields` `openCF`); `bindAll()` |
-| `js/mobile.js`  | helpers de casca (`mSeg` `mSegSet` `mStepSet` `mRng` …); `mSetTab`; `syncMobile()` (chamada por `syncControls()`); `bindMobile()` (chamada por `init()`) |
-| `js/events.js`  | listeners globais (teclado, roda/pinça, arraste do meio, toque duplo, drag&drop, paste, resize, print) + `init()` |
+| `js/mobile.js`  | helpers de casca (`mSeg` `mSegSet` `mStepSet` `mRng` …); `makeDismiss` (arrastar pra baixo = fechar); `mSetTab`; `syncMobile()` (chamada por `syncControls()`); `bindMobile()` (chamada por `init()`) |
+| `js/events.js`  | listeners globais (teclado, roda/pinça, arraste do meio, toque duplo, drag&drop, paste, resize, print); `initInstall()` (PWA — `beforeinstallprompt` / `#m_install`); `init()` |
 
 Cada arquivo tem `"use strict";` e um cabeçalho curto. Não há `export`/`import`.
 

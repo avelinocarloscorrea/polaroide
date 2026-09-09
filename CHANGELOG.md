@@ -1,5 +1,15 @@
 # Histórico
 
+## 0.18 — instalar como app e gestos no celular
+- **Instalar na tela de início** (PWA): `manifest.webmanifest` + `assets/icon.svg`.
+  Menu <kbd>⋯</kbd> → “Instalar na tela de início” (Android/Chrome mostra na
+  hora; iPhone via Compartilhar). Sem service worker — a CSP só ganhou
+  `manifest-src 'self'`.
+- **Arrastar pra baixo fecha** no celular: a edição da foto, o menu <kbd>⋯</kbd>
+  e as abas Folha/Estilo/Exportar. Segue o dedo; solta passando do limite.
+  Pega (barra) visível no topo de cada painel.
+- A folha de edição da foto ficou um pouco menor (mais foto à vista).
+
 ## 0.17 — tela inicial enxuta e “Novo projeto”
 - A tela inicial (sem fotos) perdeu o cartão: agora é só o logo, o botão
   **Adicionar fotos** e os templates como pílulas de texto (a descrição
