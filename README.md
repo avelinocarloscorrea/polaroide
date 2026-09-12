@@ -68,8 +68,8 @@ Carlos Avelino Correa — <https://github.com/avelinocarloscorrea>
 
 ## Código-fonte
 
-<https://github.com/avelinocarloscorrea/polaroide> — repositório privado por
-enquanto; a ideia é abrir para a comunidade mais adiante.
+<https://github.com/avelinocarloscorrea/polaroide> — código aberto sob
+licença MIT.
 
 ## Licença
 
