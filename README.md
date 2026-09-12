@@ -24,13 +24,19 @@ css/
   base layout polaroid effects components util print   estilo do desktop
   m-shell m-panels m-sheet   casca de celular (≤ 820 px)
   guia.css            estilo do guia
-js/                    13 scripts clássicos, carregados em ordem
-  config state images layout render history export ui
+js/                    14 scripts clássicos, carregados em ordem
+  config state images layout render history export ui wizard
   m-core m-panels m-sheet m-install events
+vendor/core/           núcleo compartilhado com as outras ferramentas da
+                       Esmeralda Paper (datas/feriados, construtor de blocos,
+                       estimativa de encadernação, editor de foto) — copiado
+                       aqui pelo build do monorepo; o Polaroide ainda não usa
+                       nenhum desses módulos no próprio código
 assets/
   favicon.svg
   playfair.woff2       fonte de marca (OFL)
   fonts/*.woff2        fontes de legenda (só baixam quando escolhidas)
+  guia/*.png           capturas de tela usadas no guia do usuário
 .htaccess             blindagem da pasta (Apache / LiteSpeed)
 docs/                 arquitetura, segurança, desenvolvimento, deploy
 ```
@@ -59,6 +65,11 @@ Servir por HTTP é útil para testar com a CSP vindo como cabeçalho (o
 ## Autor
 
 Carlos Avelino Correa — <https://github.com/avelinocarloscorrea>
+
+## Código-fonte
+
+<https://github.com/avelinocarloscorrea/polaroide> — repositório privado por
+enquanto; a ideia é abrir para a comunidade mais adiante.
 
 ## Licença
 

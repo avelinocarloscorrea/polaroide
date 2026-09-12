@@ -19,6 +19,10 @@
     height:100vh;height:100dvh;background:var(--stage);overflow:hidden;
     font-family:var(--ui)}
 
+  /* tela inicial sem menus: some com a barra de cima, abas e FAB */
+  body.onboarding #mroot{grid-template-rows:0 1fr 0 0}
+  body.onboarding #mtop,body.onboarding #mtabs,body.onboarding #mfab{overflow:hidden;visibility:hidden}
+
   /* barra superior */
   #mtop{display:flex;align-items:center;gap:2px;padding:0 6px;min-height:50px;
     padding-top:env(safe-area-inset-top,0px);

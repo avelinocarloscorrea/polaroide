@@ -1,5 +1,19 @@
 # Histórico
 
+## 0.21 — tela inicial com assistente de montagem
+- Além dos modelos prontos já existentes, a tela inicial (sem fotos ainda)
+  ganhou um assistente de 3 passos curtos pra quem prefere montar do zero:
+  formato do polaroide → grade da folha → efeito/legenda — cada passo já
+  mostra a miniatura real com as escolhas acumuladas até ali (`js/wizard.js`).
+- Correção: o link "Mais ferramentas" apontava para o endereço antigo da
+  página de ferramentas (o redirecionamento ainda funcionava, mas indireto);
+  agora aponta direto para o endereço atual.
+- Preparação interna: os módulos de datas/feriados, construtor de blocos por
+  arrastar, estimativa de encadernação e editor de foto — usados por Planner
+  Studio e Calendar Studio — passaram a ser copiados também para
+  `vendor/core/` deste projeto pelo processo de build do monorepo. Ainda não
+  são usados aqui; nenhuma mudança de comportamento pra quem usa a ferramenta.
+
 ## 0.20 — celular: marcar ≠ editar, e sem mexer na foto sem querer
 - Tocar numa foto **não abre mais** a folha de edição sozinha. Aparece uma
   **barra da foto** embaixo (legenda + botão **Ajustar**) e o quadro fica

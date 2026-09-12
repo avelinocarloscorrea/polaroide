@@ -25,16 +25,16 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Polaroide">
 <title>Polaroide Studio</title>
-<link rel="stylesheet" href="css/base.css?v=088">
-<link rel="stylesheet" href="css/layout.css?v=088">
-<link rel="stylesheet" href="css/polaroid.css?v=088">
-<link rel="stylesheet" href="css/effects.css?v=088">
-<link rel="stylesheet" href="css/components.css?v=088">
-<link rel="stylesheet" href="css/util.css?v=088">
-<link rel="stylesheet" href="css/print.css?v=088">
-<link rel="stylesheet" href="css/m-shell.css?v=088">
-<link rel="stylesheet" href="css/m-panels.css?v=088">
-<link rel="stylesheet" href="css/m-sheet.css?v=088">
+<link rel="stylesheet" href="css/base.css?v=089">
+<link rel="stylesheet" href="css/layout.css?v=089">
+<link rel="stylesheet" href="css/polaroid.css?v=089">
+<link rel="stylesheet" href="css/effects.css?v=089">
+<link rel="stylesheet" href="css/components.css?v=089">
+<link rel="stylesheet" href="css/util.css?v=089">
+<link rel="stylesheet" href="css/print.css?v=089">
+<link rel="stylesheet" href="css/m-shell.css?v=089">
+<link rel="stylesheet" href="css/m-panels.css?v=089">
+<link rel="stylesheet" href="css/m-sheet.css?v=089">
 </head>
 <body>
 <div id="app">
@@ -212,18 +212,46 @@
       Na <b>impressão</b> direta: escolha o mesmo papel, margens <b>Nenhuma</b> (ou Mínimas) e escala <b>100%</b>.</p>
     </div></details>
 
-    <p class="hint"><span class="pill">Privado</span> &nbsp;O projeto fica só neste navegador. Para backup ou usar em outro PC, use <b>Salvar projeto</b> no menu.<a id="asideAcervo" rel="noopener noreferrer" hidden>↗ Acervo — mais ferramentas</a></p>
+    <p class="hint"><span class="pill">Privado</span> &nbsp;O projeto fica só neste navegador. Para backup ou usar em outro PC, use <b>Salvar projeto</b> no menu.<br>
+      <a id="asideAcervo" rel="noopener noreferrer" hidden>↗ Acervo — mais ferramentas</a><br>
+      <a id="asideFeedback" rel="noopener noreferrer" hidden>★ Avaliar esta ferramenta</a></p>
   </aside>
 
   <div id="stage">
     <div id="sheets"></div>
+    <div id="resumeAsk" hidden>
+      <div class="box">
+        <span class="mark"><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="9" y="7" width="46" height="50" rx="5" fill="var(--surface)" stroke="var(--brand)" stroke-width="3.5"/><rect x="15" y="13" width="34" height="27" rx="2" fill="var(--brand)"/><circle cx="32" cy="26.5" r="7.5" fill="var(--surface)"/><circle cx="32" cy="26.5" r="3.4" fill="var(--brand)"/></svg></span>
+        <h3>Bem-vindo de volta</h3>
+        <p id="ra_desc">Encontramos um projeto salvo neste navegador.</p>
+        <div class="ra-actions">
+          <button id="ra_continue" class="primary jcc">Continuar de onde parei</button>
+          <button id="ra_new" class="jcc">Começar um novo projeto</button>
+        </div>
+        <p class="faint">Nada é enviado a nenhum servidor. O projeto fica só neste navegador.</p>
+      </div>
+    </div>
     <div id="empty" hidden>
       <div class="box scrl">
         <span class="mark"><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="9" y="7" width="46" height="50" rx="5" fill="var(--surface)" stroke="var(--brand)" stroke-width="3.5"/><rect x="15" y="13" width="34" height="27" rx="2" fill="var(--brand)"/><circle cx="32" cy="26.5" r="7.5" fill="var(--surface)"/><circle cx="32" cy="26.5" r="3.4" fill="var(--brand)"/></svg></span>
         <h3>Polaroide Studio</h3>
         <p>Adicione fotos, ou comece por um modelo.</p>
         <button id="e_add" class="primary jcc" data-i="imageplus">Adicionar fotos</button>
-        <div id="tplList" class="tpl-list"></div>
+        <div id="ob_templates">
+          <div id="tplList" class="tpl-list"></div>
+          <button id="ob_wizStart" class="wiz-start">Ou montar do seu jeito, passo a passo →</button>
+        </div>
+        <div id="ob_wizard" hidden>
+          <div class="wiz-head">
+            <button id="ob_wizBack" class="wiz-back" data-i="chevleft" title="Voltar" aria-label="Voltar"></button>
+            <div class="wiz-headtxt">
+              <span class="wiz-step" id="ob_wizStep"></span>
+              <h4 id="ob_wizTitle"></h4>
+              <p id="ob_wizDesc"></p>
+            </div>
+          </div>
+          <div id="ob_wizGrid" class="tpl-list"></div>
+        </div>
         <p class="faint">Arraste imagens para a janela · <kbd>Ctrl</kbd>+<kbd>V</kbd> para colar</p>
       </div>
     </div>
@@ -500,18 +528,19 @@
 <!-- Script clássico (não module): funciona tanto em https:// quanto ao abrir
      o arquivo direto (file://). Nenhum script inline: script-src 'self'. -->
 <!-- carregados em ordem; compartilham o mesmo escopo global -->
-<script defer src="js/config.js?v=088"></script>
-<script defer src="js/state.js?v=088"></script>
-<script defer src="js/images.js?v=088"></script>
-<script defer src="js/layout.js?v=088"></script>
-<script defer src="js/render.js?v=088"></script>
-<script defer src="js/history.js?v=088"></script>
-<script defer src="js/export.js?v=088"></script>
-<script defer src="js/ui.js?v=088"></script>
-<script defer src="js/m-core.js?v=088"></script>
-<script defer src="js/m-panels.js?v=088"></script>
-<script defer src="js/m-sheet.js?v=088"></script>
-<script defer src="js/m-install.js?v=088"></script>
-<script defer src="js/events.js?v=088"></script>
+<script defer src="js/config.js?v=089"></script>
+<script defer src="js/state.js?v=089"></script>
+<script defer src="js/images.js?v=089"></script>
+<script defer src="js/layout.js?v=089"></script>
+<script defer src="js/render.js?v=089"></script>
+<script defer src="js/history.js?v=089"></script>
+<script defer src="js/export.js?v=089"></script>
+<script defer src="js/ui.js?v=089"></script>
+<script defer src="js/wizard.js?v=089"></script>
+<script defer src="js/m-core.js?v=089"></script>
+<script defer src="js/m-panels.js?v=089"></script>
+<script defer src="js/m-sheet.js?v=089"></script>
+<script defer src="js/m-install.js?v=089"></script>
+<script defer src="js/events.js?v=089"></script>
 </body>
 </html>

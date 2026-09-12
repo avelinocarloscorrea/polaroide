@@ -102,7 +102,8 @@ const ICONS={
 
 // Link para o acervo (galeria de recursos e ferramentas). Deixe '' para
 // esconder o link; ajuste a URL para a página do seu acervo.
-const ACERVO_URL = 'https://www.esmeraldapaper.com.br/acervo/';
+const ACERVO_URL = 'https://www.esmeraldapaper.com.br/ferramentas/';
+const FEEDBACK_URL = 'https://www.esmeraldapaper.com.br/avaliar-ferramentas/?tool=polaroide';
 function injectIcons(root=document){
   root.querySelectorAll('[data-i]').forEach(el=>{
     const g=ICONS[el.getAttribute('data-i')]; if(!g) return;
@@ -176,7 +177,7 @@ const DEFAULTS={
   cardLine:false, cardLineColor:'#c9c9c9', cornerMarks:true, markOffset:2, markLen:4,
   captionFont:BASE_FONTS[0].v, captionSizePt:14, captionColor:'#222222',
   captionBold:false, captionItalic:false, captionUpper:false, captionSpacing:0, captionShadow:false,
-  tape:'none', tapeColor:'#e7dfce',
+  tape:'none', tapeColor:'#e7dfce', filterPreset:'original',
   cardColor:'#ffffff', pageBg:'#ffffff', pageBg2:'#e9e2d3', bgGradient:false, bgAngle:160,
   screenShadow:true, acrylic:true, exportDPI:300,
 };

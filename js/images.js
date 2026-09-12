@@ -57,7 +57,8 @@ async function processFile(file){
   const rec={full,preview,natW,natH,name:safeName(file.name)};
   if(idbOK){ try{ await DB.set(id,rec); }catch(e){ idbFail(e); } }
   hydrate(id,rec);
-  return {id,caption:'',zoomF:1,ox:0,oy:0,rot:0,flipH:false,seed:Math.random(),natW,natH,filter:{...FILTER0}};
+  const fp=(state.settings&&PRESETS[state.settings.filterPreset])?state.settings.filterPreset:'original';
+  return {id,caption:'',zoomF:1,ox:0,oy:0,rot:0,flipH:false,seed:Math.random(),natW,natH,filter:{...PRESETS[fp],preset:fp}};
 }
 function acceptable(f){
   const t=f.type||'';

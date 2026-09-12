@@ -8,12 +8,14 @@
 #app.hide-right{grid-template-columns:296px 1fr 0;--gut-r:0px}
 #app.hide-left.hide-right{grid-template-columns:0 1fr 0;--gut-l:0px;--gut-r:0px}
 #app.zen{grid-template-rows:0 1fr;grid-template-columns:0 1fr 0;--gut-l:0px;--gut-r:0px}
+body.onboarding #app{grid-template-rows:0 1fr;grid-template-columns:0 1fr 0;--gut-l:0px;--gut-r:0px}
+body.onboarding #sheets{display:none}
 
 #bar{grid-column:1/-1;display:flex;align-items:center;gap:7px;padding:0 12px;
   background:var(--surface);border-bottom:1px solid var(--line);box-shadow:var(--sh-1);z-index:20;
   overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
 #bar::-webkit-scrollbar{height:0;display:none}
-#app.zen #bar{overflow:hidden}
+#app.zen #bar,body.onboarding #bar{overflow:hidden}
 .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit;white-space:nowrap;padding-right:6px}
 .brand[href]{cursor:pointer}
 .brand[href]:hover .t1{color:var(--brand)}
@@ -34,7 +36,7 @@ aside{background:var(--paper);overflow-y:auto;overflow-x:hidden;overscroll-behav
   padding:12px;padding-bottom:24px;min-width:0;transition:opacity .16s ease}
 #left{border-right:1px solid var(--line)}
 #right{border-left:1px solid var(--line)}
-#app.hide-left #left,#app.hide-right #right,#app.zen aside{opacity:0;pointer-events:none}
+#app.hide-left #left,#app.hide-right #right,#app.zen aside,body.onboarding aside{opacity:0;pointer-events:none}
 .aside-title{font-family:var(--display);font-weight:700;font-size:14px;color:var(--ink);margin:2px 2px 12px;display:flex;align-items:center;gap:8px}
 .aside-title svg{width:15px;height:15px;color:var(--brand)}
 h4.grp-h{margin:16px 2px 9px;font:600 10.5px/1 var(--ui);letter-spacing:.11em;text-transform:uppercase;color:var(--faint)}

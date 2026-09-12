@@ -32,7 +32,13 @@ js/m-panels.js       celular: liga Folha/Estilo/Exportar, mSync(), mBindPanels()
 js/m-sheet.js        celular: amarra #medit / #menu (mBindSheet())
 js/m-install.js      instalar como app (beforeinstallprompt, initInstall())
 js/events.js         eventos globais (teclado, toque, drag) + init()
-assets/              favicon.svg, playfair.woff2, fonts/*.woff2
+js/wizard.js         tela inicial: modelos prontos ou montar do zero em 3
+                     passos curtos (formato → grade da folha → efeito/legenda)
+vendor/core/         núcleo compartilhado com Planner/Calendar Studio
+                     (dates.js, blocks.js, binding.js, imgedit.js) — copiado
+                     pelo build do monorepo; nenhum desses arquivos é
+                     carregado por index.html/guia.html hoje
+assets/              favicon.svg, playfair.woff2, fonts/*.woff2, guia/*.png
 ```
 
 Sem framework, sem bundler, sem passo de build.
@@ -147,6 +153,7 @@ recortando os efeitos no contorno do card; `exportPNG()` baixa esse canvas,
 | `js/m-sheet.js`  | `mBindSheet()` — itens do menu ⋯ fecham a folha no celular (chamada por `init()`) |
 | `js/m-install.js`| PWA sem service worker: `beforeinstallprompt`/`appinstalled`, `initInstall()` (item `#m_install`; iOS cai num aviso) |
 | `js/events.js`  | listeners globais (teclado, roda/pinça, arraste do meio, toque duplo, drag&drop, paste, resize, print); `init()` |
+| `js/wizard.js`  | `WIZ_STEPS` (formato → grade da folha → efeito/legenda); tela inicial sem fotos ainda — modelo pronto ou assistente de 3 passos, cada opção já mostrando a miniatura real via `tplThumbSVG`/`formatThumbSVG` de `ui.js` |
 
 Cada arquivo tem `"use strict";` e um cabeçalho curto. Não há `export`/`import`.
 

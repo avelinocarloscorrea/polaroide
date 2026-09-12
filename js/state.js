@@ -34,6 +34,7 @@ function migrateSettings(s){
     'brad-2','brad-4','brad-top',
     'pin-2','pin-top'].includes(s.tape)?s.tape:'none';
   s.exportDPI=clamp(Math.round(num(s.exportDPI,300)),72,600);
+  s.filterPreset=PRESETS[s.filterPreset]?s.filterPreset:'original';
   s.acrylic=s.acrylic!==false;
   s.autoFit=s.autoFit!==false;
   s.bgGradient=!!s.bgGradient;

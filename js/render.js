@@ -192,6 +192,7 @@ function render(){
   }
   applyZoom();
   $('#empty').hidden=state.photos.length>0;
+  document.body.classList.toggle('onboarding',state.photos.length===0);
   const gm=geom();
   const capMsg=L.capped?` · limitado pela folha (pediu ${L.wantCols}×${L.wantRows})`:'';
   $('#stat').textContent=`${state.photos.length} foto(s) · ${L.pages} folha(s) · ${L.cols}×${L.rows} por folha · `

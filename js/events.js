@@ -151,7 +151,23 @@ addEventListener('beforeprint',()=>select(null));
     await Promise.race([DB.keys(), new Promise((_,r)=>setTimeout(()=>r(new Error('idb-timeout')),2500))]);
   }catch(e){ idbFail(e); }
   try{ await loadProject(); }catch(e){ console.error(e); }
-  syncControls();
-  render();
-  fit();
+  const hasSaved=state.photos.length>0;
+  let alreadyAsked=false;
+  try{ alreadyAsked=sessionStorage.getItem('polaroidestudio-resumed')==='1'; }catch(e){}
+  if(hasSaved && !alreadyAsked) showResumeAsk(); else finishInit();
+  function finishInit(){ syncControls(); render(); fit(); }
+  function markAsked(){ try{ sessionStorage.setItem('polaroidestudio-resumed','1'); }catch(e){} }
+  function showResumeAsk(){
+    const box=$('#resumeAsk'); if(!box){ finishInit(); return; }
+    $('#ra_desc').textContent=`Encontramos um projeto salvo neste navegador — ${state.photos.length} foto${state.photos.length===1?'':'s'}.`;
+    $('#empty').hidden=true;
+    box.hidden=false;
+    document.body.classList.add('onboarding');
+    $('#ra_continue').onclick=()=>{ markAsked(); box.hidden=true; document.body.classList.remove('onboarding'); finishInit(); };
+    $('#ra_new').onclick=async ()=>{
+      if(!confirm('Começar um novo projeto? As fotos e os ajustes salvos serão descartados.')) return;
+      markAsked(); box.hidden=true;
+      await resetProjectData();
+    };
+  }
 })();

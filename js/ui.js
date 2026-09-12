@@ -3,6 +3,7 @@
    (parte de app; carregado em ordem por index.html) */
 "use strict";
 
+const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[m]));
 
 /* ================= feedback ================= */
 let toastT;
@@ -85,8 +86,90 @@ function applyTemplate(id){
   state.settings=migrateSettings({...DEFAULTS,...t.settings,...keep});
   selectedId=null;
   syncControls(); applyVars(); render(); save(); fit();
-  $$('#tplList .tpl-row').forEach(b=>b.classList.toggle('on',b.dataset.tpl===id));
+  $$('#tplList .tpl-card').forEach(b=>b.classList.toggle('on',b.dataset.tpl===id));
   toast('Template aplicado: '+t.name);
+}
+
+/* ============ miniatura gráfica do template (tela inicial) ============
+   Um template redefine formato+folha+efeito por inteiro — a miniatura desenha
+   de fato a grade de polaroides resultante (colunas × linhas, cor de fundo,
+   leve inclinação, fita/marcas de corte), não um ícone genérico. */
+function tplThumbSVG(t){
+  const s=t.settings||{};
+  const cols=Math.max(1,Math.min(parseInt(s.columns,10)||3,8));
+  const rows=Math.max(1,Math.min(parseInt(s.rows,10)||3,9));
+  const ps=PAGE_SIZES[s.pageSize]||PAGE_SIZES.a4;
+  const pw=s.landscape?ps.h:ps.w, ph=s.landscape?ps.w:ps.h;
+  const W=100,H=Math.round(W*(ph/pw)),R=7,pad=9;
+  const bg=s.pageBg||'var(--surface)';
+  const gap=cols>=6||rows>=7?1.3:cols>=4?2:3;
+  const gridW=W-pad*2,gridH=H-pad*2;
+  const tileW=(gridW-gap*(cols-1))/cols, tileH=(gridH-gap*(rows-1))/rows;
+  const noCaption=s.captionMm===0;
+  const tilt=s.tiltDeg?Math.min(s.tiltDeg*0.5,3.5):0;
+  let tiles='';
+  for(let r=0;r<rows;r++) for(let c=0;c<cols;c++){
+    const x=pad+c*(tileW+gap), y=pad+r*(tileH+gap);
+    const cx=x+tileW/2, cy=y+tileH/2;
+    const rot=tilt?((r+c)%2===0?tilt:-tilt):0;
+    const capH=noCaption?tileH*0.06:tileH*0.22;
+    const photoH=Math.max(1,tileH-capH-tileH*0.08);
+    tiles+=`<g transform="rotate(${rot.toFixed(1)} ${cx.toFixed(1)} ${cy.toFixed(1)})">
+      <rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${tileW.toFixed(1)}" height="${tileH.toFixed(1)}" fill="#fff" stroke="rgba(20,20,20,.12)" stroke-width=".7"/>
+      <rect x="${(x+tileW*0.07).toFixed(1)}" y="${(y+tileH*0.06).toFixed(1)}" width="${(tileW*0.86).toFixed(1)}" height="${photoH.toFixed(1)}" fill="var(--brand-soft)"/>
+    </g>`;
+  }
+  let tape='';
+  if(s.tape){
+    const tx=pad+tileW/2, ty=pad;
+    tape=`<rect x="${(tx-6).toFixed(1)}" y="${(ty-3.5).toFixed(1)}" width="12" height="7" rx="1" fill="${s.tapeColor||'#e3c877'}" opacity=".82" transform="rotate(-8 ${tx.toFixed(1)} ${ty.toFixed(1)})"/>`;
+  }
+  let corners='';
+  if(s.cornerMarks){
+    const m=4,len=5,cw='rgba(0,0,0,.32)';
+    const pts=[[m,m,1,1],[W-m,m,-1,1],[m,H-m,1,-1],[W-m,H-m,-1,-1]];
+    corners=pts.map(([px,py,dx,dy])=>
+      `<path d="M${px} ${py+dy*len} V${py} H${px+dx*len}" fill="none" stroke="${cw}" stroke-width="1"/>`).join('');
+  }
+  const cid='tc-'+t.id;
+  return `<svg viewBox="0 0 ${W} ${H}" aria-hidden="true">
+    <defs><clipPath id="${cid}"><rect x="0" y="0" width="${W}" height="${H}" rx="${R}"/></clipPath></defs>
+    <g clip-path="url(#${cid})">
+      <rect x="0" y="0" width="${W}" height="${H}" fill="${bg}"/>
+      ${tiles}${tape}${corners}
+      <rect x=".5" y=".5" width="${W-1}" height="${H-1}" rx="${R}" fill="none" stroke="var(--line)" stroke-width="1"/>
+    </g>
+  </svg>`;
+}
+/* ============ miniatura de UM polaroide (passo "Formato", guia) ============
+   Diferente da grade acima — aqui o que muda de opção pra opção é a
+   proporção do próprio polaroide (quadrado/retrato/instantâneo), a
+   moldura e a faixa de legenda, então desenha só um cartão, no tamanho real. */
+function formatThumbSVG(id){
+  const F=FORMATS[id]; if(!F||F.custom) return '';
+  const aw=F.aw||1, ah=F.ah||1;
+  const photoW=58, photoH=photoW*(ah/aw);
+  const frame=Math.max(2,F.frame/F.w*photoW);
+  const cap=F.cap/F.w*photoW;
+  const W=photoW+frame*2, H=photoH+frame*2+cap, R=2;
+  return `<svg viewBox="0 0 ${W.toFixed(1)} ${H.toFixed(1)}" aria-hidden="true">
+    <rect x=".5" y=".5" width="${(W-1).toFixed(1)}" height="${(H-1).toFixed(1)}" rx="${R}" fill="#fff" stroke="rgba(20,20,20,.15)" stroke-width="1"/>
+    <rect x="${frame.toFixed(1)}" y="${frame.toFixed(1)}" width="${photoW.toFixed(1)}" height="${photoH.toFixed(1)}" fill="var(--brand-soft)"/>
+  </svg>`;
+}
+/* ============ miniatura de efeito (passo "Efeito", guia) ============
+   Sem foto real pra filtrar ainda — mostra uma cor representativa de cada
+   preset (não é o algoritmo de verdade, só uma pista visual do tom). */
+const PRESET_SWATCH = { original: '#b9c2bd', bw: '#9a9a9a', sepia: '#b98a55', vintage: '#c99a5c', fade: '#d9cfc0', vivid: '#3f8f8a', cool: '#5f7fa6' };
+function effectThumbSVG(id) {
+  const c = PRESET_SWATCH[id] || PRESET_SWATCH.original;
+  const vignette = (id === 'vintage' || id === 'bw') ? `<rect x="0" y="0" width="60" height="60" fill="url(#vg-${id})"/>` : '';
+  return `<svg viewBox="0 0 68 80" aria-hidden="true">
+    <defs><radialGradient id="vg-${id}" cx="50%" cy="45%" r="75%"><stop offset="60%" stop-color="#000" stop-opacity="0"/><stop offset="100%" stop-color="#000" stop-opacity=".28"/></radialGradient></defs>
+    <rect x=".5" y=".5" width="67" height="79" rx="2" fill="#fff" stroke="rgba(20,20,20,.15)" stroke-width="1"/>
+    <rect x="4" y="4" width="60" height="60" fill="${c}"/>
+    ${vignette}
+  </svg>`;
 }
 // MODELO DE FOLHA (painel esquerdo) = só o desenho da folha; mescla, não reseta
 function applyLayout(id){
@@ -196,13 +279,14 @@ function bindAll(){
   Object.entries(FORMATS).forEach(([k,v])=>$('#c_format').add(new Option(v.label,k)));
   for(let i=1;i<=12;i++){ $('#c_cols').add(new Option(i,i)); $('#c_rows').add(new Option(i,i)); }
 
-  // TEMPLATES — pílulas na tela inicial (nome + miniatura; descrição no title)
+  // TEMPLATES — cartões com miniatura gráfica na tela inicial
   const tplList=$('#tplList');
   if(tplList) TEMPLATES.forEach(t=>{
     const b=document.createElement('button');
-    b.type='button'; b.className='tpl-row'; b.dataset.tpl=t.id;
-    if(t.desc) b.title=t.desc;
-    b.textContent=t.name;
+    b.type='button'; b.className='tpl-card'; b.dataset.tpl=t.id;
+    b.innerHTML=`<span class="tpl-card__thumb">${tplThumbSVG(t)}</span>
+      <span class="tpl-card__name">${esc(t.name)}</span>
+      <span class="tpl-card__desc">${esc(t.desc)}</span>`;
     b.onclick=()=>applyTemplate(t.id);
     tplList.appendChild(b);
   });
@@ -325,6 +409,10 @@ function bindAll(){
     if(aa){ aa.href=ACERVO_URL; aa.target='_blank'; aa.hidden=false; }
   }else{
     $('#brandLink').style.cursor='default';
+  }
+  if(typeof FEEDBACK_URL!=='undefined' && FEEDBACK_URL){
+    const af=$('#asideFeedback');
+    if(af){ af.href=FEEDBACK_URL; af.target='_blank'; af.hidden=false; }
   }
   $('#m_pdf').onclick=()=>{ mclose(); exportPDF(); };
   $('#m_png').onclick=()=>{ mclose(); exportPNG(); };

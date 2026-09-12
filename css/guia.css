@@ -106,6 +106,9 @@ td kbd{margin:1px}
 figure{margin:20px 0;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
   padding:16px;box-shadow:var(--sh-1)}
 figure svg{width:100%;height:auto;display:block;border-radius:6px;background:var(--surface-2)}
+figure img{width:100%;height:auto;display:block;border-radius:8px;border:1px solid var(--line-2);
+  background:var(--surface-2)}
+figure.narrow{max-width:440px}
 figcaption{margin-top:10px;font-size:13px;color:var(--muted);text-align:center}
 .callouts{margin:12px 0 0;padding:0;list-style:none;font-size:13.5px;
   display:grid;grid-template-columns:repeat(2,1fr);gap:4px 18px}

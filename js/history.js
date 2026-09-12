@@ -52,12 +52,15 @@ function doClear(){
   if(state.photos.length && !confirm('Remover todas as fotos? As configurações de layout são mantidas.')) return;
   mutate('clear',()=>{ state.photos=[]; selectedId=null; });
 }
-async function newProject(){
-  if((state.photos.length||past.length) && !confirm('Começar um novo projeto? As fotos e os ajustes atuais serão descartados.')) return;
+async function resetProjectData(){
   try{ const ks=await DB.keys(); for(const k of ks){ try{ await DB.del(k); }catch(_){} } }catch(e){}
   Object.keys(media).forEach(k=>delete media[k]);
   state={settings:{...DEFAULTS},photos:[]}; selectedId=null; past.length=0; future.length=0;
   syncControls(); applyVars(); render(); save(); fit();
+}
+async function newProject(){
+  if((state.photos.length||past.length) && !confirm('Começar um novo projeto? As fotos e os ajustes atuais serão descartados.')) return;
+  await resetProjectData();
   toast('Novo projeto.');
 }
 async function wipeAll(){
