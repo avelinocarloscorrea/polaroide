@@ -34,10 +34,12 @@
 #empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;padding:24px}
 #empty .box{pointer-events:auto;text-align:center;max-width:min(820px,94vw);width:100%;
   max-height:calc(100% - 24px);overflow-y:auto;overscroll-behavior:contain}
-#empty .mark{display:block;width:46px;height:46px;margin:0 auto 12px}
-#empty .mark svg{width:100%;height:100%;display:block}
-#empty h3{margin:0 0 4px;font-family:var(--display);font-size:20px;color:var(--ink)}
-#empty p{margin:0 0 16px;color:var(--muted);font-size:13px}
+#empty .kicker{display:block;margin:0 0 10px;font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--brand)}
+#empty .mark{display:grid;place-items:center;width:60px;height:60px;margin:0 auto 14px;border-radius:50%;background:var(--brand-soft)}
+#empty .mark svg{width:32px;height:32px;display:block}
+#empty h3{margin:.15em 0 .1em;font-family:var(--display);font-weight:400;font-size:26px;letter-spacing:-.02em;color:var(--ink)}
+#empty .rule{width:34px;height:2px;margin:10px auto 16px;border-radius:2px;background:var(--brand);opacity:.55}
+#empty p{margin:0 0 16px;color:var(--muted);font-size:13px;line-height:1.6}
 #empty .primary{margin:0 auto}
 #empty .faint{font-size:11.5px;margin:16px 0 0;color:var(--faint)}
 
@@ -45,10 +47,12 @@
 #resumeAsk{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:24px}
 #resumeAsk .box{text-align:center;max-width:420px;width:100%;max-height:calc(100% - 24px);overflow-y:auto;
   background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--sh-2);padding:28px 26px}
-#resumeAsk .mark{display:block;width:46px;height:46px;margin:0 auto 12px}
-#resumeAsk .mark svg{width:100%;height:100%;display:block}
-#resumeAsk h3{margin:0 0 4px;font-family:var(--display);font-size:20px;color:var(--ink)}
-#resumeAsk p{margin:0 0 16px;color:var(--muted);font-size:13px}
+#resumeAsk .kicker{display:block;margin:0 0 10px;font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--brand)}
+#resumeAsk .mark{display:grid;place-items:center;width:60px;height:60px;margin:0 auto 14px;border-radius:50%;background:var(--brand-soft)}
+#resumeAsk .mark svg{width:32px;height:32px;display:block}
+#resumeAsk h3{margin:.15em 0 .1em;font-family:var(--display);font-weight:400;font-size:26px;letter-spacing:-.02em;color:var(--ink)}
+#resumeAsk .rule{width:34px;height:2px;margin:10px auto 16px;border-radius:2px;background:var(--brand);opacity:.55}
+#resumeAsk p{margin:0 0 16px;color:var(--muted);font-size:13px;line-height:1.6}
 #resumeAsk .faint{font-size:11.5px;margin:16px 0 0;color:var(--faint)}
 .ra-actions{display:flex;flex-direction:column;gap:9px;margin:0 auto;max-width:280px}
 
