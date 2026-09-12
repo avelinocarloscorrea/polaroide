@@ -507,18 +507,7 @@
   <div class="dhead">Privacidade e segurança <button class="iconbtn ghost" data-close data-i="x"></button></div>
   <div class="dbody scrl">
     <p><span class="pill">100% no seu computador</span></p>
-    <p>Este programa <b>não envia nada</b> para nenhum servidor. Suas fotos, legendas, nomes de arquivo e ajustes nunca saem do navegador.</p>
-    <h4>Mecanismos ativos</h4>
-    <p>
-      • <b>Content-Security-Policy</b> com <code>default-src 'none'</code>: o navegador bloqueia qualquer envio de dados (fetch, XHR, formulário, WebSocket) e qualquer objeto/plugin.<br>
-      • <b>Sem scripts externos</b> (<code>script-src 'self'</code>) e sem código embutido — nada de terceiros roda aqui.<br>
-      • Toda imagem adicionada é <b>redesenhada internamente</b>: metadados (EXIF/GPS), perfis e qualquer conteúdo escondido são removidos. Arquivos que não são imagem real são recusados.<br>
-      • Projetos abertos (.json) passam pela mesma limpeza; valores fora do padrão são corrigidos.<br>
-      • O servidor não executa PHP nesta pasta e não tem contato com banco de dados.
-    </p>
-    <h4>Onde ficam os dados</h4>
-    <p>Só na área privada deste navegador (IndexedDB), neste dispositivo. Para backup use <b>Salvar projeto</b>.</p>
-    <p class="faint">Se você usa um antivírus que injeta scripts nas páginas (por exemplo Kaspersky), o navegador vai <b>recusá-lo aqui</b> e mostrar um aviso no console — é a proteção funcionando, não um erro da ferramenta.</p>
+    <p>O Polaroide Studio não envia nada a servidor nenhum — suas fotos, legendas e ajustes ficam só neste navegador. Detalhes (CSP, tratamento de imagem, retenção) na <a href="https://www.esmeraldapaper.com.br/politica-de-privacidade/#ferramentas-gratuitas" target="_blank" rel="noopener noreferrer">política de privacidade</a>.</p>
     <button id="p_wipe" class="danger wfull mt4" data-i="trash">Apagar todos os dados deste navegador</button>
   </div>
 </dialog>
@@ -526,9 +515,9 @@
 <dialog id="about">
   <div class="dhead">Sobre <button class="iconbtn ghost" data-close data-i="x"></button></div>
   <div class="dbody scrl">
-    <p><b>Polaroide Studio</b> — ferramenta para montar polaroides em folhas prontas para impressão (PDF, PNG ou impressão direta), com formatos reais, corte profissional e ajustes de foto.</p>
-    <p>Projeto de portfólio de <b>Carlos Avelino Correa</b> — <a href="https://github.com/avelinocarloscorrea" target="_blank" rel="noopener noreferrer">github.com/avelinocarloscorrea</a>.</p>
-    <p>Novo por aqui? Veja o <a href="guia.html" target="_blank" rel="noopener noreferrer">guia do usuário</a> — passo a passo, com ilustrações e perguntas frequentes.</p>
+    <p><b>Polaroide Studio</b> monta polaroides numa folha pronta para impressão — PDF, PNG ou impressão direta, com formatos reais, marcas de corte e ajuste de foto.</p>
+    <p>Desenvolvido por <b>Carlos Avelino Correa</b>. Código aberto sob licença MIT: <a href="https://github.com/avelinocarloscorrea/polaroide" target="_blank" rel="noopener noreferrer">github.com/avelinocarloscorrea/polaroide</a>.</p>
+    <p>Novo por aqui? Veja o <a href="guia.html" target="_blank" rel="noopener noreferrer">guia do usuário</a>.</p>
     <p class="faint">Funciona offline. Nenhum dado é coletado.</p>
   </div>
 </dialog>
