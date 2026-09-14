@@ -270,5 +270,47 @@
     requestAnimationFrame(() => requestAnimationFrame(done));
   }
 
-  root.EPShell = { ready, initRail, optionCards, segmented, sheetSVG, gallery, checklist, esc };
+  /* barras de ajuste (input range) no toque: só o arraste que COMEÇA no
+     botão da barra muda o valor. Tocar noutra parte da barra, ou passar o dedo
+     por cima dela ao rolar o painel, não altera nada — antes um toque na
+     trilha pulava o valor sem querer. */
+  function guardRanges() {
+    if (guardRanges.done) return; guardRanges.done = true;
+    let g = null;
+    const restore = () => { if (g && g.block && g.el.value !== g.start) g.el.value = g.start; };
+    document.addEventListener('pointerdown', e => {
+      const el = e.target;
+      if (e.pointerType === 'mouse' || !el || el.tagName !== 'INPUT' || el.type !== 'range') { g = null; return; }
+      const r = el.getBoundingClientRect(), min = +el.min || 0, max = el.max === '' ? 100 : +el.max;
+      const frac = max > min ? (+el.value - min) / (max - min) : 0;
+      const thumb = 26, x = r.left + thumb / 2 + frac * (r.width - thumb);
+      g = { el, start: el.value, block: Math.abs(e.clientX - x) > 24, x0: e.clientX, y0: e.clientY, decided: false };
+    }, true);
+    document.addEventListener('pointermove', e => {
+      if (!g || g.decided || g.block) return;
+      const dx = Math.abs(e.clientX - g.x0), dy = Math.abs(e.clientY - g.y0);
+      if (dx < 6 && dy < 6) return;
+      g.decided = true;
+      if (dy > dx) { g.block = true; restore(); }       // gesto vertical = rolar a tela, não ajustar
+    }, true);
+    const stop = e => { if (g && g.block && e.target === g.el) { e.stopImmediatePropagation(); restore(); } };
+    document.addEventListener('input', stop, true);
+    document.addEventListener('change', stop, true);
+    const end = () => { if (g) { restore(); setTimeout(() => { g = null; }, 0); } };
+    document.addEventListener('pointerup', end, true);
+    document.addEventListener('pointercancel', end, true);
+  }
+  if (root.document) guardRanges();
+  // celular: o botão flutuante (+) some ao rolar para baixo e volta ao rolar para cima
+  if (root.document) {
+    const last = new WeakMap();
+    document.addEventListener('scroll', e => {
+      const t = e.target; if (!t || t.nodeType !== 1 || !t.closest || !t.closest('#mroot')) return;
+      const y = t.scrollTop, prev = last.get(t) || 0; last.set(t, y);
+      if (Math.abs(y - prev) < 6) return;
+      document.body.classList.toggle('fab-hide', y > prev && y > 40);
+    }, true);
+  }
+
+  root.EPShell = { ready, guardRanges, initRail, optionCards, segmented, sheetSVG, gallery, checklist, esc };
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -77,6 +77,7 @@
     cv.width = Math.max(1, Math.round(outW));
     cv.height = Math.max(1, Math.round(outH));
     const ctx = cv.getContext('2d');
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, cv.width, cv.height);   // sobra da foto sai branca (papel), não preta
     const iw = imgEl.naturalWidth || imgEl.width, ih = imgEl.naturalHeight || imgEl.height;
     const f = Math.max(cv.width / iw, cv.height / ih) * e.zoom;
     const dw = iw * f, dh = ih * f;
@@ -307,6 +308,39 @@
     return api;
   }
 
+  /* ===================== direto na folha =====================
+     A janela de ajuste é a PRÓPRIA área da foto na página (o app posiciona
+     `win` exatamente sobre ela): arrastar enquadra, pinça/roda dá zoom e o
+     resultado aparece ali mesmo, em cima da folha. Os sliders (zoom, giro,
+     filtros) entram em `tools`. Ao terminar cada gesto assa e chama onCommit. */
+  const STAGE_HTML = `<div class="imgedit-stage"><div class="imgedit-win"><img class="imgedit-img" alt=""></div>` +
+    `<p class="imgedit-hint">Arraste para posicionar · roda ou pinça para zoom</p></div>`;
+  function onSheet(win, tools, opts) {
+    const o = Object.assign({ aspect: 1, outMax: 1800 }, opts || {});
+    win.classList.add('imgedit-win', 'imgedit-win--sheet');
+    win.innerHTML = '<img class="imgedit-img" alt="">';
+    tools.innerHTML = TOOLS_HTML.replace(STAGE_HTML, '');
+    tools.classList.add('imgedit-inline', 'imgedit-inline--sheet');
+    const img = win.querySelector('img');
+    let natEl = null, ready = false;
+    const commit = edit => {
+      if (!ready || !natEl || !o.onCommit) return;
+      const [outW, outH] = outSize(o.aspect, o.outMax);
+      let dataURL;
+      try { dataURL = bakeDataURL(natEl, edit, outW, outH); } catch (e) { console.error(e); return; }
+      o.onCommit({ dataURL, edit: normEdit(edit) });
+    };
+    // a foto solta só aparece durante o gesto; parada, vale a página já redesenhada (textos por cima)
+    let liveT = 0;
+    const onLive = () => { win.classList.add('is-live'); clearTimeout(liveT); liveT = setTimeout(() => win.classList.remove('is-live'), 900); };
+    const ctl = wireControls(tools, win, img, { edit0: o.edit, onHistoryPoint: o.onHistoryPoint, onSettle: commit, onLive });
+    win.addEventListener('pointerdown', onLive);
+    // gestos na janela não chegam à prancheta (pinça não dá zoom na página, roda não rola)
+    ['touchstart', 'touchmove', 'wheel'].forEach(t => win.addEventListener(t, e => e.stopPropagation(), { passive: t !== 'wheel' }));
+    loadImage(o.src).then(im => { natEl = im; ready = true; img.src = o.src; }).catch(() => {});
+    return { ctl, destroy() { win.innerHTML = ''; tools.innerHTML = ''; } };
+  }
+
   /* ===================== modal (reserva — não usado por padrão) =====================
      Mantido pra quem preferir um popup em vez de embutir no painel; Planner
      Studio e Calendar Studio usam mount() acima. */
@@ -351,7 +385,7 @@
     return _active;
   }
 
-  const api = { mount, open, close: closeActive, bake, bakeDataURL, normEdit, defaultEdit, cssFilter, imgTransform, loadImage, FILTER_PRESETS };
+  const api = { mount, onSheet, open, close: closeActive, bake, bakeDataURL, normEdit, defaultEdit, cssFilter, imgTransform, loadImage, FILTER_PRESETS };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   if (root) root.EPImgEdit = api;
 })(typeof self !== 'undefined' ? self : (typeof globalThis !== 'undefined' ? globalThis : this));
