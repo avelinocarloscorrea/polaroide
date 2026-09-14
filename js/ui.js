@@ -30,7 +30,7 @@ function syncControls(){
   $('#c_fill').hidden = s.autoFit;
   $('#c_aw').value=s.aspectW; $('#c_ah').value=s.aspectH; $('#c_apreset').value='';
   setR('#c_frame',s.frameMm,s.frameMm+' mm');
-  setR('#c_cap',s.captionMm,s.captionMm+' mm');
+  setR('#c_cap',s.captionMm,s.captionMm<=0?'0 mm (sem legenda)':s.captionMm+' mm');
   setR('#c_radius',s.radiusMm,s.radiusMm+' mm');
   setR('#c_tilt',s.tiltDeg,s.tiltDeg+'°');
   $('#c_pageSize').value=s.pageSize; $('#c_landscape').checked=s.landscape;
@@ -272,9 +272,73 @@ function openCF(btn,inp){
 document.addEventListener('pointerdown',e=>{
   if(cfOpen && !cfOpen.pop.contains(e.target) && !cfOpen.btn.contains(e.target)) closeCF();
 });
-addEventListener('keydown',e=>{ if(e.key==='Escape') closeCF(); },true);
+addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeCF(); closeExportPop(); closeHistoryPop(); } },true);
 addEventListener('scroll',closeCF,true);
 addEventListener('resize',closeCF);
+
+/* ================= histórico visual (lista de passos pra voltar) ================= */
+function relTime(ms){
+  const s=Math.max(0,Math.round((Date.now()-ms)/1000));
+  if(s<5) return 'agora mesmo';
+  if(s<60) return `há ${s}s`;
+  const m=Math.round(s/60);
+  if(m<60) return `há ${m} min`;
+  return `há ${Math.round(m/60)} h`;
+}
+let _histPop=null;
+function closeHistoryPop(){ if(_histPop){ _histPop.remove(); _histPop=null; } }
+function openHistoryPop(){
+  closeHistoryPop();
+  if(!histMeta.length){ toast('Nada no histórico ainda.'); return; }
+  const pop=document.createElement('div'); pop.className='popmenu histpop scrl';
+  pop.insertAdjacentHTML('beforeend','<div class="tm-h">Voltar até…</div>');
+  for(let i=histMeta.length-1;i>=0;i--){
+    const n=histMeta.length-i;
+    pop.insertAdjacentHTML('beforeend',`<button type="button" data-n="${n}">${relTime(histMeta[i].t)}</button>`);
+  }
+  pop.addEventListener('click',e=>{ const b=e.target.closest('[data-n]'); if(!b) return; closeHistoryPop(); undoTo(+b.dataset.n); });
+  document.body.appendChild(pop);
+  const anchor=$('#b_more'), r=anchor.getBoundingClientRect();
+  pop.style.left=Math.max(8,Math.min(innerWidth-pop.offsetWidth-8,r.right-pop.offsetWidth))+'px';
+  pop.style.top=Math.min(innerHeight-pop.offsetHeight-8,r.bottom+6)+'px';
+  _histPop=pop;
+}
+document.addEventListener('pointerdown',e=>{ if(_histPop && !_histPop.contains(e.target) && !(e.target.closest&&e.target.closest('#b_more,#mu_more'))) closeHistoryPop(); });
+addEventListener('scroll',closeHistoryPop,true);
+addEventListener('resize',closeHistoryPop);
+
+/* ================= popover "Configurar exportação" (ancorado no botão da barra) ================= */
+// Exportação e interface sai da lista do painel esquerdo — os mesmos campos
+// (acrílico, sombra, DPI) continuam os mesmos nós do DOM, só exibidos como
+// popover ancorado no botão da barra em vez de dentro da lista que rola.
+let exportPopOpen=false;
+function closeExportPop(){
+  const exp=$('#d_exportWrap');
+  if(!exp || !exportPopOpen) return;
+  exp.classList.remove('pop-open'); exp.open=false; exportPopOpen=false;
+  $('#b_exportCfg') && $('#b_exportCfg').classList.remove('on');
+}
+function toggleExportPop(anchor){
+  const exp=$('#d_exportWrap');
+  if(!exp || isMobile()) return;
+  if(exportPopOpen){ closeExportPop(); return; }
+  closeCF();
+  exp.open=true; exp.classList.add('pop-open'); exportPopOpen=true;
+  anchor.classList.add('on');
+  const r=anchor.getBoundingClientRect();
+  exp.style.left=Math.max(8,Math.min(innerWidth-exp.offsetWidth-8, r.right-exp.offsetWidth))+'px';
+  exp.style.top=(r.bottom+6+exp.offsetHeight>innerHeight ? Math.max(8,r.top-6-exp.offsetHeight) : r.bottom+6)+'px';
+}
+document.addEventListener('pointerdown',e=>{
+  const exp=$('#d_exportWrap'), btn=$('#b_exportCfg');
+  if(exportPopOpen && exp && !exp.contains(e.target) && !(btn && btn.contains(e.target))) closeExportPop();
+});
+addEventListener('scroll',e=>{
+  const exp=$('#d_exportWrap'), t=e.target;
+  if(exportPopOpen && exp && (t===exp || (t && t.nodeType===1 && exp.contains(t)))) return;
+  closeExportPop();
+},true);
+addEventListener('resize',closeExportPop);
 function bindAll(){
   Object.entries(FORMATS).forEach(([k,v])=>$('#c_format').add(new Option(v.label,k)));
   for(let i=1;i<=12;i++){ $('#c_cols').add(new Option(i,i)); $('#c_rows').add(new Option(i,i)); }
@@ -314,7 +378,7 @@ function bindAll(){
   $('#c_format').onchange=e=>{ pushHistory('fmt'); applyFormat(e.target.value); syncControls(); render(); save(); };
   bindRange('#c_w','polaroidWidthMm',v=>v+' mm');
   bindRange('#c_frame','frameMm',v=>v+' mm');
-  bindRange('#c_cap','captionMm',v=>v+' mm');
+  bindRange('#c_cap','captionMm',v=>+v<=0?'0 mm (sem legenda)':v+' mm');
   bindRange('#c_radius','radiusMm',v=>v+' mm');
   bindRange('#c_tilt','tiltDeg',v=>v+'°');
   bindRange('#c_margin','marginMm',v=>v+' mm');
@@ -386,6 +450,7 @@ function bindAll(){
   $('#b_print').onclick=()=>{ select(null); setTimeout(()=>window.print(),80); };
   $('#b_pdf').onclick=exportPDF;
   $('#b_png').onclick=exportPNG;
+  $('#b_exportCfg').onclick=e=>{ e.stopPropagation(); toggleExportPop(e.currentTarget); };
 
   // painéis / zen / menu
   $('#b_pl').onclick=()=>togglePanel('left');
@@ -417,6 +482,7 @@ function bindAll(){
   $('#m_pdf').onclick=()=>{ mclose(); exportPDF(); };
   $('#m_png').onclick=()=>{ mclose(); exportPNG(); };
   $('#m_print').onclick=()=>{ mclose(); select(null); setTimeout(()=>window.print(),80); };
+  $('#m_history').onclick=()=>{ mclose(); openHistoryPop(); };
   $('#m_new').onclick=()=>{ mclose(); newProject(); };
   $('#m_save').onclick=()=>{ mclose(); exportProject(); };
   $('#m_open').onclick=()=>{ mclose(); $('#file_open').click(); };
@@ -456,6 +522,16 @@ function bindAll(){
   fbind('#f_se','sepia',v=>Math.round(v*100)+'%');
   fbind('#f_gr','grayscale',v=>Math.round(v*100)+'%');
   fbind('#f_vi','vignette',v=>Math.round(v*100)+'%');
+  $('#f_applyAll').onclick=()=>{
+    const ph=cur(); if(!ph) return;
+    const targets=state.photos.filter(p=>p!==ph);
+    if(!targets.length){ toast('Nenhuma outra foto na folha.'); return; }
+    pushHistory('applyAllFilter');
+    const filter={...ph.filter};
+    targets.forEach(p=>{ p.filter={...filter}; });
+    render(); save();
+    toast(`Ajuste aplicado a ${targets.length} foto${targets.length>1?'s':''}.`);
+  };
   $('#s_left').onclick=()=>move(-1); $('#s_right').onclick=()=>move(1);
   $('#s_dup').onclick=duplicate;
   $('#s_replace').onclick=()=>$('#file_replace').click();

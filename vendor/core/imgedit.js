@@ -96,7 +96,7 @@
     return cv.toDataURL(mime || 'image/jpeg', quality == null ? 0.88 : quality);
   }
   function outSize(aspect, outMax) {
-    const a = Math.max(0.05, +aspect || 1), m = clamp(outMax, 400, 3000);
+    const a = Math.max(0.05, +aspect || 1), m = clamp(outMax, 400, 3600);
     return a >= 1 ? [m, Math.round(m / a)] : [Math.round(m * a), m];
   }
   function loadImage(src) {

@@ -12,3 +12,4 @@
   .page::before{display:none!important}
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
+@media print{ .canvasbar,#exportDlg{display:none!important} }

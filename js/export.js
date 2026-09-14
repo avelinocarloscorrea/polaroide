@@ -291,7 +291,7 @@ async function importProject(file){
       } else if(p._img!=null){ bad++; }
       state.photos.push(ph);
     }
-    selectedId=null; past.length=0; future.length=0;
+    selectedId=null; past.length=0; future.length=0; histMeta.length=0;
     syncControls(); save(); render(); fit();
     toast(bad? `Projeto carregado — ${bad} imagem(ns) não puderam ser lidas.` : 'Projeto carregado.');
   }catch(e){ console.error(e); alert('Arquivo de projeto inválido.'); }

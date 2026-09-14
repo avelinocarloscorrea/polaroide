@@ -6,12 +6,16 @@
 
 /* ================= histórico ================= */
 let past=[],future=[],lastHistKey='',lastHistTime=0;
+// histMeta é paralelo a `past` (mesmo índice/tamanho) — só a hora de cada
+// passo, pra desenhar o histórico visual (openHistoryPop) sem duplicar o
+// snapshot nem mudar a forma de `past`/`future` que undo()/redo() já usam.
+let histMeta=[];
 const snap=()=>JSON.stringify({settings:state.settings,photos:state.photos.map(p=>({...p}))});
 function pushHistory(key){
   const now=Date.now();
   if(key&&key===lastHistKey&&now-lastHistTime<700){ lastHistTime=now; return; }
   lastHistKey=key||''; lastHistTime=now;
-  past.push(snap()); if(past.length>80) past.shift(); future.length=0;
+  past.push(snap()); histMeta.push({t:now}); if(past.length>80){ past.shift(); histMeta.shift(); } future.length=0;
   updateHistoryButtons();
 }
 function applySnap(str){
@@ -20,8 +24,18 @@ function applySnap(str){
   state.photos=d.photos.map(p=>{normPhoto(p);return p;});
   syncControls(); save(); render();
 }
-function undo(){ if(!past.length) return; future.push(snap()); applySnap(past.pop()); }
-function redo(){ if(!future.length) return; past.push(snap()); applySnap(future.pop()); }
+function undo(){ if(!past.length) return; future.push(snap()); applySnap(past.pop()); histMeta.pop(); }
+function redo(){ if(!future.length) return; past.push(snap()); histMeta.push({t:Date.now()}); applySnap(future.pop()); }
+// Volta N passos de uma vez (histórico visual) — os passos intermediários
+// vão pro `future` na ordem certa, então redo() continua funcionando normal.
+function undoTo(n){
+  if(n<1||n>past.length) return;
+  future.push(snap());
+  let target;
+  for(let i=0;i<n;i++){ target=past.pop(); histMeta.pop(); if(i<n-1) future.push(target); }
+  applySnap(target);
+  toast(n>1?`Voltou ${n} passos.`:'Desfeito');
+}
 function updateHistoryButtons(){
   $('#b_undo').disabled=!past.length; $('#b_redo').disabled=!future.length;
   const mu=$('#mu_undo'),mr=$('#mu_redo');
@@ -55,7 +69,7 @@ function doClear(){
 async function resetProjectData(){
   try{ const ks=await DB.keys(); for(const k of ks){ try{ await DB.del(k); }catch(_){} } }catch(e){}
   Object.keys(media).forEach(k=>delete media[k]);
-  state={settings:{...DEFAULTS},photos:[]}; selectedId=null; past.length=0; future.length=0;
+  state={settings:{...DEFAULTS},photos:[]}; selectedId=null; past.length=0; future.length=0; histMeta.length=0;
   syncControls(); applyVars(); render(); save(); fit();
 }
 async function newProject(){
@@ -68,7 +82,7 @@ async function wipeAll(){
   try{ const ks=await DB.keys(); for(const k of ks){ try{ await DB.del(k); }catch(_){} } }catch(e){}
   try{ localStorage.removeItem(KEY); localStorage.removeItem(UIKEY); }catch(e){}
   Object.keys(media).forEach(k=>delete media[k]);
-  state={settings:{...DEFAULTS},photos:[]}; selectedId=null; past.length=0; future.length=0;
+  state={settings:{...DEFAULTS},photos:[]}; selectedId=null; past.length=0; future.length=0; histMeta.length=0;
   try{ $('#privacy').close(); }catch(e){}
   syncControls(); render(); fit();
   toast('Tudo apagado. Começando do zero.');

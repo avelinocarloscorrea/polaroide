@@ -103,9 +103,17 @@ async function loadProject(){
   state={settings:migrateSettings({...DEFAULTS,...(meta.settings&&typeof meta.settings==='object'?meta.settings:{})}),
          photos:Array.isArray(meta.photos)?meta.photos.slice(0,400):[]};
   state.photos.forEach(normPhoto);
+  // Achado: quando o IndexedDB perde os registros (armazenamento limpo pelo
+  // navegador, aba anônima fechada, pouco espaço em disco) mas o
+  // localStorage com a lista/legendas sobrevive, as fotos voltavam como
+  // ícone de imagem quebrada sem nenhuma explicação — a pessoa nem sabia
+  // que precisava reenviar. idbFail() só cobria erro de LEITURA, não
+  // "achei a chave, mas o registro não existe".
+  let missing=0;
   for(const ph of state.photos){
-    try{ const rec=idbOK?await DB.get(ph.id):null; if(rec) hydrate(ph.id,rec); }catch(e){ idbFail(e); }
+    try{ const rec=idbOK?await DB.get(ph.id):null; if(rec) hydrate(ph.id,rec); else missing++; }catch(e){ idbFail(e); missing++; }
   }
+  if(missing) toast(`${missing} foto${missing===1?'':'s'} não ${missing===1?'foi encontrada':'foram encontradas'} neste navegador — precisa trocar${missing===1?'':' as marcadas'}.`);
 }
 function normPhoto(p){
   p.caption=sanitizeText(p.caption,500);

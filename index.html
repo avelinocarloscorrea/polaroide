@@ -33,227 +33,245 @@
 <meta property="og:url" content="https://www.esmeraldapaper.com.br/polaroidestudio/">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Polaroide Studio — monte polaroides prontos para imprimir">
-<meta name="twitter:description" content="Monte polaroides numa folha pronta para imprimir, sem cadastro e sem enviar suas fotos a servidor nenhum."><link rel="stylesheet" href="css/base.css?v=2609121621">
-<link rel="stylesheet" href="css/layout.css?v=2609121621">
-<link rel="stylesheet" href="css/polaroid.css?v=2609121621">
-<link rel="stylesheet" href="css/effects.css?v=2609121621">
-<link rel="stylesheet" href="css/components.css?v=2609121621">
-<link rel="stylesheet" href="css/util.css?v=2609121621">
-<link rel="stylesheet" href="css/print.css?v=2609121621">
-<link rel="stylesheet" href="css/m-shell.css?v=2609121621">
-<link rel="stylesheet" href="css/m-panels.css?v=2609121621">
-<link rel="stylesheet" href="css/m-sheet.css?v=2609121621">
+<meta name="twitter:description" content="Monte polaroides numa folha pronta para imprimir, sem cadastro e sem enviar suas fotos a servidor nenhum.">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="assets/arimo-latin-400-normal.woff2">
+<link rel="stylesheet" href="css/base.css?v=260914001752">
+<link rel="stylesheet" href="css/layout.css?v=260914001752">
+<link rel="stylesheet" href="css/polaroid.css?v=260914001752">
+<link rel="stylesheet" href="css/effects.css?v=260914001752">
+<link rel="stylesheet" href="css/components.css?v=260914001752">
+<link rel="stylesheet" href="css/util.css?v=260914001752">
+<link rel="stylesheet" href="css/print.css?v=260914001752">
+<link rel="stylesheet" href="css/m-shell.css?v=260914001752">
+<link rel="stylesheet" href="css/m-panels.css?v=260914001752">
+<link rel="stylesheet" href="css/m-sheet.css?v=260914001752">
+<link rel="stylesheet" href="vendor/core/shell.css?v=260914001752">
 </head>
 <body>
 <div id="app">
-  <div id="bar">
+  <header id="bar">
     <a class="brand" id="brandLink" rel="noopener noreferrer">
       <span class="mark"><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="9" y="7" width="46" height="50" rx="5" fill="var(--surface)" stroke="var(--brand)" stroke-width="3.5"/><rect x="15" y="13" width="34" height="27" rx="2" fill="var(--brand)"/><circle cx="32" cy="26.5" r="7.5" fill="var(--surface)"/><circle cx="32" cy="26.5" r="3.4" fill="var(--brand)"/></svg></span>
       <span class="txt"><span class="t1">Polaroide Studio</span><span class="t2">Esmeralda&nbsp;Paper</span></span>
     </a>
-    <span class="bar-sep"></span>
-    <button id="b_add" class="primary" data-i="imageplus">Adicionar fotos</button>
-    <span class="bar-sep"></span>
-    <button id="b_undo" class="iconbtn" data-i="undo" title="Desfazer (Ctrl+Z)"></button>
-    <button id="b_redo" class="iconbtn" data-i="redo" title="Refazer (Ctrl+Y)"></button>
-    <span class="bar-sep"></span>
-    <span class="pagenav">
-      <button id="b_prev" class="iconbtn ghost" data-i="chevleft" title="Folha anterior"></button>
-      <span id="pageLbl">1 / 1</span>
-      <button id="b_next" class="iconbtn ghost" data-i="chevright" title="Próxima folha"></button>
-    </span>
-    <span class="bar-sep"></span>
-    <button id="b_zout" class="iconbtn ghost" data-i="zoomout" title="Reduzir"></button>
-    <span id="zval">55%</span>
-    <button id="b_zin" class="iconbtn ghost" data-i="zoomin" title="Ampliar"></button>
-    <button id="b_fit" class="iconbtn ghost" data-i="fit" title="Ajustar à tela"></button>
-
+    <nav class="steps" aria-label="Etapas">
+      <button type="button" class="step done" id="st_model" title="Trocar de modelo"><b>1</b><span class="lbl">Modelo</span></button>
+      <i class="step-sep"></i>
+      <button type="button" class="step on" id="st_edit"><b>2</b><span class="lbl">Fotos e ajustes</span></button>
+      <i class="step-sep"></i>
+      <button type="button" class="step" id="st_print"><b>3</b><span class="lbl">Imprimir</span></button>
+    </nav>
     <span class="bar-grow"></span>
     <span class="stat" id="stat"></span>
     <span class="bar-sep"></span>
-    <span class="bar-cluster">
-      <button id="b_pdf" class="accent" data-i="filepdf">PDF</button>
-      <button id="b_png" class="iconbtn" data-i="imagedown" title="PNG da folha atual"></button>
-      <button id="b_print" class="iconbtn" data-i="printer" title="Imprimir"></button>
-    </span>
-    <span class="bar-sep"></span>
-    <span class="bar-cluster">
-      <button id="b_pl" class="iconbtn" data-i="panelleft" title="Mostrar/ocultar painel esquerdo ( [ )"></button>
-      <button id="b_pr" class="iconbtn" data-i="panelright" title="Mostrar/ocultar painel direito ( ] )"></button>
-      <button id="b_zen" class="iconbtn" data-i="eye" title="Modo tela cheia ( . )"></button>
-      <button id="b_more" class="iconbtn" data-i="more" title="Mais opções"></button>
-    </span>
-  </div>
+    <button id="b_add" class="iconbtn ghost" data-i="imageplus" title="Adicionar fotos"></button>
+    <button id="b_undo" class="iconbtn ghost" data-i="undo" title="Desfazer (Ctrl+Z)"></button>
+    <button id="b_redo" class="iconbtn ghost" data-i="redo" title="Refazer (Ctrl+Y)"></button>
+    <button id="b_more" class="iconbtn ghost" data-i="more" title="Mais opções"></button>
+    <button id="b_exportCfg" class="primary cta" data-i="printer" title="Ver como vai sair na folha, baixar o PDF ou imprimir (Ctrl+P)">Imprimir e baixar</button>
+  </header>
 
-  <aside id="left" class="scrl">
-    <div class="aside-title"><span data-i="sliders"></span> Ajustes da folha</div>
+  <aside id="left">
+    <nav class="rail" id="rail" role="tablist" aria-label="Ajustes">
+      <button type="button" data-pane="fotos"><span data-i="image"></span><i>Fotos</i></button>
+      <button type="button" data-pane="formato"><span data-i="polaroid"></span><i>Polaroide</i></button>
+      <button type="button" data-pane="folha"><span data-i="page"></span><i>Folha</i></button>
+      <button type="button" data-pane="estilo"><span data-i="palette"></span><i>Estilo</i></button>
+      <button type="button" data-pane="modelos"><span data-i="grid"></span><i>Modelos</i></button>
+      <span class="rail-grow"></span>
+      <a href="guia.html" target="_blank" rel="noopener noreferrer" title="Guia do usuário"><span data-i="help"></span><i>Ajuda</i></a>
+    </nav>
+    <div class="panes scrl" id="panes">
 
-    <details open><summary><span data-i="grid"></span> Modelos de folha <span class="caret" data-i="caret"></span></summary><div class="sect">
-      <div class="grp" id="layoutRow"></div>
-      <p class="hint">Papel, grade e acabamento. Não mexe nas cores, efeitos nem no formato do polaroide.</p>
-    </div></details>
+      <section class="pane" data-pane="fotos">
+        <header class="pane-h">
+          <h2>Fotos</h2>
+          <p id="ph_count">Arraste imagens para a janela, cole com Ctrl+V ou escolha do computador.</p>
+          <div class="pane-act"><button id="e_add2" class="primary wfull" data-i="imageplus">Adicionar fotos</button></div>
+        </header>
+        <div id="photoStrip" class="photo-strip"></div>
+        <p class="hint"><b>Clique numa foto</b> para enquadrar, ajustar cor e escrever a legenda. Arraste pelo <b>⠿</b> na folha para reordenar.</p>
+      </section>
 
-    <details open><summary><span data-i="polaroid"></span> Formato do polaroide <span class="caret" data-i="caret"></span></summary><div class="sect">
-      <label>Modelo pronto
-        <select id="c_format"></select></label>
-      <label>Largura <span class="v" id="v_w"></span>
-        <input type="range" id="c_w" min="35" max="140" step="0.5"></label>
-      <label>Proporção da foto (L : A)
-        <div class="field-inline">
-          <input type="number" id="c_aw" min="1" max="40" step="1" inputmode="numeric">
-          <input type="number" id="c_ah" min="1" max="40" step="1" inputmode="numeric">
-          <select id="c_apreset" class="apw">
-            <option value="">—</option>
-            <option value="1,1">1:1</option><option value="4,3">4:3</option><option value="3,4">3:4</option>
-            <option value="3,2">3:2</option><option value="2,3">2:3</option><option value="16,9">16:9</option>
-          </select>
-        </div></label>
-      <label>Borda branca <span class="v" id="v_frame"></span>
-        <input type="range" id="c_frame" min="1" max="20" step="0.5"></label>
-      <label>Faixa da legenda <span class="v" id="v_cap"></span>
-        <input type="range" id="c_cap" min="0" max="44" step="0.5"></label>
-      <label>Cantos arredondados <span class="v" id="v_radius"></span>
-        <input type="range" id="c_radius" min="0" max="8" step="0.5"></label>
-      <label>Inclinação aleatória <span class="v" id="v_tilt"></span>
-        <input type="range" id="c_tilt" min="0" max="8" step="0.5"></label>
-    </div></details>
+      <section class="pane" data-pane="formato" hidden>
+        <header class="pane-h"><h2>Formato do polaroide</h2><p>Proporção da foto, moldura branca e faixa da legenda.</p></header>
+        <div class="grp-block">
+          <div class="grp-title">Modelo</div>
+          <label>Formato pronto <select id="c_format"></select></label>
+          <label>Largura <span class="v" id="v_w"></span><input type="range" id="c_w" min="35" max="140" step="0.5"></label>
+          <span class="fld-lbl">Proporção da foto (L : A)</span>
+          <div class="field-inline asp-row">
+            <input type="number" id="c_aw" min="1" max="40" step="1" inputmode="numeric" aria-label="Largura">
+            <input type="number" id="c_ah" min="1" max="40" step="1" inputmode="numeric" aria-label="Altura">
+            <select id="c_apreset" class="apw" aria-label="Proporções prontas">
+              <option value="">—</option>
+              <option value="1,1">1:1</option><option value="4,3">4:3</option><option value="3,4">3:4</option>
+              <option value="3,2">3:2</option><option value="2,3">2:3</option><option value="16,9">16:9</option>
+            </select>
+          </div>
+        </div>
+        <div class="grp-block">
+          <div class="grp-title">Moldura</div>
+          <label>Borda branca <span class="v" id="v_frame"></span><input type="range" id="c_frame" min="1" max="20" step="0.5"></label>
+          <label>Faixa da legenda <span class="v" id="v_cap"></span><input type="range" id="c_cap" min="0" max="44" step="0.5"></label>
+          <label>Cantos arredondados <span class="v" id="v_radius"></span><input type="range" id="c_radius" min="0" max="8" step="0.5"></label>
+          <label>Inclinação aleatória <span class="v" id="v_tilt"></span><input type="range" id="c_tilt" min="0" max="8" step="0.5"></label>
+        </div>
+      </section>
 
-    <details open><summary><span data-i="page"></span> Folha e grade <span class="caret" data-i="caret"></span></summary><div class="sect">
-      <label>Tamanho da folha
-        <select id="c_pageSize">
-          <option value="a4">A4 (210 × 297 mm)</option>
-          <option value="letter">Carta (216 × 279 mm)</option>
-          <option value="a3">A3 (297 × 420 mm)</option>
-          <option value="a5">A5 (148 × 210 mm)</option>
-        </select></label>
-      <label class="row"><input type="checkbox" id="c_landscape"> Paisagem (deitado)</label>
-      <label class="row"><input type="checkbox" id="c_autofit"> Encaixar as fotos na folha (sem corte)</label>
-      <label>Colunas por folha
-        <select id="c_cols"><option value="auto">Automático</option></select></label>
-      <label>Linhas por folha
-        <select id="c_rows"><option value="auto">Automático</option></select></label>
-      <label>Margem de segurança <span class="v" id="v_margin"></span>
-        <input type="range" id="c_margin" min="5" max="40" step="0.5"></label>
-      <label>Espaçamento entre fotos <span class="v" id="v_gap"></span>
-        <input type="range" id="c_gap" min="0" max="30" step="0.5"></label>
-      <label>Alinhamento
-        <select id="c_align"><option value="center">Centralizado</option><option value="left">À esquerda</option></select></label>
-      <button id="c_fill" class="wfull">Ajustar a largura do polaroide para preencher as colunas</button>
-      <p class="hint">Com <b>Encaixar</b> ligado, o polaroide se ajusta para caber na grade. Margem mínima: 5&nbsp;mm.</p>
-    </div></details>
+      <section class="pane" data-pane="folha" hidden>
+        <header class="pane-h"><h2>Folha e corte</h2><p>Papel, quantas fotos por folha e as marcas para recortar.</p></header>
+        <div class="grp-block">
+          <div class="grp-title">Distribuição pronta</div>
+          <div class="grp" id="layoutRow"></div>
+        </div>
+        <div class="grp-block">
+          <div class="grp-title">Papel</div>
+          <label>Tamanho da folha
+            <select id="c_pageSize">
+              <option value="a4">A4 (210 × 297 mm)</option>
+              <option value="letter">Carta (216 × 279 mm)</option>
+              <option value="a3">A3 (297 × 420 mm)</option>
+              <option value="a5">A5 (148 × 210 mm)</option>
+            </select></label>
+          <label class="row"><input type="checkbox" id="c_landscape"> Folha deitada (paisagem)</label>
+        </div>
+        <div class="grp-block">
+          <div class="grp-title">Grade</div>
+          <label class="row"><input type="checkbox" id="c_autofit"> Encaixar as fotos na folha (nunca corta)</label>
+          <div class="two">
+            <label>Colunas <select id="c_cols"><option value="auto">Auto</option></select></label>
+            <label>Linhas <select id="c_rows"><option value="auto">Auto</option></select></label>
+          </div>
+          <label>Margem de segurança <span class="v" id="v_margin"></span><input type="range" id="c_margin" min="5" max="40" step="0.5"></label>
+          <label>Espaço entre fotos <span class="v" id="v_gap"></span><input type="range" id="c_gap" min="0" max="30" step="0.5"></label>
+          <label>Alinhamento <select id="c_align"><option value="center">Centralizado</option><option value="left">À esquerda</option></select></label>
+          <button id="c_fill" class="wfull ghost">Aumentar os polaroides até preencher as colunas</button>
+        </div>
+        <div class="grp-block">
+          <div class="grp-title">Corte</div>
+          <label class="row"><input type="checkbox" id="c_marks"> Marcas de corte nos cantos</label>
+          <div class="two">
+            <label>Distância <span class="v" id="v_mo"></span><input type="range" id="c_mo" min="0.5" max="6" step="0.5"></label>
+            <label>Tamanho <span class="v" id="v_ml"></span><input type="range" id="c_ml" min="1" max="8" step="0.5"></label>
+          </div>
+          <label class="row"><input type="checkbox" id="c_cardLine"> Contorno do card (linha para recortar)</label>
+          <label>Cor do contorno <input type="color" id="c_cardLineColor"></label>
+        </div>
+      </section>
 
-    <details open><summary><span data-i="scissors"></span> Corte e acabamento <span class="caret" data-i="caret"></span></summary><div class="sect">
-      <label class="row"><input type="checkbox" id="c_cardLine"> Contorno do card (linha para recortar, segue os cantos arredondados)</label>
-      <label>Cor do contorno <input type="color" id="c_cardLineColor"></label>
-      <label class="row"><input type="checkbox" id="c_marks"> Marcas de corte nos cantos</label>
-      <label>Distância das marcas <span class="v" id="v_mo"></span>
-        <input type="range" id="c_mo" min="0.5" max="6" step="0.5"></label>
-      <label>Comprimento das marcas <span class="v" id="v_ml"></span>
-        <input type="range" id="c_ml" min="1" max="8" step="0.5"></label>
-    </div></details>
+      <section class="pane" data-pane="estilo" hidden>
+        <header class="pane-h"><h2>Estilo</h2><p>Cores, legenda e o efeito de fita, grampo ou percevejo.</p></header>
+        <div class="grp-block">
+          <div class="grp-title">Cores</div>
+          <label>Fundo da folha <input type="color" id="c_bg"></label>
+          <label class="row"><input type="checkbox" id="c_bgGrad"> Fundo em degradê</label>
+          <label id="c_bg2Row" hidden>Segunda cor <input type="color" id="c_bg2"></label>
+          <label id="c_bgAngleRow" hidden>Ângulo <span class="v" id="v_bgang"></span><input type="range" id="c_bgang" min="0" max="360" step="5"></label>
+          <label>Card do polaroide <input type="color" id="c_cardColor"></label>
+          <label>Texto da legenda <input type="color" id="c_capColor"></label>
+          <button id="c_resetColors" class="wfull ghost">Restaurar cores padrão</button>
+        </div>
+        <div class="grp-block">
+          <div class="grp-title">Legenda</div>
+          <div class="grp" id="capStyleRow"></div>
+          <label>Fonte <select id="c_font"></select></label>
+          <label>Tamanho <span class="v" id="v_fs"></span><input type="range" id="c_fs" min="6" max="40" step="1"></label>
+          <label>Espaçamento entre letras <span class="v" id="v_ls"></span><input type="range" id="c_ls" min="-2" max="8" step="0.1"></label>
+          <div class="grp">
+            <button class="chip" id="c_bold">Negrito</button>
+            <button class="chip" id="c_italic">Itálico</button>
+            <button class="chip" id="c_upper">Caixa alta</button>
+            <button class="chip" id="c_shadowtxt">Sombra</button>
+          </div>
+        </div>
+        <div class="grp-block">
+          <div class="grp-title">Fixação</div>
+          <label>Preso nos cantos
+            <select id="c_tape">
+              <option value="none">Nada</option>
+              <optgroup label="Fita adesiva">
+                <option value="tape-2">Fita — 2 cantos de cima</option>
+                <option value="tape-4">Fita — 4 cantos</option>
+                <option value="tape-top">Fita — uma no topo</option>
+              </optgroup>
+              <optgroup label="Grampo">
+                <option value="staple-2">Grampo — 2 cantos de cima</option>
+                <option value="staple-4">Grampo — 4 cantos</option>
+                <option value="staple-top">Grampo — um no topo</option>
+              </optgroup>
+              <optgroup label="Mini brad">
+                <option value="brad-2">Brad — 2 cantos de cima</option>
+                <option value="brad-4">Brad — 4 cantos</option>
+                <option value="brad-top">Brad — um no topo</option>
+              </optgroup>
+              <optgroup label="Percevejo">
+                <option value="pin-2">Percevejo — 2 cantos de cima</option>
+                <option value="pin-top">Percevejo — no topo</option>
+              </optgroup>
+            </select></label>
+          <label>Cor da fita <input type="color" id="c_tapeColor"></label>
+        </div>
+      </section>
 
-    <details open><summary><span data-i="palette"></span> Cores <span class="caret" data-i="caret"></span></summary><div class="sect">
-      <label>Fundo da folha <input type="color" id="c_bg"></label>
-      <label class="row"><input type="checkbox" id="c_bgGrad"> Fundo em degradê (bom para stories)</label>
-      <label id="c_bg2Row" hidden>Segunda cor do fundo <input type="color" id="c_bg2"></label>
-      <label id="c_bgAngleRow" hidden>Ângulo do degradê <span class="v" id="v_bgang"></span>
-        <input type="range" id="c_bgang" min="0" max="360" step="5"></label>
-      <label>Card do polaroide <input type="color" id="c_cardColor"></label>
-      <label>Texto da legenda <input type="color" id="c_capColor"></label>
-      <button id="c_resetColors" class="wfull">Restaurar cores padrão</button>
-    </div></details>
-
-    <details><summary><span data-i="type"></span> Legenda <span class="caret" data-i="caret"></span></summary><div class="sect">
-      <label>Estilo pronto</label>
-      <div class="grp" id="capStyleRow"></div>
-      <label>Fonte <select id="c_font"></select></label>
-      <label>Tamanho <span class="v" id="v_fs"></span>
-        <input type="range" id="c_fs" min="6" max="40" step="1"></label>
-      <label>Espaçamento entre letras <span class="v" id="v_ls"></span>
-        <input type="range" id="c_ls" min="-2" max="8" step="0.1"></label>
-      <div class="grp">
-        <button class="chip" id="c_bold">Negrito</button>
-        <button class="chip" id="c_italic">Itálico</button>
-        <button class="chip" id="c_upper">Caixa alta</button>
-        <button class="chip" id="c_shadowtxt">Sombra</button>
-      </div>
-    </div></details>
-
-    <details><summary><span data-i="sparkle"></span> Efeitos <span class="caret" data-i="caret"></span></summary><div class="sect">
-      <label>Preso nos cantos da foto
-        <select id="c_tape">
-          <option value="none">Nada</option>
-          <optgroup label="Fita adesiva">
-            <option value="tape-2">Fita — 2 cantos de cima</option>
-            <option value="tape-4">Fita — 4 cantos</option>
-            <option value="tape-top">Fita — uma no topo</option>
-          </optgroup>
-          <optgroup label="Grampo">
-            <option value="staple-2">Grampo — 2 cantos de cima</option>
-            <option value="staple-4">Grampo — 4 cantos</option>
-            <option value="staple-top">Grampo — um no topo</option>
-          </optgroup>
-          <optgroup label="Mini brad (fixador de papel)">
-            <option value="brad-2">Brad — 2 cantos de cima</option>
-            <option value="brad-4">Brad — 4 cantos</option>
-            <option value="brad-top">Brad — um no topo</option>
-          </optgroup>
-          <optgroup label="Percevejo (fixar a foto)">
-            <option value="pin-2">Percevejo — 2 cantos de cima</option>
-            <option value="pin-top">Percevejo — no topo</option>
-          </optgroup>
-        </select></label>
-      <label>Cor da fita <input type="color" id="c_tapeColor"></label>
-    </div></details>
-
-    <details><summary><span data-i="settings"></span> Exportação e interface <span class="caret" data-i="caret"></span></summary><div class="sect">
-      <label class="row"><input type="checkbox" id="c_acrylic"> Painéis de vidro acrílico</label>
-      <label class="row"><input type="checkbox" id="c_shadow"> Sombra dos polaroides (só na tela)</label>
-      <label>Resolução da exportação (PDF / PNG)
-        <select id="c_dpi">
-          <option value="200">200 dpi (rascunho)</option>
-          <option value="300">300 dpi (impressão)</option>
-          <option value="450">450 dpi (alta)</option>
-          <option value="600">600 dpi (máxima)</option>
-        </select></label>
-      <p class="hint"><b>PDF / PNG</b> são gerados pelo próprio programa — resultado sempre igual e nítido.
-      Na <b>impressão</b> direta: escolha o mesmo papel, margens <b>Nenhuma</b> (ou Mínimas) e escala <b>100%</b>.</p>
-    </div></details>
-
-    <p class="hint"><span class="pill">Privado</span> &nbsp;O projeto fica só neste navegador. Para backup ou usar em outro PC, use <b>Salvar projeto</b> no menu.<br>
-      <a id="asideAcervo" rel="noopener noreferrer" hidden>↗ Acervo — mais ferramentas</a><br>
-      <a id="asideFeedback" rel="noopener noreferrer" hidden>★ Avaliar esta ferramenta</a></p>
+      <section class="pane" data-pane="modelos" hidden>
+        <header class="pane-h"><h2>Modelos</h2><p>Aplica formato, folha, cores e legenda de uma vez. Suas fotos continuam.</p></header>
+        <div id="tplPanel" class="ep-tpls ep-tpls--panel"></div>
+      </section>
+    </div>
   </aside>
 
   <div id="stage">
     <div id="sheets"></div>
-    <div id="resumeAsk" hidden>
-      <div class="box">
-        <span class="kicker">Esmeralda Paper</span>
-        <span class="mark"><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="9" y="7" width="46" height="50" rx="5" fill="var(--surface)" stroke="var(--brand)" stroke-width="3.5"/><rect x="15" y="13" width="34" height="27" rx="2" fill="var(--brand)"/><circle cx="32" cy="26.5" r="7.5" fill="var(--surface)"/><circle cx="32" cy="26.5" r="3.4" fill="var(--brand)"/></svg></span>
-        <h3>Bem-vindo de volta</h3>
-        <div class="rule"></div>
-        <p id="ra_desc">Encontramos um projeto salvo neste navegador.</p>
-        <div class="ra-actions">
-          <button id="ra_continue" class="primary jcc">Continuar de onde parei</button>
-          <button id="ra_new" class="jcc">Começar um novo projeto</button>
+    <div id="resumeAsk" class="ep-start" hidden>
+      <div class="ep-start__in">
+        <div class="ep-start__top">
+          <span class="brand"><span class="mark"><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="9" y="7" width="46" height="50" rx="5" fill="var(--surface)" stroke="var(--brand)" stroke-width="3.5"/><rect x="15" y="13" width="34" height="27" rx="2" fill="var(--brand)"/><circle cx="32" cy="26.5" r="7.5" fill="var(--surface)"/><circle cx="32" cy="26.5" r="3.4" fill="var(--brand)"/></svg></span>
+          <span class="txt"><span class="t1">Polaroide Studio</span><span class="t2">Esmeralda&nbsp;Paper</span></span></span>
         </div>
-        <p class="faint">Nada é enviado a nenhum servidor. O projeto fica só neste navegador.</p>
+        <div class="ep-hero"><div>
+          <span class="kicker">Bem-vindo de volta</span>
+          <h1>Continuar de onde parou?</h1>
+          <p id="ra_desc">Encontramos um projeto salvo neste navegador.</p>
+        </div></div>
+        <div class="ep-back">
+          <div class="ep-back__thumb" id="ra_thumb"></div>
+          <div class="ep-back__actions ra-actions">
+            <button id="ra_continue" class="primary">Continuar estas fotos</button>
+            <button id="ra_new">Começar um novo projeto</button>
+            <p class="hint">Começar um novo apaga as fotos guardadas neste navegador (pede confirmação).</p>
+          </div>
+        </div>
       </div>
     </div>
-    <div id="empty" hidden>
-      <div class="box scrl">
-        <span class="kicker">Esmeralda Paper</span>
-        <span class="mark"><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="9" y="7" width="46" height="50" rx="5" fill="var(--surface)" stroke="var(--brand)" stroke-width="3.5"/><rect x="15" y="13" width="34" height="27" rx="2" fill="var(--brand)"/><circle cx="32" cy="26.5" r="7.5" fill="var(--surface)"/><circle cx="32" cy="26.5" r="3.4" fill="var(--brand)"/></svg></span>
-        <h3>Polaroide Studio</h3>
-        <div class="rule"></div>
-        <p>Monte suas polaroides numa folha pronta para imprimir. Adicione fotos ou comece por um modelo abaixo.</p>
-        <button id="e_add" class="primary jcc" data-i="imageplus">Adicionar fotos</button>
-        <div id="ob_templates">
-          <div id="tplList" class="tpl-list"></div>
-          <button id="ob_wizStart" class="wiz-start">Ou montar do seu jeito, passo a passo →</button>
+    <div id="empty" class="ep-start" hidden>
+      <div class="ep-start__in">
+        <div class="ep-start__top">
+          <span class="brand"><span class="mark"><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="9" y="7" width="46" height="50" rx="5" fill="var(--surface)" stroke="var(--brand)" stroke-width="3.5"/><rect x="15" y="13" width="34" height="27" rx="2" fill="var(--brand)"/><circle cx="32" cy="26.5" r="7.5" fill="var(--surface)"/><circle cx="32" cy="26.5" r="3.4" fill="var(--brand)"/></svg></span>
+          <span class="txt"><span class="t1">Polaroide Studio</span><span class="t2">Esmeralda&nbsp;Paper</span></span></span>
+          <span class="grow"></span>
+          <button type="button" id="ob_close" class="ghost" data-i="x" hidden>Voltar às fotos</button>
+          <a class="lnk" id="ob_open" href="#" role="button"><span data-i="folder"></span> Abrir projeto salvo</a>
         </div>
-        <div id="ob_wizard" hidden>
+        <div id="ob_templates">
+          <div class="ep-hero">
+            <div>
+              <span class="kicker">Polaroides · fotos 3×4 · cartelas</span>
+              <h1>Suas fotos em polaroides prontas para recortar</h1>
+              <p>Escolha um modelo e depois as fotos. Tudo se encaixa sozinho na folha, com marcas de corte — é só imprimir e recortar.</p>
+            </div>
+            <div class="ep-flow" aria-hidden="true"><span class="on"><b>1</b>Modelo</span><i></i><span><b>2</b>Fotos</span><i></i><span><b>3</b>Imprimir</span></div>
+          </div>
+          <div class="ep-drop" id="ob_drop">
+            <span class="ep-drop__ic" data-i="imageplus"></span>
+            <div class="ep-drop__tx"><b id="ob_dropTitle">Já tem as fotos? Comece por elas</b><span id="ob_dropSub">Arraste as imagens para cá ou cole com Ctrl+V. Usa o modelo clássico — dá para trocar depois.</span></div>
+            <button id="e_add" class="primary" data-i="imageplus">Escolher fotos</button>
+          </div>
+          <div class="ep-filters" id="tplFilters"></div>
+          <div id="tplList" class="ep-tpls"></div>
+          <div class="ep-start__foot"><span><b>Privado:</b> suas fotos não saem do aparelho.</span><span><b>Na medida:</b> formatos reais de polaroide e Instax.</span><span><b>Sem corte errado:</b> nada passa da margem de impressão.</span></div>
+        </div>
+        <div id="ob_wizard" class="ep-wiz" hidden>
           <div class="wiz-head">
             <button id="ob_wizBack" class="wiz-back" data-i="chevleft" title="Voltar" aria-label="Voltar"></button>
             <div class="wiz-headtxt">
@@ -264,20 +282,34 @@
           </div>
           <div id="ob_wizGrid" class="tpl-list"></div>
         </div>
-        <p class="faint">Arraste imagens para a janela · <kbd>Ctrl</kbd>+<kbd>V</kbd> para colar</p>
+        <button id="ob_wizStart" hidden></button>
       </div>
     </div>
   </div>
 
+  <div class="canvasbar" id="canvasbar">
+    <button id="b_prev" class="iconbtn ghost" data-i="chevleft" title="Folha anterior"></button>
+    <span id="pageLbl" class="pagelbl-btn">1 / 1</span>
+    <button id="b_next" class="iconbtn ghost" data-i="chevright" title="Próxima folha"></button>
+    <span class="cb-sep"></span>
+    <button id="b_zout" class="iconbtn ghost" data-i="zoomout" title="Reduzir"></button>
+    <span id="zval" class="zval-lbl">55%</span>
+    <button id="b_zin" class="iconbtn ghost" data-i="zoomin" title="Ampliar"></button>
+    <button id="b_fit" class="iconbtn ghost" data-i="fit" title="Caber na tela"></button>
+    <span class="cb-sep"></span>
+    <button id="b_pr" class="iconbtn ghost" data-i="panelright" title="Painel de ajustes ( ] )"></button>
+    <button id="b_zen" class="iconbtn ghost" data-i="eye" title="Só as folhas ( . )"></button>
+    <button id="b_pl" hidden></button>
+  </div>
+
   <aside id="right" class="scrl">
     <div id="rightEmpty">
-      <div class="aside-title"><span data-i="cursor"></span> Nada selecionado</div>
-      Clique num polaroide para editar a foto e a legenda.<br><br>
-      <b>Dicas</b><br>
-      • Arraste a foto na moldura para enquadrar.<br>
-      • Arraste o <b>⠿</b> para reordenar.<br>
-      • Clique na faixa branca para escrever.<br>
-      • <kbd>Del</kbd> remove · setas movem · <kbd>Ctrl</kbd>+<kbd>Z</kbd> desfaz.
+      <div class="aside-title"><span data-i="cursor"></span> Ajustes da foto</div>
+      <div class="insp-empty">
+        <span class="insp-empty__ic" data-i="image"></span>
+        <p><b>Clique numa foto</b> para enquadrar, girar, ajustar a cor e escrever a legenda.</p>
+      </div>
+      <p class="hint"><kbd>Del</kbd> remove · setas movem o enquadramento · <kbd>Ctrl</kbd>+<kbd>Z</kbd> desfaz</p>
     </div>
     <div id="rightSel" hidden>
       <div class="aside-title"><span data-i="image"></span> Foto selecionada</div>
@@ -298,7 +330,7 @@
         <button id="s_center" data-i="target">Centrar</button>
       </div>
 
-      <h4 class="grp-h">Ajustes de cor</h4>
+      <h4 class="grp-h">Cor</h4>
       <div class="grp" id="presetRow"></div>
       <label>Brilho <span class="v" id="v_br"></span><input type="range" id="f_br" min="0.5" max="1.5" step="0.01"></label>
       <label>Contraste <span class="v" id="v_co"></span><input type="range" id="f_co" min="0.5" max="1.5" step="0.01"></label>
@@ -307,6 +339,7 @@
       <label>Sépia <span class="v" id="v_se"></span><input type="range" id="f_se" min="0" max="1" step="0.01"></label>
       <label>Preto e branco <span class="v" id="v_gr"></span><input type="range" id="f_gr" min="0" max="1" step="0.01"></label>
       <label>Vinheta <span class="v" id="v_vi"></span><input type="range" id="f_vi" min="0" max="1" step="0.01"></label>
+      <button type="button" id="f_applyAll" class="wfull ghost" data-i="copy">Usar este ajuste em todas as fotos</button>
 
       <h4 class="grp-h">Ordem e ações</h4>
       <div class="btnrow">
@@ -324,9 +357,6 @@
 
 <!-- ============================================================================
      INTERFACE DE CELULAR (≤ 820 px)  —  css/m-*.css  +  js/m-*.js
-     Casca própria em grade: barra em cima, corpo no meio (#mbody: o palco OU
-     um painel de aba), abas embaixo. #stage e #rightSel são MOVIDOS para cá
-     pelo m-core.js; o motor (render/layout/export) é o mesmo do desktop.
      ========================================================================= -->
 <div id="mroot">
   <header id="mtop">
@@ -379,11 +409,11 @@
           <input type="range" id="me_cap" min="0" max="40" step="0.5"></div>
         <div class="mrange-wrap"><label>Inclinação <span class="v" id="me_tiltv"></span></label>
           <input type="range" id="me_tilt" min="0" max="8" step="0.5"></div>
-        <h3>Legenda</h3>
+        <h3>Estilo da legenda</h3>
         <div class="mrow"><span class="k">Fonte</span><select id="me_capfont"></select></div>
         <div class="mrow"><span class="k">Tamanho</span>
           <div class="stepper" data-key="captionSizePt" data-min="6" data-max="40"><button data-d="-1">−</button><b></b><button data-d="1">+</button></div></div>
-        <h3>Efeito no canto</h3>
+        <h3>Efeito de fixação</h3>
         <div class="mrow"><span class="k">Tipo</span>
           <select id="me_effect">
             <option value="none">Nada</option>
@@ -414,8 +444,9 @@
     <section class="mpanel" id="mp_exportar" hidden>
       <div class="m-grab"><i></i></div>
       <div class="mp-scroll">
+        <div id="mx_prevMount"><!-- prévia + verificação entram aqui --></div>
         <h3>Baixar</h3>
-        <button class="mbig primary" id="mx_pdf" data-i="filepdf">Baixar PDF</button>
+        <button class="mbig primary" id="mx_pdf" data-i="filepdf">Baixar PDF pronto para imprimir</button>
         <div class="m2">
           <button class="mbig" id="mx_png" data-i="imagedown">PNG</button>
           <button class="mbig" id="mx_print" data-i="printer">Imprimir</button>
@@ -425,7 +456,7 @@
             <button data-v="200">200</button><button data-v="300" class="on">300</button>
             <button data-v="450">450</button><button data-v="600">600</button>
           </div></div>
-        <p class="hint">Para imprimir sem margem branca: no menu de impressão escolha <b>Margens: Nenhuma</b> e <b>Escala: 100%</b>.</p>
+        <p class="hint">Na impressora: <b>Escala 100%</b> e <b>Margens: nenhuma</b>. Depois recorte pelas marcas.</p>
         <h3>Projeto</h3>
         <div class="m2">
           <button class="mbig" id="mx_save" data-i="save">Salvar</button>
@@ -440,8 +471,6 @@
     <button id="mfab" data-i="imageplus" title="Adicionar fotos"></button>
   </div>
 
-  <!-- barra da foto selecionada: legenda rápida + "Ajustar" (abre #medit).
-       Aparece só quando uma foto está marcada; o quadro continua visível. -->
   <div id="mselbar" hidden>
     <button id="msb_close" class="msb-x" data-i="x" title="Desmarcar foto"></button>
     <input type="text" id="msb_cap" maxlength="500" placeholder="Escreva a legenda…" autocomplete="off">
@@ -457,7 +486,7 @@
     <button data-tab="fotos" class="on"><span data-i="image"></span><i>Fotos</i></button>
     <button data-tab="folha"><span data-i="page"></span><i>Folha</i></button>
     <button data-tab="estilo"><span data-i="palette"></span><i>Estilo</i></button>
-    <button data-tab="exportar"><span data-i="download"></span><i>Exportar</i></button>
+    <button data-tab="exportar"><span data-i="printer"></span><i>Imprimir</i></button>
   </nav>
 </div>
 
@@ -465,23 +494,75 @@
 <button id="zenExit" class="iconbtn" data-i="eyeoff" title="Sair da tela cheia (Esc)" hidden></button>
 
 <div id="menu" class="scrl" hidden>
-  <button id="m_pdf" data-i="filepdf">Exportar PDF</button>
-  <button id="m_png" data-i="imagedown">Exportar PNG (folha atual)</button>
-  <button id="m_print" data-i="printer">Imprimir</button>
-  <div class="msep"></div>
-  <button id="m_new" data-i="filenew">Novo projeto</button>
+  <div class="menu-h">Projeto</div>
+  <button id="m_new" data-i="filenew">Novo projeto…</button>
   <button id="m_save" data-i="save">Salvar projeto (.json)</button>
   <button id="m_open" data-i="folder">Abrir projeto…</button>
-  <a id="m_acervo" hidden><span data-i="grid"></span> Acervo — mais ferramentas</a>
+  <button id="m_history" data-i="clock">Histórico de alterações</button>
   <div class="msep"></div>
+  <div class="menu-h">Exportar</div>
+  <button id="m_pdf" data-i="filepdf">Baixar PDF</button>
+  <button id="m_png" data-i="imagedown">PNG da folha atual</button>
+  <button id="m_print" data-i="printer">Imprimir…</button>
+  <div class="msep"></div>
+  <label class="row"><input type="checkbox" id="c_acrylic"> Painéis translúcidos</label>
+  <label class="row"><input type="checkbox" id="c_shadow"> Sombra nos polaroides (só na tela)</label>
   <button id="m_install" data-i="download" hidden>Instalar na tela de início</button>
-  <a id="m_guide" href="guia.html" target="_blank" rel="noopener noreferrer"><span data-i="page"></span> Guia do usuário</a>
-  <button id="m_help" data-i="help">Atalhos de teclado</button>
-  <button id="m_privacy" data-i="shield">Privacidade e segurança</button>
-  <button id="m_about" data-i="info">Sobre</button>
+  <a id="m_guide" href="guia.html" target="_blank" rel="noopener noreferrer"><span data-i="help"></span> Guia do usuário</a>
+  <button id="m_help" data-i="info">Atalhos de teclado</button>
+  <button id="m_privacy" data-i="shield">Privacidade</button>
+  <button id="m_about" data-i="polaroid">Sobre</button>
+  <a id="m_acervo" hidden><span data-i="grid"></span> Mais ferramentas</a>
+  <a id="asideFeedback" rel="noopener noreferrer" hidden><span data-i="sparkle"></span> Avaliar esta ferramenta</a>
+  <a id="asideAcervo" hidden></a>
   <div class="msep"></div>
   <button id="m_clear" class="danger" data-i="trash">Limpar todas as fotos</button>
 </div>
+
+<!-- ===== Imprimir e baixar ===== -->
+<dialog id="exportDlg" class="xdlg" aria-labelledby="xp_title">
+  <div class="dhead"><div><span id="xp_title">Imprimir e baixar</span><span class="sub" id="xp_sub"></span></div><button class="iconbtn ghost" data-close data-i="x" title="Fechar (Esc)"></button></div>
+  <div class="xdlg-main">
+    <div class="xdlg-prev" id="xp_prevHost">
+      <div class="ep-sheet" id="xp_preview"></div>
+      <div class="xp-summary" id="xp_summary"></div>
+      <div class="xp-sec xp-checkwrap"><div class="xp-h">Verificação</div><ul id="xp_check"></ul></div>
+    </div>
+    <div class="xdlg-body" id="xp_bodyHost">
+      <div id="xp_body">
+        <div class="xp-sec">
+          <div class="xp-h">Folha</div>
+          <span class="fld-lbl">Tamanho do papel</span>
+          <div id="xp_paper"></div>
+          <span class="fld-lbl">Orientação</span>
+          <div id="xp_orient"></div>
+        </div>
+        <div class="xp-sec">
+          <div class="xp-h">Para recortar</div>
+          <div id="xp_cut" class="ep-cards compact"></div>
+        </div>
+        <div class="xp-sec">
+          <div class="xp-h">Qualidade do PDF</div>
+          <select id="c_dpi" class="xp-src">
+            <option value="200">200 dpi</option><option value="300">300 dpi</option><option value="450">450 dpi</option><option value="600">600 dpi</option>
+          </select>
+          <div id="xp_dpi"></div>
+          <p class="hint" id="xp_dpiHint"></p>
+        </div>
+        <div class="xp-sec">
+          <div class="xp-h">Na hora de imprimir</div>
+          <p class="xp-how" id="xp_how"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="xdlg-foot">
+    <span class="grow"></span>
+    <button id="b_png" data-i="imagedown">PNG da folha</button>
+    <button id="b_print" data-i="printer">Imprimir</button>
+    <button id="b_pdf" class="primary" data-i="download">Baixar PDF</button>
+  </div>
+</dialog>
 
 <input type="file" id="file_add" accept="image/png,image/jpeg,image/webp,image/gif,image/bmp,image/avif" multiple hidden>
 <input type="file" id="file_open" accept="application/json,.json" hidden>
@@ -493,22 +574,22 @@
   <div class="dhead">Atalhos <button class="iconbtn ghost" data-close data-i="x"></button></div>
   <div class="dbody scrl"><table>
     <tr><td><kbd>Ctrl</kbd> + roda do mouse</td><td>Zoom no ponto do cursor (ou pinça no trackpad)</td></tr>
-    <tr><td>Roda do mouse</td><td>Rolar as folhas (sem barra visível)</td></tr>
+    <tr><td>Roda do mouse</td><td>Rolar as folhas</td></tr>
     <tr><td>Arrastar com o botão do meio</td><td>Deslocar a vista</td></tr>
     <tr><td><kbd>+</kbd> / <kbd>−</kbd></td><td>Zoom da foto selecionada</td></tr>
     <tr><td>Setas ← ↑ → ↓</td><td>Mover o enquadramento da foto</td></tr>
     <tr><td><kbd>Ctrl</kbd>+<kbd>Z</kbd> / <kbd>Ctrl</kbd>+<kbd>Y</kbd></td><td>Desfazer / Refazer</td></tr>
     <tr><td><kbd>Del</kbd> / <kbd>Backspace</kbd></td><td>Remover foto selecionada</td></tr>
     <tr><td><kbd>Ctrl</kbd>+<kbd>V</kbd></td><td>Colar imagem da área de transferência</td></tr>
-    <tr><td><kbd>Ctrl</kbd>+<kbd>P</kbd></td><td>Imprimir</td></tr>
-    <tr><td><kbd>[</kbd> / <kbd>]</kbd></td><td>Ocultar painel esquerdo / direito</td></tr>
-    <tr><td><kbd>.</kbd> / <kbd>Esc</kbd></td><td>Modo tela cheia / sair</td></tr>
+    <tr><td><kbd>Ctrl</kbd>+<kbd>P</kbd></td><td>Imprimir e baixar</td></tr>
+    <tr><td><kbd>[</kbd> / <kbd>]</kbd></td><td>Recolher painel esquerdo / direito</td></tr>
+    <tr><td><kbd>.</kbd> / <kbd>Esc</kbd></td><td>Só as folhas / sair</td></tr>
     <tr><td>Arrastar <b>⠿</b></td><td>Reordenar os polaroides</td></tr>
   </table></div>
 </dialog>
 
 <dialog id="privacy">
-  <div class="dhead">Privacidade e segurança <button class="iconbtn ghost" data-close data-i="x"></button></div>
+  <div class="dhead">Privacidade <button class="iconbtn ghost" data-close data-i="x"></button></div>
   <div class="dbody scrl">
     <p><span class="pill">100% no seu computador</span></p>
     <p>O Polaroide Studio não envia nada a servidor nenhum — suas fotos, legendas e ajustes ficam só neste navegador. Detalhes (CSP, tratamento de imagem, retenção) na <a href="https://www.esmeraldapaper.com.br/politica-de-privacidade/#ferramentas-gratuitas" target="_blank" rel="noopener noreferrer">política de privacidade</a>.</p>
@@ -526,22 +607,21 @@
   </div>
 </dialog>
 
-<!-- Script clássico (não module): funciona tanto em https:// quanto ao abrir
-     o arquivo direto (file://). Nenhum script inline: script-src 'self'. -->
-<!-- carregados em ordem; compartilham o mesmo escopo global -->
-<script defer src="js/config.js?v=2609121621"></script>
-<script defer src="js/state.js?v=2609121621"></script>
-<script defer src="js/images.js?v=2609121621"></script>
-<script defer src="js/layout.js?v=2609121621"></script>
-<script defer src="js/render.js?v=2609121621"></script>
-<script defer src="js/history.js?v=2609121621"></script>
-<script defer src="js/export.js?v=2609121621"></script>
-<script defer src="js/ui.js?v=2609121621"></script>
-<script defer src="js/wizard.js?v=2609121621"></script>
-<script defer src="js/m-core.js?v=2609121621"></script>
-<script defer src="js/m-panels.js?v=2609121621"></script>
-<script defer src="js/m-sheet.js?v=2609121621"></script>
-<script defer src="js/m-install.js?v=2609121621"></script>
-<script defer src="js/events.js?v=2609121621"></script>
+<script defer src="vendor/core/shell.js?v=260914001752"></script>
+<script defer src="js/config.js?v=260914001752"></script>
+<script defer src="js/state.js?v=260914001752"></script>
+<script defer src="js/images.js?v=260914001752"></script>
+<script defer src="js/layout.js?v=260914001752"></script>
+<script defer src="js/render.js?v=260914001752"></script>
+<script defer src="js/history.js?v=260914001752"></script>
+<script defer src="js/export.js?v=260914001752"></script>
+<script defer src="js/ui.js?v=260914001752"></script>
+<script defer src="js/wizard.js?v=260914001752"></script>
+<script defer src="js/m-core.js?v=260914001752"></script>
+<script defer src="js/m-panels.js?v=260914001752"></script>
+<script defer src="js/m-sheet.js?v=260914001752"></script>
+<script defer src="js/m-install.js?v=260914001752"></script>
+<script defer src="js/events.js?v=260914001752"></script>
+<script defer src="js/shell-ui.js?v=260914001752"></script>
 </body>
 </html>

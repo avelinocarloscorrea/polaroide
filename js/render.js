@@ -53,12 +53,23 @@ function polEl(ph){
   badge.textContent=dpi?dpi+' dpi':'';
 
   const win=document.createElement('div'); win.className='win';
+  const hasMedia=!!media[ph.id];
   const img=document.createElement('img');
-  img.src=media[ph.id]?media[ph.id].previewURL:'';
-  img.alt=''; img.draggable=false;
+  img.src=hasMedia?media[ph.id].previewURL:'';
+  img.alt=''; img.draggable=false; img.hidden=!hasMedia;
   styleImg(img,ph);
   const vig=document.createElement('div'); vig.className='vig'; vig.style.opacity=ph.filter.vignette*0.8;
   win.append(img,vig);
+  // Achado: quando o navegador perde os dados do IndexedDB (armazenamento
+  // limpo, aba anônima, pouco espaço) mas o localStorage com a lista de
+  // fotos sobrevive, a foto reaparecia como um ícone de imagem quebrada do
+  // navegador — sem explicação nenhuma. Mostra um aviso de verdade em vez
+  // disso, com a saída óbvia (trocar a foto).
+  if(!hasMedia){
+    win.classList.add('win--missing');
+    win.insertAdjacentHTML('beforeend',
+      `<div class="win-missing"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"/><path d="M21 15V6a2 2 0 0 0-2-2H8M3 8v11a2 2 0 0 0 2 2h11"/><circle cx="8.5" cy="9.5" r="1.2"/><path d="M4 16l3.5-3.5a1.6 1.6 0 0 1 2.2 0L14 17"/></svg><span>Foto perdida neste navegador</span></div>`);
+  }
 
   // legenda: <textarea> plano dentro de um wrapper centralizado.
   const cap=document.createElement('div'); cap.className='cap';
@@ -75,7 +86,10 @@ function polEl(ph){
     grow(); save();
   });
   cap.appendChild(ta);
-  if(g.cap<1) cap.style.display='none';
+  // g.cap<1 já é coberto pelo CSS (.cap{height:var(--caption);overflow:hidden}
+  // colapsa pra ~0 sozinho) — tinha um SEGUNDO mecanismo aqui (display:none
+  // via JS) fazendo a mesma coisa por outro caminho. Duas fontes de verdade
+  // pro mesmo estado é terreno fértil pra desincronizar; fica só uma.
   requestAnimationFrame(grow);
 
   win.addEventListener('pointerdown',e=>{
@@ -229,7 +243,7 @@ function select(id,keep){
 }
 function fillRight(ph){
   const m=media[ph.id];
-  $('#s_thumb').src=m?m.previewURL:'';
+  const sThumb=$('#s_thumb'); sThumb.src=m?m.previewURL:''; sThumb.hidden=!m;
   const sc=$('#s_caption'); if(sc && sc!==document.activeElement) sc.value=ph.caption||'';
   const mcap=$('#msb_cap'); if(mcap && mcap!==document.activeElement) mcap.value=ph.caption||'';
   const d=photoDPI(ph);

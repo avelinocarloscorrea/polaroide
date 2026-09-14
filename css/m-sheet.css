@@ -30,7 +30,7 @@
   #medit #rightSel input[type=range]{height:38px}
   #medit #rightSel .btnrow{gap:8px}
   #medit #rightSel .btnrow > *{min-height:44px}
-  #medit #rightSel .grp .chip{min-height:38px;padding:8px 12px}
+  #medit #rightSel .grp .chip{min-height:44px;padding:8px 12px}
   #rightSel label.mob-only{display:block;margin:6px 0 14px;font-weight:600}
   #rightSel label.mob-only input{width:100%;height:44px;border-radius:11px;font-size:16px;margin-top:5px}
 

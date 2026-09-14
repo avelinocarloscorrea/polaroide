@@ -82,6 +82,7 @@ const ICONS={
   swap:'<path d="M16 4l4 4-4 4"/><path d="M20 8H8"/><path d="M8 20l-4-4 4-4"/><path d="M4 16h12"/>',
   trash:'<path d="M4 7h16"/><path d="M10 11v6M14 11v6"/><path d="M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"/><path d="M9 7V4h6v3"/>',
   help:'<circle cx="12" cy="12" r="9"/><path d="M9.3 9.2a2.8 2.8 0 0 1 5.4 1c0 1.9-2.7 2.3-2.7 4"/><path d="M12 17h.01"/>',
+  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
   shield:'<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/>',
   info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/>',
   external:'<path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M19 13v6a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h6"/>',
@@ -179,7 +180,7 @@ const DEFAULTS={
   captionBold:false, captionItalic:false, captionUpper:false, captionSpacing:0, captionShadow:false,
   tape:'none', tapeColor:'#e7dfce', filterPreset:'original',
   cardColor:'#ffffff', pageBg:'#ffffff', pageBg2:'#e9e2d3', bgGradient:false, bgAngle:160,
-  screenShadow:true, acrylic:true, exportDPI:300,
+  screenShadow:true, acrylic:false, exportDPI:300,
 };
 const COLOR_DEFAULTS={cardColor:'#ffffff',pageBg:'#ffffff',pageBg2:'#e9e2d3',captionColor:'#222222',cardLineColor:'#c9c9c9',tapeColor:'#e7dfce'};
 const HEX=/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;

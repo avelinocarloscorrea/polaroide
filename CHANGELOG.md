@@ -1,5 +1,14 @@
 # Histórico
 
+## 0.22 — interface redesenhada e impressão com prévia
+- **Interface nova**: etapas Modelo → Fotos → Imprimir, abas (Fotos, Polaroide,
+  Folha, Estilo, Modelos), faixa com todas as fotos, galeria inicial com a
+  folha de verdade em miniatura; escolher um modelo já abre as fotos.
+- **Imprimir e baixar**: prévia de cada folha, papel/orientação, guia de corte
+  (marcas, contorno, os dois ou nenhum), qualidade e verificação — com botão
+  para completar a última folha repetindo fotos.
+- Fonte da interface Arimo, igual às outras ferramentas.
+
 ## 0.21 — tela inicial com assistente de montagem
 - Além dos modelos prontos já existentes, a tela inicial (sem fotos ainda)
   ganhou um assistente de 3 passos curtos pra quem prefere montar do zero:

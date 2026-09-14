@@ -30,7 +30,7 @@
 
   .mseg{display:flex;flex:none;border:1px solid var(--line);border-radius:11px;overflow:hidden;background:var(--surface)}
   .mseg button{border:0;background:transparent;padding:10px 12px;font-size:14px;color:var(--muted);
-    border-left:1px solid var(--line);min-width:44px}
+    border-left:1px solid var(--line);min-width:44px;min-height:44px}
   .mseg button:first-child{border-left:0}
   .mseg button.on{background:var(--brand);color:#fff;font-weight:700}
 
