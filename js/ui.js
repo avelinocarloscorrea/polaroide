@@ -37,6 +37,8 @@ function syncControls(){
   setR('#c_tilt',s.tiltDeg,s.tiltDeg+'°');
   $('#c_pageSize').value=s.pageSize; $('#c_landscape').checked=s.landscape;
   $('#c_autofit').checked=s.autoFit;
+  { const af=$('#c_autofit'), real=isRealFormat(); af.disabled=real;
+    const lb=af.closest('label'); if(lb) lb.title=real?'Formato real de filme: o tamanho é fixo, o encaixe só decide quantos cabem na folha.':''; }
   setR('#c_margin',s.marginMm,s.marginMm+' mm');
   setR('#c_gap',s.gapMm,s.gapMm+' mm');
   $('#c_cols').value=s.columns; $('#c_rows').value=s.rows; $('#c_align').value=s.align;

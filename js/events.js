@@ -155,6 +155,7 @@ addEventListener('beforeprint',()=>select(null));
   let alreadyAsked=false;
   try{ alreadyAsked=sessionStorage.getItem('polaroidestudio-resumed')==='1'; }catch(e){}
   if(hasSaved && !alreadyAsked) showResumeAsk(); else finishInit();
+  if(window.EPShell&&EPShell.ready) EPShell.ready();
   function finishInit(){ syncControls(); render(); fit(); }
   function markAsked(){ try{ sessionStorage.setItem('polaroidestudio-resumed','1'); }catch(e){} }
   function showResumeAsk(){

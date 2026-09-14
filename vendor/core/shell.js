@@ -262,5 +262,13 @@
     });
   }
 
-  root.EPShell = { initRail, optionCards, segmented, sheetSVG, gallery, checklist, esc };
+  /* fim da inicialização: a página nasce com <body class="booting"> (esqueleto
+     do editor invisível) e só aparece depois que o app decidiu entre tela
+     inicial, "bem-vindo de volta" e editor — sem piscar a barra lateral. */
+  function ready() {
+    const done = () => document.body.classList.remove('booting');
+    requestAnimationFrame(() => requestAnimationFrame(done));
+  }
+
+  root.EPShell = { ready, initRail, optionCards, segmented, sheetSVG, gallery, checklist, esc };
 })(typeof window !== 'undefined' ? window : globalThis);
