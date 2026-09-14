@@ -5,7 +5,7 @@
    nenhum efeito escapa da borda do polaroide. Os itens são posicionados pelas
    variáveis --frame (topo da foto) e --caption (base da foto), com um pequeno
    recuo para dentro. */
-.decorclip{position:absolute;inset:0;overflow:hidden;border-radius:var(--radius);
+.decorclip{position:absolute;inset:0;z-index:2;overflow:hidden;border-radius:var(--radius);
   pointer-events:none;z-index:4}
 .decor{position:absolute}
 .decor.tape{width:18mm;height:6mm;background:var(--tapeC,#e7dfce);opacity:.78;

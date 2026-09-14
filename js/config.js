@@ -149,18 +149,21 @@ const FORMATS={
 // misturava fontes do sistema (cada computador imprimia diferente) e os
 // arquivos de Caveat/Special Elite/Permanent Marker nem estavam no pacote.
 const BASE_FONTS=[
-  {label:'Manuscrita — Caveat',            v:"'Caveat',cursive"},
-  {label:'Caligrafia — Dancing Script',    v:"'Dancing Script',cursive"},
-  {label:'Datilografada — Special Elite',  v:"'Special Elite',monospace"},
-  {label:'Marcador — Permanent Marker',    v:"'Permanent Marker',cursive"},
-  {label:'Elegante — Playfair Display',    v:"'Playfair Display',serif"},
-  {label:'Clássica — Lora',                v:"'Lora',serif"},
-  {label:'Leitura — Merriweather',         v:"'Merriweather',serif"},
-  {label:'Serifada — Tinos',               v:"'Tinos',serif"},
-  {label:'Moderna — Montserrat',           v:"'Montserrat',sans-serif"},
-  {label:'Sem serifa — Arimo',             v:"'Arimo',sans-serif"},
-  {label:'Máquina de escrever — Cousine',  v:"'Cousine',monospace"},
+  {label:'Manuscrita — Caveat',            v:"'Caveat',cursive",           fam:'caveat'},
+  {label:'Caligrafia — Dancing Script',    v:"'Dancing Script',cursive",   fam:'dancing'},
+  {label:'Datilografada — Special Elite',  v:"'Special Elite',monospace",  fam:'typewriter'},
+  {label:'Marcador — Permanent Marker',    v:"'Permanent Marker',cursive", fam:'marker'},
+  {label:'Elegante — Playfair Display',    v:"'Playfair Display',serif",   fam:'playfair'},
+  {label:'Clássica — Lora',                v:"'Lora',serif",               fam:'lora'},
+  {label:'Leitura — Merriweather',         v:"'Merriweather',serif",       fam:'merriweather'},
+  {label:'Serifada — Tinos',               v:"'Tinos',serif",              fam:'serif'},
+  {label:'Moderna — Montserrat',           v:"'Montserrat',sans-serif",    fam:'montserrat'},
+  {label:'Sem serifa — Arimo',             v:"'Arimo',sans-serif",         fam:'sans'},
+  {label:'Máquina de escrever — Cousine',  v:"'Cousine',monospace",        fam:'mono'},
 ];
+// família do núcleo (EPFontMetrics) <-> valor CSS guardado em captionFont
+const famOfFont=v=>(BASE_FONTS.find(f=>f.v===v)||BASE_FONTS[0]).fam;
+const fontOfFam=k=>(BASE_FONTS.find(f=>f.fam===k)||{}).v||null;
 // valores antigos → fonte equivalente do pacote (migração de projetos salvos)
 const FONT_MIGRATE={Caveat:"'Caveat',cursive",'Special Elite':"'Special Elite',monospace",'Permanent Marker':"'Permanent Marker',cursive",
   'Segoe Script':"'Dancing Script',cursive",'Playfair Display':"'Playfair Display',serif",Georgia:"'Tinos',serif",'Iowan Old Style':"'Lora',serif",
@@ -168,13 +171,16 @@ const FONT_MIGRATE={Caveat:"'Caveat',cursive",'Special Elite':"'Special Elite',m
   'Franklin Gothic Medium':"'Montserrat',sans-serif"};
 // Estilos prontos de legenda (aplicam fonte + tamanho + variações de texto).
 const CAPTION_STYLES={
-  manuscrito:  {captionFont:"'Caveat',cursive",           captionSizePt:17, captionBold:false, captionItalic:false, captionUpper:false, captionSpacing:0,   captionShadow:false},
-  datilografado:{captionFont:"'Special Elite',monospace",  captionSizePt:11, captionBold:false, captionItalic:false, captionUpper:false, captionSpacing:0.4, captionShadow:false},
-  marcador:    {captionFont:"'Permanent Marker',cursive", captionSizePt:13, captionBold:false, captionItalic:false, captionUpper:false, captionSpacing:0,   captionShadow:false},
-  etiqueta:    {captionFont:"'Montserrat',sans-serif", captionSizePt:10, captionBold:true, captionItalic:false, captionUpper:true, captionSpacing:1.6, captionShadow:false},
-  editorial:   {captionFont:"'Playfair Display',serif",          captionSizePt:13, captionBold:false, captionItalic:true,  captionUpper:false, captionSpacing:0.2, captionShadow:false},
+  manuscrito:  {captionFont:"'Caveat',cursive",           captionSizePt:17, captionBold:false, captionItalic:false, captionUpper:false, capFx:{}},
+  datilografado:{captionFont:"'Special Elite',monospace",  captionSizePt:11, captionBold:false, captionItalic:false, captionUpper:false, capFx:{ls:0.05}},
+  marcador:    {captionFont:"'Permanent Marker',cursive", captionSizePt:13, captionBold:false, captionItalic:false, captionUpper:false, capFx:{}},
+  etiqueta:    {captionFont:"'Montserrat',sans-serif",    captionSizePt:10, captionBold:true,  captionItalic:false, captionUpper:true,  capFx:{ls:0.18}},
+  editorial:   {captionFont:"'Playfair Display',serif",   captionSizePt:13, captionBold:false, captionItalic:true,  captionUpper:false, capFx:{ls:0.02}},
+  fita:        {captionFont:"'Special Elite',monospace",  captionSizePt:10, captionBold:false, captionItalic:false, captionUpper:false, capFx:{bg:'#1f2522',bgp:0.25,bgr:0.1},captionColor:'#ffffff'},
+  destaque:    {captionFont:"'Caveat',cursive",           captionSizePt:18, captionBold:true,  captionItalic:false, captionUpper:false, capFx:{bg:'#ffe066',bgo:0.85,bgp:0.06,bgr:0}},
+  carimbo:     {captionFont:"'Montserrat',sans-serif",    captionSizePt:10, captionBold:true,  captionItalic:false, captionUpper:true,  capFx:{ls:0.2,ol:'#b23b2c',olw:0.2,rot:-4,op:0.9},captionColor:'#b23b2c'},
 };
-const CAPTION_STYLE_LABELS={manuscrito:'Manuscrito',datilografado:'Datilografado',marcador:'Marcador',etiqueta:'Etiqueta',editorial:'Editorial'};
+const CAPTION_STYLE_LABELS={manuscrito:'Manuscrito',datilografado:'Datilografado',marcador:'Marcador',etiqueta:'Etiqueta',editorial:'Editorial',fita:'Fita rotuladora',destaque:'Marca-texto',carimbo:'Carimbo'};
 const FILTER0={preset:'original',brightness:1,contrast:1,saturate:1,hue:0,sepia:0,grayscale:0,vignette:0};
 const PRESETS={
   original:{brightness:1,contrast:1,saturate:1,hue:0,sepia:0,grayscale:0,vignette:0},
@@ -194,11 +200,12 @@ const DEFAULTS={
   autoFit:true, columns:'auto', rows:'auto', align:'center',
   cardLine:false, cardLineColor:'#c9c9c9', cornerMarks:true, markOffset:2, markLen:4,
   captionFont:BASE_FONTS[0].v, captionSizePt:14, captionColor:'#222222',
-  captionBold:false, captionItalic:false, captionUpper:false, captionSpacing:0, captionShadow:false,
+  captionBold:false, captionItalic:false, captionUpper:false, capFx:{},
   tape:'none', tapeColor:'#e7dfce', filterPreset:'original',
   cardColor:'#ffffff', pageBg:'#ffffff', pageBg2:'#e9e2d3', bgGradient:false, bgAngle:160,
   screenShadow:true, acrylic:false, exportDPI:300,
   pdfColor:'rgb', printGamma:1, backSide:'none',
+  bg:{kind:'none'}, wm:{on:false}, extras:[],
 };
 const COLOR_DEFAULTS={cardColor:'#ffffff',pageBg:'#ffffff',pageBg2:'#e9e2d3',captionColor:'#222222',cardLineColor:'#c9c9c9',tapeColor:'#e7dfce'};
 const HEX=/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
@@ -219,6 +226,23 @@ const TEMPLATES=[
   {id:'minimal', name:'Minimalista', desc:'borda fina · sem legenda · contorno',
    settings:{format:'modern',autoFit:true,columns:'3',rows:'4',captionMm:0,gapMm:5,marginMm:12,
      cornerMarks:false,cardLine:true,cardLineColor:'#d9d3c6'}},
+  {id:'piquenique', name:'Piquenique', desc:'xadrez · fita · manuscrita com marca-texto',
+   settings:{format:'classic',autoFit:true,columns:'auto',rows:'auto',tiltDeg:2.5,tape:'tape-2',tapeColor:'#f3e3c3',cornerMarks:false,gapMm:12,marginMm:10,
+     bg:{kind:'pattern',pat:'gingham',c1:'#fdf6ec',pc:'#f0c9b8',ps:1.1},captionFont:"'Caveat',cursive",captionSizePt:17,capFx:{bg:'#ffe066',bgo:0.8,bgp:0.06,bgr:0}}},
+  {id:'noite', name:'Noite estrelada', desc:'fundo azul com estrelas · legenda datilografada',
+   settings:{format:'sx70',autoFit:true,columns:'auto',rows:'auto',tiltDeg:0,tape:'none',cornerMarks:true,gapMm:12,cardColor:'#fbf8f1',
+     bg:{kind:'pattern',pat:'stars',c1:'#1f2a44',pc:'#34436a',ps:0.9,pw:0.7},captionFont:"'Special Elite',monospace",captionSizePt:11,capFx:{ls:0.06}}},
+  {id:'amor', name:'Nosso amor', desc:'corações · percevejo · caligrafia · selo',
+   settings:{format:'classic',autoFit:true,columns:'auto',rows:'auto',tiltDeg:3,tape:'pin-top',cornerMarks:false,gapMm:12,
+     bg:{kind:'pattern',pat:'hearts',c1:'#fff5f7',pc:'#f7d0da',ps:0.9},captionFont:"'Dancing Script',cursive",captionSizePt:16,captionColor:'#8a2f4a',
+     wm:{on:true,kind:'seal',text:'Nosso amor',text2:'para sempre',pos:'br',opacity:0.2,size:0.7,rot:0}}},
+  {id:'viagem', name:'Diário de viagem', desc:'kraft pontilhado · grampo · fita rotuladora',
+   settings:{format:'instaxSq',autoFit:true,columns:'auto',rows:'auto',tiltDeg:2,tape:'staple-top',cornerMarks:false,gapMm:12,
+     bg:{kind:'pattern',pat:'dotgrid',c1:'#ead9bd',pc:'#c9ad84'},captionFont:"'Special Elite',monospace",captionSizePt:10,captionColor:'#ffffff',capFx:{bg:'#1f2522',bgp:0.25,bgr:0.1}}},
+  {id:'galeria', name:'Galeria assinada', desc:'borda fina · degradê areia · carimbo com seu nome',
+   settings:{format:'modern',autoFit:true,columns:'3',rows:'4',captionMm:0,gapMm:6,marginMm:12,cornerMarks:false,cardLine:false,
+     bg:{kind:'gradient',c1:'#faf6ee',c2:'#e9dcc6',angle:160},
+     wm:{on:true,kind:'stamp',text:'Seu nome',pos:'br',opacity:0.35,size:0.45,rot:0}}},
   {id:'instax', name:'Instax Mini', desc:'cartela · vários por folha',
    settings:{format:'instaxMini',autoFit:true,columns:'auto',rows:'auto',gapMm:12,marginMm:8,cornerMarks:true}},
   {id:'contato', name:'Folha de contato', desc:'grade miúda · sem legenda',

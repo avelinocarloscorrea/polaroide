@@ -13,19 +13,27 @@
   gap:6px;padding:8%;color:var(--muted,#6d6a62);text-align:center}
 .win-missing svg{width:26%;height:26%;max-width:34px;max-height:34px;flex:none}
 .win-missing span{font-size:.72em;line-height:1.3}
-/* legenda: <textarea> centrado por um wrapper flex — sem bugs de caret */
-.cap{height:var(--caption);display:flex;align-items:center;justify-content:center;
-  padding:0 2mm;box-sizing:border-box;overflow:hidden}
-.capfield{
-  width:100%;max-height:100%;box-sizing:border-box;display:block;
-  border:0;outline:0;background:transparent;resize:none;overflow:hidden;
-  text-align:center;line-height:1.14;padding:0;margin:0;
-  font-family:var(--capFont);font-size:var(--capSize);color:var(--capColor);
-  font-weight:var(--capWeight);font-style:var(--capStyle);
-  letter-spacing:var(--capSpacing,normal);text-transform:var(--capTransform,none);
-  text-shadow:var(--capShadow,none);white-space:pre-wrap;overflow-wrap:anywhere}
-.capfield::placeholder{color:#c7c7c7;text-transform:none;letter-spacing:normal}
-.capfield::-webkit-scrollbar{display:none}
+/* legenda: faixa vazia no card; o texto é um <svg> da caneta do núcleo por cima (js/design.js) */
+.cap{height:var(--caption);box-sizing:border-box}
+.pol-txt{position:absolute;inset:0;pointer-events:none;z-index:1}
+.pol-txt svg,.pg-under svg,.pg-over svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.win{z-index:0}
+.pg-under,.pg-over{position:absolute;inset:0;pointer-events:none}
+.pg-under{z-index:0}
+.page>.grid{position:relative;z-index:1}
+.pg-over{z-index:2}
+.pol.sel{outline:0!important}
+body.ce-editing .pol:hover .handle,body.ce-editing .pol:hover .dpi{opacity:0}
+/* ferramentas da foto na barra da folha */
+.ps-ptools{display:flex;flex-direction:column;gap:8px;padding:2px 0 4px}
+.ps-rng{display:grid;grid-template-columns:1fr auto;gap:0 8px;align-items:center;margin:0;font-size:12.5px;color:var(--muted)}
+.ps-rng span{grid-column:1/-1}
+.ps-rng output{font:600 12px/1 var(--ui);color:var(--ink);min-width:44px;text-align:right;font-variant-numeric:tabular-nums}
+.ps-btns{display:flex;flex-wrap:wrap;gap:6px}
+.ps-btns button{flex:1;min-height:34px;padding:0 8px;font-size:12.5px}
+.ps-filters{display:flex;flex-wrap:wrap;gap:5px}
+.ps-filters .chip.on{background:var(--brand);border-color:var(--brand);color:#fff}
+.cap-fx{display:grid;grid-template-columns:repeat(auto-fill,minmax(66px,1fr));gap:6px}
 .handle{position:absolute;left:5px;top:5px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;
   border-radius:6px;background:rgba(255,255,255,.94);border:1px solid var(--line);color:#666;cursor:grab;opacity:0;transition:opacity .12s;z-index:3;box-shadow:var(--sh-1)}
 .handle svg{width:13px;height:13px}

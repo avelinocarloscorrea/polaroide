@@ -233,6 +233,38 @@
       },
       // gira o que vier depois (graus, sentido horário) até o próximo unclip()
       rotate(deg, cx, cy) { parts.push(`<g transform="rotate(${n(deg)} ${n(cx)} ${n(cy)})">`); openClips++; },
+      // transparência de um grupo (feche com unclip); não passe opacity nos itens de dentro
+      alpha(a) { parts.push(`<g opacity="${n(clamp01(a))}">`); openClips++; },
+      // efeitos de um elemento (text-fx.js): tudo o que foi desenhado desde mark()
+      // ganha fundo, sombra, contorno e giro — sem o chamador saber desenhar nada disso
+      mark() { return parts.length; },
+      fxWrap(m, box, f) {
+        const slice = parts.slice(m);
+        if (!slice.length || !box) return;
+        const isText = p => p.startsWith('<text');
+        const nLines = Math.max(1, slice.filter(isText).length);
+        const lineH = box.h / nLines;
+        const recolor = (p, c, hollow) => {
+          if (isText(p)) return p.replace(/ fill="[^"]*"/, ` fill="${hollow ? 'none' : c}"`);
+          if (p.startsWith('<svg')) return p.replace(/ color="[^"]*"/, ` color="${c}"`).replace(/ (fill|stroke)="(?!none)[^"]*"/g, ` $1="${c}"`);
+          return null;
+        };
+        const out = [];
+        const op = f.op != null ? clamp01(f.op) : 1;
+        if (f.bg) {
+          const p = fxPad(box, f), r = fxRadius(p, f);
+          out.push(`<rect x="${n(p.x)}" y="${n(p.y)}" width="${n(p.w)}" height="${n(p.h)}"${r ? ` rx="${n(r)}"` : ''} fill="${f.bg}" fill-opacity="${n(clamp01(f.bgo == null ? 1 : f.bgo) * op)}"/>`);
+        }
+        if (f.sh) {
+          const d = fxShadowDist(lineH, f), sh = slice.map(p => recolor(p, f.sh)).filter(Boolean);
+          if (sh.length) out.push(`<g transform="translate(${n(d)} ${n(d)})" opacity="${n(clamp01(f.sho == null ? 0.35 : f.sho))}">`, ...sh, '</g>');
+        }
+        const olw = f.ol ? fxOutlineW(lineH, f) : 0;
+        if (olw) out.push(...slice.filter(isText).map(p => p.replace(/ fill="[^"]*"/, ` fill="${f.hol ? 'none' : f.ol}" stroke="${f.ol}" stroke-width="${n(olw * 2)}" stroke-linejoin="round"`)));
+        if (!(f.hol && olw)) out.push(...slice); else out.push(...slice.filter(p => !isText(p)));
+        if (f.rot) { out.unshift(`<g transform="rotate(${n(f.rot)} ${n(box.x + box.w / 2)} ${n(box.y + box.h / 2)})">`); out.push('</g>'); }
+        parts.splice(m, parts.length - m, ...out);
+      },
       textWidth: penTextWidthMm, fitText: fitTextSize, wrapText: wrapTextLines,
       svg() {
         while (openClips > 0) api.unclip();
@@ -245,6 +277,25 @@
     };
     return api;
   }
+
+  // medidas dos efeitos (mesma conta nas duas canetas)
+  function fxPad(box, f) {
+    const py = clamp01(f.bgp == null ? 0.3 : f.bgp) * Math.min(box.h, 24) * 0.9, px = py * 1.4 + Math.min(box.h, 24) * 0.12;
+    return { x: box.x - px, y: box.y - py, w: box.w + 2 * px, h: box.h + 2 * py };
+  }
+  // retângulo arredondado em operadores PDF (x,y,w,h,r em mm; X/Y/n da caneta)
+  function roundRectPath(X, Y, n, x, y, w, h, r) {
+    r = Math.max(0, Math.min(r || 0, w / 2, h / 2));
+    if (!r) return `${X(x)} ${Y(y + h)} ${n(w * PT)} ${n(h * PT)} re`;
+    const k = 0.5523 * r, P = (a, b) => `${X(a)} ${Y(b)}`;
+    return `${P(x + r, y)} m ${P(x + w - r, y)} l ${P(x + w - r + k, y)} ${P(x + w, y + r - k)} ${P(x + w, y + r)} c ` +
+      `${P(x + w, y + h - r)} l ${P(x + w, y + h - r + k)} ${P(x + w - r + k, y + h)} ${P(x + w - r, y + h)} c ` +
+      `${P(x + r, y + h)} l ${P(x + r - k, y + h)} ${P(x, y + h - r + k)} ${P(x, y + h - r)} c ` +
+      `${P(x, y + r)} l ${P(x, y + r - k)} ${P(x + r - k, y)} ${P(x + r, y)} c h`;
+  }
+  const fxRadius = (p, f) => clamp01(f.bgr || 0) * Math.min(p.w, p.h) / 2;
+  const fxShadowDist = (lineH, f) => (f.shd == null ? 0.4 : Math.max(0, Math.min(1, +f.shd))) * lineH * 0.14;
+  const fxOutlineW = (lineH, f) => Math.max(0.05, (f.olw == null ? 0.4 : Math.max(0, Math.min(1, +f.olw))) * lineH * 0.1);
 
   // formas vetoriais de uma ilustração, convertidas uma vez só
   const ART_SHAPES = new Map();
@@ -297,7 +348,7 @@
         if (s.cap) ops.push('0 J');
       },
       rect(x, y, w, h, s = {}) {
-        const re = `${X(x)} ${Y(y + h)} ${n(w * PT)} ${n(h * PT)} re`;
+        const re = s.rx ? roundRectPath(X, Y, n, x, y, w, h, s.rx) : `${X(x)} ${Y(y + h)} ${n(w * PT)} ${n(h * PT)} re`;
         if (s.fill) {
           const a = s.fillOpacity != null && s.fillOpacity < 1 ? clamp01(s.fillOpacity) : 1;
           if (a < 1) { ops.push(`q /${registerPdfGS(a)} gs`); curFill = null; setFill(s.fill); ops.push(`${re} f Q`); curFill = null; }
@@ -392,6 +443,54 @@
         const px = cx * PT + OX, py = H - (cy * PT + OY);
         const f = v => (+v).toFixed(5);
         ops.push(`q ${f(c)} ${f(si)} ${f(-si)} ${f(c)} ${f(px - c * px + si * py)} ${f(py - si * px - c * py)} cm`);
+      },
+      alpha(a) { ops.push(`q /${registerPdfGS(a)} gs`); reset(); },
+      // efeitos de um elemento (ver SvgPen.fxWrap). mark() zera o cache de cor
+      // para o trecho sempre declarar as próprias cores (dá para recolorir).
+      mark() { reset(); return ops.length; },
+      fxWrap(m, box, fx) {
+        const slice = ops.slice(m);
+        if (!slice.length || !box) return;
+        const nLines = Math.max(1, slice.filter(o => o === 'BT').length);
+        const lineH = box.h / nLines;
+        const hasText = nLines && slice.includes('BT');
+        const tag = c => `{c:${hex6(c)}}`;
+        const recolor = c => slice.map(o => o.replace(/\{c:[0-9a-f]{6}\} (rg|RG)/g, `${tag(c)} $1`));
+        const out = [];
+        const op = fx.op != null ? clamp01(fx.op) : 1;
+        if (fx.rot) {
+          const t = -fx.rot * Math.PI / 180, c = Math.cos(t), si = Math.sin(t);
+          const px = (box.x + box.w / 2) * PT + OX, py = H - ((box.y + box.h / 2) * PT + OY), f = v => (+v).toFixed(5);
+          out.push(`q ${f(c)} ${f(si)} ${f(-si)} ${f(c)} ${f(px - c * px + si * py)} ${f(py - si * px - c * py)} cm`);
+        }
+        if (fx.bg) {
+          const p = fxPad(box, fx), r = fxRadius(p, fx), a = clamp01(fx.bgo == null ? 1 : fx.bgo) * op;
+          out.push('q'); if (a < 1) out.push(`/${registerPdfGS(a)} gs`);
+          out.push(`${tag(fx.bg)} rg`, roundRectPath(X, Y, n, p.x, p.y, p.w, p.h, r) + ' f', 'Q');
+        }
+        if (fx.sh) {
+          const d = fxShadowDist(lineH, fx) * PT, a = clamp01(fx.sho == null ? 0.35 : fx.sho);
+          out.push('q', `/${registerPdfGS(a)} gs`, `1 0 0 1 ${n(d)} ${n(-d)} cm`, ...recolor(fx.sh), 'Q');
+        }
+        const olw = fx.ol && hasText ? fxOutlineW(lineH, fx) : 0;
+        if (olw) {
+          // só os blocos de texto (BT…ET), com a transparência que cada um tinha
+          const body = [];
+          let alpha = '', cap = null;
+          slice.forEach(o => {
+            const g = /^q (\/\S+ gs)$/.exec(o);
+            if (g) alpha = g[1];
+            else if (o === 'Q') alpha = '';
+            else if (o === 'BT') cap = [];
+            else if (o === 'ET' && cap) { body.push('q', ...(alpha ? [alpha] : []), `${tag(fx.ol)} rg`, `BT ${fx.hol ? 1 : 2} Tr`, ...cap, 'ET', 'Q'); cap = null; }
+            else if (cap) cap.push(o);
+          });
+          out.push('q', `${tag(fx.ol)} RG`, `${n(olw * 2 * PT)} w 1 j 1 J`, ...body, 'Q');
+        }
+        if (!(fx.hol && olw)) out.push(...slice);
+        if (fx.rot) out.push('Q');
+        ops.splice(m, ops.length - m, ...out);
+        reset();
       },
       textWidth: penTextWidthMm, fitText: fitTextSize, wrapText: wrapTextLines,
       stream() { return ops.join('\n'); },

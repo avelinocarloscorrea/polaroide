@@ -47,7 +47,7 @@ function mSync(){
   $('#me_capfont').value=s.captionFont;
   mStepSet('captionSizePt', s.captionSizePt);
   $('#me_effect').value=s.tape;
-  $('#me_bg').value=s.pageBg; $('#me_card').value=s.cardColor; $('#me_capcolor').value=s.captionColor;
+  $('#me_card').value=s.cardColor; $('#me_capcolor').value=s.captionColor;
   mSegSet('#me_marks', s.cornerMarks?'1':'0');
   mSegSet('#me_cardline', s.cardLine?'1':'0');
   mSegSet('#mx_dpi', s.exportDPI);
@@ -102,7 +102,8 @@ function mBindPanels(){
   mRng('#me_tilt','tiltDeg',v=>v+'°');
   $('#me_capfont').onchange=e=>{ pushHistory('font'); state.settings.captionFont=e.target.value; render(); save(); };
   $('#me_effect').onchange=e=>{ pushHistory('tape'); state.settings.tape=e.target.value; render(); save(); };
-  $('#me_bg').oninput=e=>{ state.settings.pageBg=e.target.value; render(); save(); };
+  { const b=$('#me_bgBtn'); if(b) b.onclick=()=>{ if(typeof openBackgroundPop==='function') openBackgroundPop(); }; }
+  { const b=$('#me_wmBtn'); if(b) b.onclick=()=>{ if(typeof openWatermarkPop==='function') openWatermarkPop(); }; }
   $('#me_card').oninput=e=>{ state.settings.cardColor=e.target.value; applyVars(); render(); save(); };
   $('#me_capcolor').oninput=e=>{ state.settings.captionColor=e.target.value; applyVars(); render(); save(); };
   mSeg('#me_marks',v=>{ pushHistory('cut'); state.settings.cornerMarks=(v==='1'); syncControls(); render(); save(); });
@@ -121,8 +122,7 @@ function mBindPanels(){
   if(sc) sc.addEventListener('input',()=>{
     const ph=(typeof cur==='function')?cur():null; if(!ph) return;
     ph.caption=sanitizeText(sc.value,500);
-    const t=sheetsEl.querySelector(`.pol[data-id="${ph.id}"] .capfield`);
-    if(t) t.value=ph.caption;
+    const el=sheetsEl.querySelector(`.pol[data-id="${ph.id}"]`); if(el) paintCaption(el,ph);
     save();
   });
 

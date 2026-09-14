@@ -31,9 +31,8 @@ function mBindSheet(){
   if(cap) cap.addEventListener('input',()=>{
     const ph=(typeof cur==='function')?cur():null; if(!ph) return;
     ph.caption=sanitizeText(cap.value,500);
-    const t=sheetsEl.querySelector(`.pol[data-id="${ph.id}"] .capfield`);
-    if(t){ t.value=ph.caption; t.dispatchEvent(new Event('input')); }
-    else save();
+    const el=sheetsEl.querySelector(`.pol[data-id="${ph.id}"]`); if(el) paintCaption(el,ph);
+    save();
     const s2=$('#s_caption'); if(s2 && s2!==document.activeElement) s2.value=ph.caption;
   });
 

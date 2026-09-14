@@ -66,7 +66,44 @@ function migrateSettings(s){
     const first=String(s.captionFont||'').split(',')[0].replace(/["']/g,'').trim();
     s.captionFont=FONT_MIGRATE[first]||BASE_FONTS[0].v;
   }
+  // fundo, marca d'água e estilo da legenda no modelo único do núcleo
+  // (background.js / watermark.js / text-fx.js). Projetos antigos: a cor ou o
+  // degradê da folha e o espaçamento/sombra da legenda viram o formato novo.
+  if(!s.designV){
+    const b=s.bg&&typeof s.bg==='object'?s.bg:null;
+    if(!(b&&b.kind&&b.kind!=='none')){
+      if(s.bgGradient) s.bg={kind:'gradient',c1:s.pageBg,c2:s.pageBg2,angle:s.bgAngle};
+      else if(HEX.test(s.pageBg||'')&&s.pageBg.toLowerCase()!=='#ffffff') s.bg={kind:'color',c1:s.pageBg};
+    }
+    const fx=s.capFx&&typeof s.capFx==='object'?{...s.capFx}:{};
+    if(+s.captionSpacing && fx.ls==null) fx.ls=(+s.captionSpacing*25.4/96)/(s.captionSizePt/(72/25.4));
+    if(s.captionShadow && !fx.sh) Object.assign(fx,{sh:'#000000',shd:0.25,sho:0.3});
+    s.capFx=fx;
+    s.designV=1;
+  }
+  delete s.captionSpacing; delete s.captionShadow;
+  s.bg=EPBackground.clean(s.bg);
+  s.wm=EPWatermark.clean(s.wm);
+  s.capFx=EPTextFx.clean(s.capFx);
+  delete s.capFx.fam; delete s.capFx.color; delete s.capFx.bold; delete s.capFx.italic; delete s.capFx.upper; delete s.capFx.s; delete s.capFx.hide;
+  s.extras=cleanExtras(s.extras);
   return s;
+}
+// textos, ilustrações e imagens soltos na folha: page = índice da folha, ou -1 (todas)
+const DATA_IMG=/^data:image\/(png|jpeg|webp|gif);base64,[A-Za-z0-9+/=]+$/;
+function cleanExtras(raw){
+  if(!Array.isArray(raw)) return [];
+  const isArt=id=>typeof EPArt!=='undefined'?EPArt.isId(id):/^[a-z0-9-]+\/[a-z0-9-]+$/.test(id||'');
+  return raw.slice(0,120).map(x=>{
+    x=x&&typeof x==='object'?x:{};
+    const type=['image','art'].includes(x.type)?x.type:'text';
+    return {...EPTextFx.clean(x),
+      id:/^[A-Za-z0-9_-]{1,24}$/.test(x.id||'')?x.id:uid(), type,
+      page:Number.isInteger(x.page)&&x.page>=-1&&x.page<400?x.page:-1,
+      text:type==='text'?sanitizeText(x.text||'',400):'',
+      art:type==='art'&&isArt(x.art)?x.art:'',
+      src:type==='image'&&typeof x.src==='string'&&x.src.length<4e6&&DATA_IMG.test(x.src)?x.src:''};
+  }).filter(x=>x.type==='text'||x.art||x.src);
 }
 const KEY='polaroide-a4-v2';
 const UIKEY='polaroide-ui-v1';

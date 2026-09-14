@@ -31,6 +31,7 @@ async function ensureFullImages(){
   }
 }
 async function ensureFonts(){
+  try{ if(typeof EPArt!=='undefined') await EPArt.ensure(usedArt()); }catch(e){}
   try{
     await document.fonts.ready;
     const fam=state.settings.captionFont.split(',')[0].replace(/["']/g,'').trim();
@@ -40,34 +41,34 @@ async function ensureFonts(){
 }
 // opts.back: verso da folha (frente e verso, virar pela borda longa) — as
 // posições espelham na horizontal para cada verso cair atrás do seu card.
+// Tudo o que depende do estado é lido ANTES do primeiro await (as miniaturas
+// dos modelos trocam `state` só durante a parte síncrona): fundo/marca d'água
+// e legendas/elementos viram SVG (a mesma caneta da tela) e as fotos são
+// guardadas por referência.
 async function drawPage(pageIndex,dpi,opts={}){
   const s=state.settings, g=geom(), L=layout();
   const px=mm=>mm*dpi/25.4;
   const cv=document.createElement('canvas');
   cv.width=Math.round(px(L.PW)); cv.height=Math.round(px(L.PH));
   const ctx=cv.getContext('2d');
-  if(s.bgGradient){
-    const th=s.bgAngle*Math.PI/180, dx=Math.sin(th), dy=-Math.cos(th);
-    const cx=cv.width/2, cy=cv.height/2, r=Math.hypot(cv.width,cv.height)/2;
-    const grd=ctx.createLinearGradient(cx-dx*r,cy-dy*r,cx+dx*r,cy+dy*r);
-    grd.addColorStop(0,s.pageBg); grd.addColorStop(1,s.pageBg2);
-    ctx.fillStyle=grd;
-  }else ctx.fillStyle=s.pageBg;
-  ctx.fillRect(0,0,cv.width,cv.height);
-  const slice=state.photos.slice(pageIndex*L.perPage,(pageIndex+1)*L.perPage);
-  const blockW=L.cols*g.polW+(L.cols-1)*s.gapMm;
-  const A=printArea();
-  const originX=s.align==='center'?(L.PW-blockW)/2:A.m;
-  for(let i=0;i<slice.length;i++){
-    const ph=slice[i], col=i%L.cols, row=Math.floor(i/L.cols);
-    const x=originX+col*(g.polW+s.gapMm), y=A.m+row*(g.polH+s.gapMm);
-    if(opts.back) drawPolBack(ctx,px,ph,L.PW-x-g.polW,y,g);
-    else drawPol(ctx,px,ph,x,y,g,dpi,markSegs(col,row,L,g));
-  }
+  ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,cv.width,cv.height);
+  const under=underSVG(), over=pageOverExportSVG(pageIndex,opts);
+  const slice=pagePhotos(pageIndex,L);
+  const jobs=slice.map((ph,i)=>{
+    const col=i%L.cols, row=Math.floor(i/L.cols), c=cardPos(i,L,g);
+    return {ph, m:media[ph.id], x:c.x, y:c.y, tilt:tiltOf(ph), marks:markSegs(col,row,L,g), filter:cssFilter(ph)};
+  });
+  const [imU,imO]=await Promise.all([svgImage(under),svgImage(over)]);
+  if(imU) ctx.drawImage(imU,0,0,cv.width,cv.height);
+  jobs.forEach(j=>{
+    if(opts.back) drawPolBack(ctx,px,j.ph,L.PW-j.x-g.polW,j.y,g,s,j.tilt);
+    else drawPol(ctx,px,j,g,s);
+  });
+  if(imO) ctx.drawImage(imO,0,0,cv.width,cv.height);
   return cv;
 }
-function drawPol(ctx,px,ph,xMm,yMm,g,dpi,marks){
-  const s=state.settings, tilt=tiltOf(ph);
+function drawPol(ctx,px,job,g,s){
+  const {ph,x:xMm,y:yMm,tilt,marks,m}=job;
   const w=px(g.polW),h=px(g.polH);
   ctx.save();
   ctx.translate(px(xMm)+w/2,px(yMm)+h/2);
@@ -78,12 +79,11 @@ function drawPol(ctx,px,ph,xMm,yMm,g,dpi,marks){
 
   const wx=px(g.frame),wy=px(g.top),ww=px(g.winW),wh=px(g.winH);
   ctx.save(); ctx.beginPath(); ctx.rect(wx,wy,ww,wh); ctx.clip();
-  const m=media[ph.id];
   if(m&&m.fullImg){
     const img=m.fullImg, iw=img.naturalWidth, ih=img.naturalHeight;
     const f=Math.max(ww/iw,wh/ih)*ph.zoomF, dw=iw*f, dh=ih*f;
     const icx=wx+ww/2+(ph.ox/100)*ww, icy=wy+wh/2+(ph.oy/100)*wh;
-    ctx.filter=cssFilter(ph);
+    ctx.filter=job.filter;
     ctx.save(); ctx.translate(icx,icy);
     if(ph.rot) ctx.rotate(ph.rot*Math.PI/180);
     if(ph.flipH) ctx.scale(-1,1);
@@ -97,19 +97,6 @@ function drawPol(ctx,px,ph,xMm,yMm,g,dpi,marks){
   }else{ ctx.fillStyle='#e9e9e9'; ctx.fillRect(wx,wy,ww,wh); }
   ctx.restore();
 
-  const capRaw=(ph.caption||'').trim();
-  if(capRaw&&g.cap>1){
-    const cap = s.captionUpper ? capRaw.toUpperCase() : capRaw;
-    ctx.fillStyle=s.captionColor;
-    const fpx=s.captionSizePt*dpi/72;
-    ctx.font=`${s.captionItalic?'italic ':''}${s.captionBold?'700 ':'400 '}${fpx}px ${s.captionFont}`;
-    ctx.textAlign='center'; ctx.textBaseline='middle';
-    try{ ctx.letterSpacing=((s.captionSpacing||0)*dpi/96)+'px'; }catch(_){}
-    if(s.captionShadow){ ctx.shadowColor='rgba(0,0,0,0.30)'; ctx.shadowBlur=Math.max(1,px(0.25)); ctx.shadowOffsetY=Math.max(1,px(0.25)); }
-    wrapText(ctx,cap,w/2,px(g.top+g.winH)+px(g.cap)/2,w-px(6),fpx*1.16);
-    ctx.shadowColor='transparent'; ctx.shadowBlur=0; ctx.shadowOffsetY=0;
-    try{ ctx.letterSpacing='0px'; }catch(_){}
-  }
   if(s.cardLine){
     ctx.strokeStyle=s.cardLineColor||'#c9c9c9'; ctx.lineWidth=Math.max(1,px(0.2));
     roundRect(ctx,0,0,w,h,px(s.radiusMm)); ctx.stroke();
@@ -129,8 +116,8 @@ function drawPol(ctx,px,ph,xMm,yMm,g,dpi,marks){
   ctx.restore();
 }
 // verso do card: legenda e data da foto (ou linhas para escrever à mão)
-function drawPolBack(ctx,px,ph,xMm,yMm,g){
-  const s=state.settings, tilt=-tiltOf(ph);
+function drawPolBack(ctx,px,ph,xMm,yMm,g,s,t){
+  const tilt=-t;
   const w=px(g.polW),h=px(g.polH);
   ctx.save();
   ctx.translate(px(xMm)+w/2,px(yMm)+h/2);

@@ -103,8 +103,8 @@ function asyncThumb(settings) {
 }
 
 /* ================= galeria ================= */
-const TPL_CATS = [{ id: 'polaroide', label: 'Polaroide' }, { id: 'foto', label: 'Fotos e cartelas' }];
-const TPL_CAT = { classico: 'polaroide', memories: 'polaroide', scrapbook: 'polaroide', minimal: 'polaroide', instax: 'foto', contato: 'foto', retrato: 'foto' };
+const TPL_CATS = [{ id: 'estilo', label: 'Com estilo' }, { id: 'polaroide', label: 'Polaroide' }, { id: 'foto', label: 'Fotos e cartelas' }];
+const TPL_CAT = { piquenique: 'estilo', noite: 'estilo', amor: 'estilo', viagem: 'estilo', galeria: 'estilo', classico: 'polaroide', memories: 'polaroide', scrapbook: 'polaroide', minimal: 'polaroide', instax: 'foto', contato: 'foto', retrato: 'foto' };
 let _pendingTpl = null, _tplChosen = false, _prevCount = -1;
 function galleryItems(forPanel) {
   const items = [];

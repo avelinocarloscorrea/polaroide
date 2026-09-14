@@ -23,8 +23,6 @@ function applyVars(){
   r.setProperty('--capWeight',s.captionBold?'700':'400');
   r.setProperty('--capStyle',s.captionItalic?'italic':'normal');
   r.setProperty('--capTransform',s.captionUpper?'uppercase':'none');
-  r.setProperty('--capSpacing',(s.captionSpacing||0)+'px');
-  r.setProperty('--capShadow',s.captionShadow?'0 1px 1px rgba(0,0,0,.30)':'none');
   r.setProperty('--cardBg',s.cardColor);
   r.setProperty('--pm',Math.max(s.marginMm,minMargin(s.pageSize))+'mm');   // margem de segurança (guia na tela)
   const cut = s.cardLine ? `0 0 0 .2mm ${s.cardLineColor}` : null;
@@ -72,66 +70,29 @@ function polEl(ph,idx=0,L=layout()){
       `<div class="win-missing"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"/><path d="M21 15V6a2 2 0 0 0-2-2H8M3 8v11a2 2 0 0 0 2 2h11"/><circle cx="8.5" cy="9.5" r="1.2"/><path d="M4 16l3.5-3.5a1.6 1.6 0 0 1 2.2 0L14 17"/></svg><span>Foto perdida neste navegador</span></div>`);
   }
 
-  // legenda: <textarea> plano dentro de um wrapper centralizado.
+  // legenda: desenhada pela caneta do núcleo (js/design.js) num <svg> por cima
+  // do card — gira junto com ele. Escrever e estilizar: tocando nela (js/sheet-edit.js).
   const cap=document.createElement('div'); cap.className='cap';
-  const ta=document.createElement('textarea');
-  ta.className='capfield'; ta.rows=1; ta.spellcheck=false; ta.maxLength=500;
-  ta.value=ph.caption||'';   // sem legenda = faixa branca (igual à impressão)
-  ta.setAttribute('aria-label','Legenda da foto');
-  ta.title='Clique para escrever a legenda';
-  const grow=()=>{ ta.style.height='auto'; ta.style.height=ta.scrollHeight+'px'; };
-  ta.addEventListener('focus',()=>select(ph.id));
-  ta.addEventListener('input',()=>{
-    ph.caption=ta.value;
-    if(selectedId===ph.id){ const th=$('#s_thumb'); if(th) th.title=ta.value; }
-    grow(); save();
-  });
-  cap.appendChild(ta);
-  // g.cap<1 já é coberto pelo CSS (.cap{height:var(--caption);overflow:hidden}
-  // colapsa pra ~0 sozinho) — tinha um SEGUNDO mecanismo aqui (display:none
-  // via JS) fazendo a mesma coisa por outro caminho. Duas fontes de verdade
-  // pro mesmo estado é terreno fértil pra desincronizar; fica só uma.
-  requestAnimationFrame(grow);
 
+  // computador: arrastar a foto (mesmo sem selecionar) reenquadra na hora.
+  // Toque/clique parado seleciona na folha (sheet-edit.js). No celular o
+  // arraste rola a folha — reenquadrar é com a foto selecionada.
   win.addEventListener('pointerdown',e=>{
-    if(e.button!==0) return;
-    if(e.pointerType==='touch' && e.isPrimary===false) return;   // 2º dedo = pinça, não arrasto
-
-    // No celular, reenquadrar só acontece com a folha "Ajustar" aberta. Fora
-    // dela o toque na foto seleciona e o arraste rola a folha — nunca move a
-    // imagem sem querer.
-    const mob=matchMedia('(max-width:820px)').matches;
-    const med=document.getElementById('medit');
-    const editing=!!med && med.classList.contains('open');
-    if(mob && !editing){
-      // sem captura de ponteiro: a folha rola normalmente. Só detecta se foi
-      // um toque parado (marca a foto) ou um arraste (deixa rolar).
-      const sx=e.clientX,sy=e.clientY; let moved2=false;
-      const mvT=ev=>{ if(Math.abs(ev.clientX-sx)+Math.abs(ev.clientY-sy)>10) moved2=true; };
-      const done=()=>{ clearTimeout(safety);
-        win.removeEventListener('pointermove',mvT); win.removeEventListener('pointerup',upT);
-        win.removeEventListener('pointercancel',done); };
-      const upT=()=>{ done(); if(!moved2) select(ph.id); };
-      const safety=setTimeout(done,600);
-      win.addEventListener('pointermove',mvT); win.addEventListener('pointerup',upT);
-      win.addEventListener('pointercancel',done);
-      return;
-    }
-
-    select(ph.id);
+    if(e.button!==0 || e.pointerType==='touch' || matchMedia('(max-width:820px)').matches) return;
     const rect=win.getBoundingClientRect();
-    const sx=e.clientX,sy=e.clientY,sox=ph.ox,soy=ph.oy; let moved=false,hist=false;
+    const sx=e.clientX,sy=e.clientY,sox=ph.ox,soy=ph.oy; let moved=false;
     win.setPointerCapture(e.pointerId); win.classList.add('drag');
     const mv=ev=>{
-      if(typeof _pinch!=='undefined' && _pinch) return;          // congela a foto durante a pinça
       const dx=ev.clientX-sx,dy=ev.clientY-sy;
-      if(!moved&&Math.abs(dx)+Math.abs(dy)>3){ moved=true; if(!hist){pushHistory('pan');hist=true;} }
+      if(!moved&&Math.abs(dx)+Math.abs(dy)>4){ moved=true; pushHistory('pan'); }
+      if(!moved) return;
       ph.ox=clamp(sox+dx/rect.width*100,-90,90);
       ph.oy=clamp(soy+dy/rect.height*100,-90,90);
       img.style.transform=imgTransform(ph);
     };
-    const up=()=>{ win.releasePointerCapture(e.pointerId); win.classList.remove('drag');
-      win.removeEventListener('pointermove',mv); win.removeEventListener('pointerup',up); if(moved) save(); };
+    const up=()=>{ try{ win.releasePointerCapture(e.pointerId); }catch(_){} win.classList.remove('drag');
+      win.removeEventListener('pointermove',mv); win.removeEventListener('pointerup',up);
+      if(moved){ save(); window._panMovedAt=Date.now(); } };
     win.addEventListener('pointermove',mv); win.addEventListener('pointerup',up);
   });
 
@@ -157,6 +118,7 @@ function polEl(ph,idx=0,L=layout()){
   }
 
   pol.append(handle,badge,win,cap);
+  paintCaption(pol,ph,g);
 
   // efeitos "presos" nos cantos da foto — fita, grampo, mini brad, percevejo.
   // Vão dentro de .decorclip, que recorta tudo no contorno do card: nada
@@ -187,18 +149,15 @@ function render(){
   currentPage=clamp(currentPage,0,L.pages-1);
   sheetsEl.innerHTML='';
   for(let p=0;p<L.pages;p++){
-    const page=document.createElement('div'); page.className='page';
+    const page=document.createElement('div'); page.className='page'; page.dataset.idx=p;
     page.style.width=L.PW+'mm'; page.style.height=L.PH+'mm';
-    page.style.background=s.bgGradient
-      ? `linear-gradient(${s.bgAngle}deg, ${s.pageBg}, ${s.pageBg2})`
-      : s.pageBg;
     const grid=document.createElement('div');
     grid.className='grid '+(s.align==='center'?'center':'left');
     grid.style.padding=Math.max(s.marginMm,minMargin(s.pageSize))+'mm';
     grid.style.gap=s.gapMm+'mm';
     grid.style.gridTemplateColumns=`repeat(${L.cols}, ${geom().polW}mm)`;
     state.photos.slice(p*L.perPage,(p+1)*L.perPage).forEach((ph,i)=>grid.appendChild(polEl(ph,i,L)));
-    page.appendChild(grid); sheetsEl.appendChild(page);
+    page.appendChild(grid); paintPageLayers(page,p); sheetsEl.appendChild(page);
   }
   applyZoom();
   $('#empty').hidden=state.photos.length>0;

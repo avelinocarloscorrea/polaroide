@@ -35,18 +35,20 @@
 <meta name="twitter:title" content="Polaroide Studio — monte polaroides prontos para imprimir">
 <meta name="twitter:description" content="Monte polaroides numa folha pronta para imprimir, sem cadastro e sem enviar suas fotos a servidor nenhum.">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/arimo-latin-400-normal.woff2">
-<link rel="stylesheet" href="css/base.css?v=260914200351">
-<link rel="stylesheet" href="css/layout.css?v=260914200351">
-<link rel="stylesheet" href="css/polaroid.css?v=260914200351">
-<link rel="stylesheet" href="css/effects.css?v=260914200351">
-<link rel="stylesheet" href="css/components.css?v=260914200351">
-<link rel="stylesheet" href="css/util.css?v=260914200351">
-<link rel="stylesheet" href="css/print.css?v=260914200351">
-<link rel="stylesheet" href="css/m-shell.css?v=260914200351">
-<link rel="stylesheet" href="css/m-panels.css?v=260914200351">
-<link rel="stylesheet" href="css/m-sheet.css?v=260914200351">
-<link rel="stylesheet" href="vendor/core/fonts/fonts.css?v=260914200351">
-<link rel="stylesheet" href="vendor/core/shell.css?v=260914200351">
+<link rel="stylesheet" href="css/base.css?v=260914225250">
+<link rel="stylesheet" href="css/layout.css?v=260914225250">
+<link rel="stylesheet" href="css/polaroid.css?v=260914225250">
+<link rel="stylesheet" href="css/effects.css?v=260914225250">
+<link rel="stylesheet" href="css/components.css?v=260914225250">
+<link rel="stylesheet" href="css/util.css?v=260914225250">
+<link rel="stylesheet" href="css/print.css?v=260914225250">
+<link rel="stylesheet" href="css/m-shell.css?v=260914225250">
+<link rel="stylesheet" href="css/m-panels.css?v=260914225250">
+<link rel="stylesheet" href="css/m-sheet.css?v=260914225250">
+<link rel="stylesheet" href="vendor/core/fonts/fonts.css?v=260914225250">
+<link rel="stylesheet" href="vendor/core/canvas-edit.css?v=260914225250">
+<link rel="stylesheet" href="vendor/core/studio-ui.css?v=260914225250">
+<link rel="stylesheet" href="vendor/core/shell.css?v=260914225250">
 </head>
 <body class="booting">
 <div id="app">
@@ -165,29 +167,36 @@
       </section>
 
       <section class="pane" data-pane="estilo" hidden>
-        <header class="pane-h"><h2>Estilo</h2><p>Cores, legenda e o efeito de fita, grampo ou percevejo.</p></header>
+        <header class="pane-h"><h2>Estilo</h2><p>Fundo, cores, legenda, marca d'água e o efeito de fita, grampo ou percevejo.</p></header>
+        <div class="grp-block">
+          <div class="grp-title">Fundo da folha</div>
+          <div id="bgHost"></div>
+        </div>
         <div class="grp-block">
           <div class="grp-title">Cores</div>
-          <label>Fundo da folha <input type="color" id="c_bg"></label>
-          <label class="row"><input type="checkbox" id="c_bgGrad"> Fundo em degradê</label>
-          <label id="c_bg2Row" hidden>Segunda cor <input type="color" id="c_bg2"></label>
-          <label id="c_bgAngleRow" hidden>Ângulo <span class="v" id="v_bgang"></span><input type="range" id="c_bgang" min="0" max="360" step="5"></label>
           <label>Card do polaroide <input type="color" id="c_cardColor"></label>
           <label>Texto da legenda <input type="color" id="c_capColor"></label>
           <button id="c_resetColors" class="wfull ghost">Restaurar cores padrão</button>
         </div>
         <div class="grp-block">
           <div class="grp-title">Legenda</div>
+          <p class="hint"><b>Toque na legenda de qualquer foto</b> para escrever, mover, girar e aplicar contorno, fundo ou sombra. O estilo vale para todas as fotos.</p>
           <div class="grp" id="capStyleRow"></div>
           <label>Fonte <select id="c_font"></select></label>
           <label>Tamanho <span class="v" id="v_fs"></span><input type="range" id="c_fs" min="6" max="40" step="1"></label>
-          <label>Espaçamento entre letras <span class="v" id="v_ls"></span><input type="range" id="c_ls" min="-2" max="8" step="0.1"></label>
+          <label>Espaçamento entre letras <span class="v" id="v_ls"></span><input type="range" id="c_ls" min="-10" max="100" step="1"></label>
           <div class="grp">
             <button class="chip" id="c_bold">Negrito</button>
             <button class="chip" id="c_italic">Itálico</button>
             <button class="chip" id="c_upper">Caixa alta</button>
             <button class="chip" id="c_shadowtxt">Sombra</button>
           </div>
+          <span class="fld-lbl">Efeitos</span>
+          <div class="cap-fx" id="capFxRow"></div>
+        </div>
+        <div class="grp-block">
+          <div class="grp-title">Marca d'água</div>
+          <div id="wmHost"></div>
         </div>
         <div class="grp-block">
           <div class="grp-title">Fixação</div>
@@ -266,6 +275,7 @@
             </div>
             <div class="ep-flow" aria-hidden="true"><span class="on"><b>1</b>Modelo</span><i></i><span><b>2</b>Fotos</span><i></i><span><b>3</b>Imprimir</span></div>
           </div>
+          <div id="ob_projects" hidden></div>
           <div class="ep-drop" id="ob_drop">
             <span class="ep-drop__ic" data-i="imageplus"></span>
             <div class="ep-drop__tx"><b id="ob_dropTitle">Já tem as fotos? Comece por elas</b><span id="ob_dropSub">Arraste as imagens para cá ou cole com Ctrl+V. Usa o modelo clássico — dá para trocar depois.</span></div>
@@ -436,7 +446,7 @@
             <option value="pin-top">Percevejo — no topo</option>
           </select></div>
         <h3>Cores</h3>
-        <div class="mrow"><span class="k">Fundo da folha</span><input type="color" id="me_bg"></div>
+        <div class="m2"><button class="mbig" id="me_bgBtn">Fundo da folha…</button><button class="mbig" id="me_wmBtn">Marca d'água…</button></div>
         <div class="mrow"><span class="k">Card do polaroide</span><input type="color" id="me_card"></div>
         <div class="mrow"><span class="k">Texto da legenda</span><input type="color" id="me_capcolor"></div>
         <h3>Acabamento</h3>
@@ -464,11 +474,12 @@
           </div></div>
         <p class="hint">Na impressora: <b>Escala 100%</b> e <b>Margens: nenhuma</b>. Depois recorte pelas marcas.</p>
         <h3>Projeto</h3>
+        <button class="mbig primary" id="mx_projects" data-i="folder">Meus projetos</button>
         <div class="m2">
-          <button class="mbig" id="mx_save" data-i="save">Salvar</button>
-          <button class="mbig" id="mx_open" data-i="folder">Abrir</button>
+          <button class="mbig" id="mx_save" data-i="download">Baixar .json</button>
+          <button class="mbig" id="mx_open" data-i="folder">Abrir .json</button>
         </div>
-        <p class="hint">O trabalho fica só neste aparelho. <b>Salvar</b> baixa um <code>.json</code> para backup ou para abrir em outro lugar.</p>
+        <p class="hint"><b>Meus projetos</b> guarda cópias só neste aparelho. O <code>.json</code> serve de backup ou para abrir em outro lugar.</p>
         <h3>Ajuda</h3>
         <a class="mbig" id="mx_guide" href="guia.html" target="_blank" rel="noopener noreferrer" data-i="page">Guia do usuário</a>
       </div>
@@ -502,8 +513,10 @@
 <div id="menu" class="scrl" hidden>
   <div class="menu-h">Projeto</div>
   <button id="m_new" data-i="filenew">Novo projeto…</button>
-  <button id="m_save" data-i="save">Salvar projeto (.json)</button>
-  <button id="m_open" data-i="folder">Abrir projeto…</button>
+  <button id="m_projects" data-i="folder">Meus projetos (neste computador)…</button>
+  <button id="m_saveLocal" data-i="save">Salvar em Meus projetos</button>
+  <button id="m_save" data-i="download">Baixar arquivo do projeto (.json)</button>
+  <button id="m_open" data-i="folder">Abrir arquivo de projeto…</button>
   <button id="m_preset" data-i="save">Salvar predefinição (só ajustes)</button>
   <button id="m_history" data-i="clock">Histórico de alterações</button>
   <div class="msep"></div>
@@ -626,28 +639,43 @@
   </div>
 </dialog>
 
-<script defer src="vendor/core/shell.js?v=260914200351"></script>
-<script defer src="vendor/core/fonts/metrics.js?v=260914200351"></script>
-<script defer src="vendor/core/ttf.js?v=260914200351"></script>
-<script defer src="vendor/core/jpeg.js?v=260914200351"></script>
-<script defer src="vendor/core/color.js?v=260914200351"></script>
-<script defer src="vendor/core/pdf.js?v=260914200351"></script>
-<script defer src="vendor/core/pen.js?v=260914200351"></script>
-<script defer src="vendor/core/print.js?v=260914200351"></script>
-<script defer src="js/config.js?v=260914200351"></script>
-<script defer src="js/state.js?v=260914200351"></script>
-<script defer src="js/images.js?v=260914200351"></script>
-<script defer src="js/layout.js?v=260914200351"></script>
-<script defer src="js/render.js?v=260914200351"></script>
-<script defer src="js/history.js?v=260914200351"></script>
-<script defer src="js/export.js?v=260914200351"></script>
-<script defer src="js/ui.js?v=260914200351"></script>
-<script defer src="js/wizard.js?v=260914200351"></script>
-<script defer src="js/m-core.js?v=260914200351"></script>
-<script defer src="js/m-panels.js?v=260914200351"></script>
-<script defer src="js/m-sheet.js?v=260914200351"></script>
-<script defer src="js/m-install.js?v=260914200351"></script>
-<script defer src="js/events.js?v=260914200351"></script>
-<script defer src="js/shell-ui.js?v=260914200351"></script>
+<script defer src="vendor/core/shell.js?v=260914225250"></script>
+<script defer src="vendor/core/studio-ui.js?v=260914225250"></script>
+<script defer src="vendor/core/fonts/metrics.js?v=260914225250"></script>
+<script defer src="vendor/core/ttf.js?v=260914225250"></script>
+<script defer src="vendor/core/jpeg.js?v=260914225250"></script>
+<script defer src="vendor/core/color.js?v=260914225250"></script>
+<script defer src="vendor/core/pdf.js?v=260914225250"></script>
+<script defer src="vendor/core/pen.js?v=260914225250"></script>
+<script defer src="vendor/core/print.js?v=260914225250"></script>
+<script defer src="vendor/core/svgart.js?v=260914225250"></script>
+<script defer src="vendor/core/art.js?v=260914225250"></script>
+<script defer src="vendor/core/art/index.js?v=260914225250"></script>
+<script defer src="vendor/core/art-picker.js?v=260914225250"></script>
+<script defer src="vendor/core/text-fx.js?v=260914225250"></script>
+<script defer src="vendor/core/background.js?v=260914225250"></script>
+<script defer src="vendor/core/watermark.js?v=260914225250"></script>
+<script defer src="vendor/core/canvas-edit-text.js?v=260914225250"></script>
+<script defer src="vendor/core/canvas-edit-bar.js?v=260914225250"></script>
+<script defer src="vendor/core/canvas-edit.js?v=260914225250"></script>
+<script defer src="vendor/core/projects.js?v=260914225250"></script>
+<script defer src="js/config.js?v=260914225250"></script>
+<script defer src="js/state.js?v=260914225250"></script>
+<script defer src="js/images.js?v=260914225250"></script>
+<script defer src="js/layout.js?v=260914225250"></script>
+<script defer src="js/design.js?v=260914225250"></script>
+<script defer src="js/render.js?v=260914225250"></script>
+<script defer src="js/history.js?v=260914225250"></script>
+<script defer src="js/export.js?v=260914225250"></script>
+<script defer src="js/ui.js?v=260914225250"></script>
+<script defer src="js/wizard.js?v=260914225250"></script>
+<script defer src="js/m-core.js?v=260914225250"></script>
+<script defer src="js/m-panels.js?v=260914225250"></script>
+<script defer src="js/m-sheet.js?v=260914225250"></script>
+<script defer src="js/m-install.js?v=260914225250"></script>
+<script defer src="js/events.js?v=260914225250"></script>
+<script defer src="js/shell-ui.js?v=260914225250"></script>
+<script defer src="js/sheet-edit.js?v=260914225250"></script>
+<script defer src="js/design-ui.js?v=260914225250"></script>
 </body>
 </html>

@@ -46,17 +46,15 @@ function syncControls(){
   $('#c_marks').checked=s.cornerMarks;
   setR('#c_mo',s.markOffset,s.markOffset+' mm');
   setR('#c_ml',s.markLen,s.markLen+' mm');
-  $('#c_cardColor').value=s.cardColor; $('#c_bg').value=s.pageBg; $('#c_capColor').value=s.captionColor;
-  $('#c_bg2').value=s.pageBg2; $('#c_bgGrad').checked=s.bgGradient;
-  $('#c_bgang').value=s.bgAngle; $('#v_bgang').textContent=s.bgAngle+'°';
-  $('#c_bg2Row').hidden=!s.bgGradient; $('#c_bgAngleRow').hidden=!s.bgGradient;
+  $('#c_cardColor').value=s.cardColor; $('#c_capColor').value=s.captionColor;
   $('#c_tape').value=s.tape; $('#c_tapeColor').value=s.tapeColor;
   setR('#c_fs',s.captionSizePt,s.captionSizePt+' pt');
-  setR('#c_ls',s.captionSpacing,(+s.captionSpacing).toFixed(1)+' px');
+  setR('#c_ls',Math.round((s.capFx.ls||0)*100),Math.round((s.capFx.ls||0)*100)+'%');
   $('#c_bold').classList.toggle('on',s.captionBold);
   $('#c_italic').classList.toggle('on',s.captionItalic);
   $('#c_upper').classList.toggle('on',s.captionUpper);
-  $('#c_shadowtxt').classList.toggle('on',s.captionShadow);
+  $('#c_shadowtxt').classList.toggle('on',!!s.capFx.sh);
+  if(typeof designSync==='function') designSync();
   $('#c_shadow').checked=s.screenShadow;
   $('#c_acrylic').checked=s.acrylic;
   $('#c_dpi').value=s.exportDPI;
@@ -105,7 +103,7 @@ function tplThumbSVG(t){
   const ps=PAGE_SIZES[s.pageSize]||PAGE_SIZES.a4;
   const pw=s.landscape?ps.h:ps.w, ph=s.landscape?ps.w:ps.h;
   const W=100,H=Math.round(W*(ph/pw)),R=7,pad=9;
-  const bg=s.pageBg||'var(--surface)';
+  const bg=(s.bg&&s.bg.kind==='color'&&s.bg.c1)||(s.bg&&(s.bg.kind==='gradient'||s.bg.kind==='pattern')&&s.bg.c1)||s.pageBg||'var(--surface)';
   const gap=cols>=6||rows>=7?1.3:cols>=4?2:3;
   const gridW=W-pad*2,gridH=H-pad*2;
   const tileW=(gridW-gap*(cols-1))/cols, tileH=(gridH-gap*(rows-1))/rows;
@@ -374,7 +372,8 @@ function bindAll(){
   });
   Object.keys(CAPTION_STYLE_LABELS).forEach(k=>{
     const b=document.createElement('button'); b.className='chip'; b.textContent=CAPTION_STYLE_LABELS[k];
-    b.onclick=()=>{ pushHistory('capstyle'); Object.assign(state.settings,CAPTION_STYLES[k]);
+    b.onclick=()=>{ pushHistory('capstyle'); const st=CAPTION_STYLES[k];
+      Object.assign(state.settings,{captionColor:COLOR_DEFAULTS.captionColor},st,{capFx:{...st.capFx}}); state.settings=migrateSettings(state.settings);
       syncControls(); applyVars(); render(); save(); };
     $('#capStyleRow').appendChild(b);
   });
@@ -394,8 +393,8 @@ function bindAll(){
   bindRange('#c_mo','markOffset',v=>v+' mm');
   bindRange('#c_ml','markLen',v=>v+' mm');
   bindRange('#c_fs','captionSizePt',v=>v+' pt');
-  bindRange('#c_ls','captionSpacing',v=>(+v).toFixed(1)+' px');
-  bindRange('#c_bgang','bgAngle',v=>v+'°');
+  { const el=$('#c_ls'); el.addEventListener('pointerdown',()=>pushHistory('ls'));
+    el.addEventListener('input',()=>{ state.settings.capFx={...state.settings.capFx,ls:+el.value/100}; $('#v_ls').textContent=el.value+'%'; refreshCaptions(); save(); if(typeof sheetEditor!=='undefined') sheetEditor.refresh(); }); }
 
   const aspChange=()=>{ pushHistory('asp');
     state.settings.aspectW=clamp(+$('#c_aw').value||1,1,60);
@@ -420,15 +419,14 @@ function bindAll(){
   $('#c_marks').onchange=e=>{ pushHistory('cut'); state.settings.cornerMarks=e.target.checked; render(); save(); };
   $('#c_font').onchange=e=>{ pushHistory('font'); state.settings.captionFont=e.target.value; render(); save(); };
   $('#c_upper').onclick=()=>{ pushHistory('upper'); state.settings.captionUpper=!state.settings.captionUpper; syncControls(); applyVars(); render(); save(); };
-  $('#c_shadowtxt').onclick=()=>{ pushHistory('capsh'); state.settings.captionShadow=!state.settings.captionShadow; syncControls(); applyVars(); render(); save(); };
+  $('#c_shadowtxt').onclick=()=>{ pushHistory('capsh'); const fx={...state.settings.capFx};
+    if(fx.sh){ delete fx.sh; delete fx.shd; delete fx.sho; } else Object.assign(fx,{sh:'#000000',shd:0.25,sho:0.3});
+    state.settings.capFx=EPTextFx.clean(fx); syncControls(); render(); save(); };
   $('#c_tape').onchange=e=>{ pushHistory('tape'); state.settings.tape=e.target.value; render(); save(); };
   $('#c_tapeColor').oninput=e=>{ state.settings.tapeColor=e.target.value; render(); save(); };
   $('#c_capColor').oninput=e=>{ state.settings.captionColor=e.target.value; applyVars(); render(); save(); };
   $('#c_cardColor').oninput=e=>{ state.settings.cardColor=e.target.value; applyVars(); render(); save(); };
-  $('#c_bg').oninput=e=>{ state.settings.pageBg=e.target.value; render(); save(); };
-  $('#c_bg2').oninput=e=>{ state.settings.pageBg2=e.target.value; render(); save(); };
-  $('#c_bgGrad').onchange=e=>{ pushHistory('grad'); state.settings.bgGradient=e.target.checked; syncControls(); render(); save(); };
-  $('#c_resetColors').onclick=()=>{ pushHistory('colors'); Object.assign(state.settings,COLOR_DEFAULTS);
+  $('#c_resetColors').onclick=()=>{ pushHistory('colors'); Object.assign(state.settings,COLOR_DEFAULTS,{bg:{kind:'none'}});
     syncControls(); applyVars(); render(); save(); };
   $('#c_bold').onclick=()=>{ pushHistory('b'); state.settings.captionBold=!state.settings.captionBold; syncControls(); render(); save(); };
   $('#c_italic').onclick=()=>{ pushHistory('i'); state.settings.captionItalic=!state.settings.captionItalic; syncControls(); render(); save(); };
