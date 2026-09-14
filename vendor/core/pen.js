@@ -222,6 +222,17 @@
         if (s.opacity != null) a.push(`opacity="${s.opacity}"`);
         parts.push(`<image ${a.join(' ')}/>`);
       },
+      // ilustração do catálogo (EPArt) encaixada na caixa; false se ainda não carregou
+      art(id, x, y, w, h, s = {}) {
+        const it = root.EPArt && root.EPArt.get(id); if (!it) return false;
+        const a = [`x="${n(x)}" y="${n(y)}" width="${n(w)}" height="${n(h)}" viewBox="0 0 ${it.w} ${it.h}" preserveAspectRatio="xMidYMid meet" overflow="visible"`];
+        if (it.mono) a.push(`color="${HEX.test(s.color || '') ? s.color : '#000'}"`);
+        if (s.opacity != null && s.opacity < 1) a.push(`opacity="${n(clamp01(s.opacity))}"`);
+        parts.push(`<svg ${a.join(' ')}>${it.body}</svg>`);
+        return true;
+      },
+      // gira o que vier depois (graus, sentido horário) até o próximo unclip()
+      rotate(deg, cx, cy) { parts.push(`<g transform="rotate(${n(deg)} ${n(cx)} ${n(cy)})">`); openClips++; },
       textWidth: penTextWidthMm, fitText: fitTextSize, wrapText: wrapTextLines,
       svg() {
         while (openClips > 0) api.unclip();
@@ -233,6 +244,14 @@
       },
     };
     return api;
+  }
+
+  // formas vetoriais de uma ilustração, convertidas uma vez só
+  const ART_SHAPES = new Map();
+  function artShapes(it) {
+    let v = ART_SHAPES.get(it.id);
+    if (!v) { v = root.EPSvgArt.parse(it.body); ART_SHAPES.set(it.id, v); }
+    return v;
   }
 
   /* registro de imagens/opacidades — preenchido pelas canetas, consumido por buildPDF */
@@ -317,12 +336,15 @@
         if (s.align === 'c') tx = x - w / 2 / PT;
         else if (s.align === 'r') tx = x - w / PT;
         const by = y + baselineShift(s.family, s.font, s.baseline) * size / PT;
+        const alpha = s.opacity != null && s.opacity < 1 ? clamp01(s.opacity) : 1;
+        if (alpha < 1) { ops.push(`q /${registerPdfGS(alpha)} gs`); reset(); }
         setFill(s.color);
         ops.push('BT');
         if (s.tracking) ops.push(`${n(s.tracking * PT)} Tc`);
         ops.push(`/@F:${face} ${n(size)} Tf ${X(tx)} ${Y(by)} Td ${root.EPPdf.textToken(str)} Tj`);
         if (s.tracking) ops.push('0 Tc');
         ops.push('ET');
+        if (alpha < 1) { ops.push('Q'); reset(); }
       },
       image(href, x, y, w, h, s = {}) {
         const nm = registerPdfImage(href); if (!nm) return;
@@ -338,6 +360,38 @@
         if (clipBox) ops.push(`${X(x)} ${Y(y + h)} ${n(w * PT)} ${n(h * PT)} re W n`);
         ops.push(`${n(dw * PT)} 0 0 ${n(dh * PT)} ${X(dx)} ${Y(dy + dh)} cm /${nm} Do Q`);
         reset();
+      },
+      art(id, x, y, w, h, s = {}) {
+        const it = root.EPArt && root.EPArt.get(id); if (!it || !root.EPSvgArt) return false;
+        const k = Math.min(w / it.w, h / it.h), ox = x + (w - it.w * k) / 2, oy = y + (h - it.h * k) / 2;
+        const P = (px, py) => `${X(ox + px * k)} ${Y(oy + py * k)}`;
+        const op = s.opacity != null ? clamp01(s.opacity) : 1;
+        const col = c => (c === 'currentColor' ? (HEX.test(s.color || '') ? s.color : '#000') : c);
+        ops.push('q'); reset();
+        artShapes(it).forEach(sh => {
+          const fill = sh.fill && sh.fill !== 'none' ? col(sh.fill) : null;
+          const strk = sh.stroke && sh.stroke !== 'none' && sh.sw > 0 ? col(sh.stroke) : null;
+          if (!fill && !strk) return;
+          const d = sh.subs.map(sp => sp.segs.map(g => g.op === 'M' ? `${P(g.p[0], g.p[1])} m` : g.op === 'L' ? `${P(g.p[0], g.p[1])} l`
+            : `${P(g.p[0], g.p[1])} ${P(g.p[2], g.p[3])} ${P(g.p[4], g.p[5])} c`).join(' ') + (sp.closed ? ' h' : '')).join(' ');
+          const a = sh.alpha * op;
+          if (a < 0.995) { ops.push(`q /${registerPdfGS(a)} gs`); reset(); }
+          if (fill) setFill(fill);
+          if (strk) {
+            setStroke(strk); setDash(sh.dash ? sh.dash.map(v => v * k) : null);
+            ops.push(`${n(sh.sw * k * PT)} w ${sh.cap === 'round' ? 1 : sh.cap === 'square' ? 2 : 0} J ${sh.join === 'round' ? 1 : sh.join === 'bevel' ? 2 : 0} j`); curW = null;
+          }
+          ops.push(`${d} ${fill && strk ? (sh.evenodd ? 'B*' : 'B') : fill ? (sh.evenodd ? 'f*' : 'f') : 'S'}`);
+          if (a < 0.995) { ops.push('Q'); reset(); }
+        });
+        ops.push('Q'); reset();
+        return true;
+      },
+      rotate(deg, cx, cy) {
+        const t = -deg * Math.PI / 180, c = Math.cos(t), si = Math.sin(t);
+        const px = cx * PT + OX, py = H - (cy * PT + OY);
+        const f = v => (+v).toFixed(5);
+        ops.push(`q ${f(c)} ${f(si)} ${f(-si)} ${f(c)} ${f(px - c * px + si * py)} ${f(py - si * px - c * py)} cm`);
       },
       textWidth: penTextWidthMm, fitText: fitTextSize, wrapText: wrapTextLines,
       stream() { return ops.join('\n'); },
