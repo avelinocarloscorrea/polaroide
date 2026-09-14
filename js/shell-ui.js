@@ -15,7 +15,7 @@ const SH_ICON = {
   both: '<rect x="7" y="6" width="10" height="12" rx="1" stroke-dasharray="2.5 2"/><path d="M3 6h2M6 3v2M19 6h2M18 3v2M3 18h2M6 19v2M19 18h2M18 19v2"/>',
 };
 const shIcon = n => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${SH_ICON[n]}</svg>`;
-const PAPER_NAME = { a4: 'A4', letter: 'Carta', a3: 'A3', a5: 'A5' };
+const PAPER_NAME = { a4: 'A4', letter: 'Carta', a3: 'A3', a5: 'A5', f10x15: '10×15', f13x18: '13×18' };
 
 /* ================= trilho ================= */
 EPShell.initRail({
@@ -113,7 +113,7 @@ function galleryItems(forPanel) {
     const tmp = migrateSettings({ ...DEFAULTS, ...t.settings });
     items.push({
       id: t.id, name: t.name, desc: t.desc, cat: TPL_CAT[t.id] || 'polaroide', tpl: t,
-      meta: `${PAPER_NAME[tmp.pageSize] || 'A4'} · ${tmp.columns}×${tmp.rows} por folha`,
+      meta: (() => { const keep = state.settings; state.settings = tmp; try { const L = layout(); return `${PAPER_NAME[tmp.pageSize] || 'A4'} · ${L.cols}×${L.rows} por folha`; } finally { state.settings = keep; } })(),
       thumb: () => asyncThumb(t.settings),
     });
   });
@@ -219,8 +219,11 @@ new MutationObserver(() => {
 let xpIdx = 0, xpSetupDone = false, xpSegs = [], xpCut = null;
 function xpSetup() {
   if (xpSetupDone) return; xpSetupDone = true;
-  xpSegs.push(EPShell.segmented($('#xp_paper'), $('#c_pageSize'), { options: [{ v: 'a4', label: 'A4' }, { v: 'letter', label: 'Carta' }, { v: 'a3', label: 'A3' }, { v: 'a5', label: 'A5' }] }));
+  xpSegs.push(EPShell.segmented($('#xp_paper'), $('#c_pageSize'), { options: [{ v: 'a4', label: 'A4' }, { v: 'letter', label: 'Carta' }, { v: 'a3', label: 'A3' }, { v: 'a5', label: 'A5' }, { v: 'f10x15', label: '10×15' }] }));
   xpSegs.push(EPShell.segmented($('#xp_orient'), $('#c_landscape'), { off: 'Em pé', on: 'Deitada' }));
+  xpSegs.push(EPShell.segmented($('#xp_color'), $('#c_pdfColor'), { options: [{ v: 'rgb', label: 'Casa (RGB)' }, { v: 'cmyk', label: 'Gráfica (CMYK)' }] }));
+  xpSegs.push(EPShell.segmented($('#xp_back'), $('#c_backSide'), { options: [{ v: 'none', label: 'Sem verso' }, { v: 'caption', label: 'Legenda e data' }, { v: 'lines', label: 'Linhas' }] }));
+  xpSegs.push(EPShell.segmented($('#xp_gamma'), $('#c_gamma'), { options: [{ v: '1', label: 'Não' }, { v: '1.1', label: 'Leve' }, { v: '1.2', label: 'Forte' }] }));
   xpSegs.push(EPShell.segmented($('#xp_dpi'), $('#c_dpi'), { options: [{ v: '200', label: 'Rascunho' }, { v: '300', label: 'Impressão' }, { v: '450', label: 'Alta' }, { v: '600', label: 'Máxima' }] }));
   // modo de corte: um <select> invisível que traduz para os 2 checkboxes reais
   const sel = document.createElement('select'); sel.hidden = true;
@@ -251,7 +254,7 @@ async function xpRefresh() {
   const total = L.pages;
   xpIdx = clamp(xpIdx - (xpIdx % 2), 0, Math.max(0, total - 1 - ((total - 1) % 2)));
   $('#xp_sub').textContent = `${n} ${n === 1 ? 'foto' : 'fotos'} · ${PAPER_NAME[s.pageSize] || ''}${s.landscape ? ' deitada' : ''} · polaroides de ${g.polW.toFixed(0)}×${g.polH.toFixed(0)} mm`;
-  $('#xp_summary').innerHTML = `<span class="big">${total}</span><span class="txt"><b>${total === 1 ? 'folha' : 'folhas'} ${PAPER_NAME[s.pageSize] || ''}</b> · ${L.cols}×${L.rows} polaroides por folha · imprimir só a <b>frente</b></span>`;
+  $('#xp_summary').innerHTML = `<span class="big">${total}</span><span class="txt"><b>${total === 1 ? 'folha' : 'folhas'} ${PAPER_NAME[s.pageSize] || ''}</b> · ${L.cols}×${L.rows} polaroides por folha · ${s.backSide !== 'none' ? 'imprimir <b>frente e verso</b> (borda longa)' : 'imprimir só a <b>frente</b>'}</span>`;
   const dpi = exportDPI();
   $('#xp_dpiHint').textContent = dpi <= 200 ? 'Arquivo leve, bom para conferir. Para imprimir, use "Impressão".' : dpi >= 450 ? 'Arquivo bem maior. Só vale com fotos de alta resolução e impressora fotográfica.' : 'O ideal para impressora doméstica ou gráfica rápida.';
   $('#xp_how').innerHTML = `Imprima em <b>${PAPER_NAME[s.pageSize] || 'A4'}${s.landscape ? ' paisagem' : ''}</b>, escala <b>100%</b> e margens <b>Nenhuma</b>. Papel fotográfico ou couché fosco 180 g dá o melhor resultado. Depois recorte ${s.cornerMarks ? 'pelas marcas' : s.cardLine ? 'pelo contorno' : 'em volta de cada foto'}.`;
@@ -260,7 +263,12 @@ async function xpRefresh() {
   const chk = [];
   if (!n) chk.push({ level: 'warn', text: 'Nenhuma foto ainda.', action: { label: 'Adicionar', fn: () => { $('#exportDlg').close(); $('#file_add').click(); } } });
   else chk.push({ level: 'ok', text: `${n} ${n === 1 ? 'foto' : 'fotos'} em ${total} ${total === 1 ? 'folha' : 'folhas'}, dentro da margem de impressão.` });
-  const low = state.photos.map((ph, i) => ({ ph, i, d: photoDPI(ph) })).filter(x => x.d != null && x.d < 150);
+  if (isRealFormat()) chk.push({ level: 'ok', text: `Polaroides no <b>tamanho real</b> do filme: ${g.polW.toFixed(1).replace('.0', '')} × ${g.polH.toFixed(1).replace('.0', '')} mm (foto ${g.winW.toFixed(1).replace('.0', '')} × ${g.winH.toFixed(1).replace('.0', '')} mm).` });
+  if (s.pdfColor === 'cmyk') chk.push({ level: 'ok', text: 'Fotos convertidas para <b>CMYK (FOGRA39)</b> em PDF/X-4 — o arquivo que a gráfica pede.' });
+  if (s.cornerMarks && s.gapMm < 2 * (s.markOffset + 1.5)) chk.push({ level: 'info', text: `Espaço entre fotos de ${s.gapMm} mm: as marcas de corte foram encurtadas para não invadir o polaroide vizinho.` });
+  const soft = state.photos.map((ph, i) => ({ ph, i, d: photoDPI(ph) })).filter(x => x.d != null && x.d >= 200 && x.d < 300);
+  if (soft.length) chk.push({ level: 'info', text: `${soft.length} ${soft.length === 1 ? 'foto' : 'fotos'} entre 200 e 300 dpi: boa em casa; para gráfica o ideal é 300 dpi.` });
+  const low = state.photos.map((ph, i) => ({ ph, i, d: photoDPI(ph) })).filter(x => x.d != null && x.d < 200);
   if (low.length) chk.push({ level: 'bad', text: `<b>${low.length} ${low.length === 1 ? 'foto' : 'fotos'} com resolução baixa</b> (${low[0].d} dpi): podem sair borradas. Use a imagem original ou diminua o zoom.`,
     action: { label: 'Ver', fn: () => { $('#exportDlg').close(); select(low[0].ph.id); } } });
   else if (n) chk.push({ level: 'ok', text: 'Resolução das fotos boa para imprimir.' });
@@ -322,7 +330,7 @@ function openExportDlg() {
 }
 $('#exportDlg').addEventListener('close', () => setStep(state.photos.length ? 1 : 0));
 $('#b_exportCfg').onclick = e => { e.stopPropagation(); openExportDlg(); };
-$('#b_print').onclick = () => { const d = $('#exportDlg'); if (d.open) d.close(); select(null); setTimeout(() => window.print(), 120); };
+$('#b_print').onclick = () => { const d = $('#exportDlg'); if (d.open) d.close(); select(null); setTimeout(printDoc, 120); };
 $('#m_print').onclick = () => { $('#menu').hidden = true; syncScrim(); openExportDlg(); };
 addEventListener('keydown', e => {
   if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'p') {
@@ -349,3 +357,11 @@ if (typeof mTab === 'function') {
 
 injectIcons();
 setStep(document.body.classList.contains('onboarding') ? 0 : 1);
+
+// folha de calibração (núcleo): régua de 100 mm, margem mínima, cinzas e cores
+{ const bc = document.getElementById('b_calib'); if (bc) bc.onclick = async () => {
+  busy('Gerando folha de calibração…');
+  try { const bytes = await EPPen.calibrationPdf({ color: state.settings.pdfColor }); downloadBlob(new Blob([bytes], { type: 'application/pdf' }), 'folha-de-calibracao.pdf'); }
+  catch (e) { console.error(e); toast('Erro ao gerar a folha de calibração.'); }
+  unbusy();
+}; }

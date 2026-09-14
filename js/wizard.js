@@ -13,7 +13,7 @@ const WIZ_STEPS = [
     options: Object.keys(FORMATS).filter(id => !FORMATS[id].custom)
       .map(id => ({ id, label: FORMATS[id].label, desc: '', settings: {
         format: id, polaroidWidthMm: FORMATS[id].w, aspectW: FORMATS[id].aw, aspectH: FORMATS[id].ah,
-        frameMm: FORMATS[id].frame, captionMm: FORMATS[id].cap,
+        frameMm: FORMATS[id].frame, frameTopMm: FORMATS[id].top, captionMm: FORMATS[id].cap,
       } })) },
   { kind: 'layout', title: 'Como distribuir na folha?', desc: 'Papel, colunas e linhas por folha.',
     options: LAYOUTS.map(l => ({ id: l.id, label: l.name, desc: '', settings: { ...l.settings } })) },

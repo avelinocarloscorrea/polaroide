@@ -13,6 +13,7 @@ function applyVars(){
   const s=state.settings, g=geom();
   const r=sheetsEl.style;
   r.setProperty('--frame',s.frameMm+'mm');
+  r.setProperty('--frameTop',s.frameTopMm+'mm');
   r.setProperty('--caption',s.captionMm+'mm');
   r.setProperty('--radius',s.radiusMm+'mm');
   r.setProperty('--winAspect',String(g.aspect));
@@ -25,7 +26,7 @@ function applyVars(){
   r.setProperty('--capSpacing',(s.captionSpacing||0)+'px');
   r.setProperty('--capShadow',s.captionShadow?'0 1px 1px rgba(0,0,0,.30)':'none');
   r.setProperty('--cardBg',s.cardColor);
-  r.setProperty('--pm',Math.max(s.marginMm,5)+'mm');   // margem de segurança (guia na tela)
+  r.setProperty('--pm',Math.max(s.marginMm,minMargin(s.pageSize))+'mm');   // margem de segurança (guia na tela)
   const cut = s.cardLine ? `0 0 0 .2mm ${s.cardLineColor}` : null;
   const drop = s.screenShadow ? '0 2mm 5mm rgba(0,0,0,.16)' : null;
   r.setProperty('--polShadow',[cut,drop].filter(Boolean).join(',')||'none');
@@ -33,7 +34,7 @@ function applyVars(){
   const [PW,PH]=pageDims();
   try{ pageSheet.replaceSync(`@media print{@page{size:${PW}mm ${PH}mm;margin:0}}`); }catch(e){}
 }
-function polEl(ph){
+function polEl(ph,idx=0,L=layout()){
   const s=state.settings, g=geom();
   const pol=document.createElement('div');
   pol.className='pol'; pol.dataset.id=ph.id;
@@ -150,12 +151,7 @@ function polEl(ph){
     const mk=document.createElementNS('http://www.w3.org/2000/svg','svg');
     mk.setAttribute('class','marks'); mk.setAttribute('viewBox',`0 0 ${g.polW} ${g.polH}`);
     mk.setAttribute('preserveAspectRatio','none');
-    const o=+s.markOffset||0,l=+s.markLen||0,W=g.polW,H=g.polH;
-    const seg=(x1,y1,x2,y2)=>`M${x1} ${y1}L${x2} ${y2}`;
-    const d=[seg(-o-l,0,-o,0),seg(0,-o-l,0,-o),
-             seg(W+o,0,W+o+l,0),seg(W,-o-l,W,-o),
-             seg(-o-l,H,-o,H),seg(0,H+o,0,H+o+l),
-             seg(W+o,H,W+o+l,H),seg(W,H+o,W,H+o+l)].join('');
+    const d=markSegs(idx%L.cols,Math.floor(idx/L.cols),L,g).map(([x1,y1,x2,y2])=>`M${x1} ${y1}L${x2} ${y2}`).join('');
     mk.innerHTML=`<path d="${d}" stroke="#333" stroke-width="0.16" fill="none"/>`;
     pol.appendChild(mk);
   }
@@ -198,10 +194,10 @@ function render(){
       : s.pageBg;
     const grid=document.createElement('div');
     grid.className='grid '+(s.align==='center'?'center':'left');
-    grid.style.padding=Math.max(s.marginMm,5)+'mm';
+    grid.style.padding=Math.max(s.marginMm,minMargin(s.pageSize))+'mm';
     grid.style.gap=s.gapMm+'mm';
     grid.style.gridTemplateColumns=`repeat(${L.cols}, ${geom().polW}mm)`;
-    state.photos.slice(p*L.perPage,(p+1)*L.perPage).forEach(ph=>grid.appendChild(polEl(ph)));
+    state.photos.slice(p*L.perPage,(p+1)*L.perPage).forEach((ph,i)=>grid.appendChild(polEl(ph,i,L)));
     page.appendChild(grid); sheetsEl.appendChild(page);
   }
   applyZoom();
@@ -248,7 +244,8 @@ function fillRight(ph){
   const mcap=$('#msb_cap'); if(mcap && mcap!==document.activeElement) mcap.value=ph.caption||'';
   const d=photoDPI(ph);
   $('#s_dot').className='dot '+dpiClass(d);
-  $('#s_dpi').textContent=d?`Impressão: ~${d} dpi ${d>=240?'(ótima)':d>=150?'(aceitável)':'(baixa — pode borrar)'}`:'—';
+  $('#s_dpi').textContent=d?`Impressão: ~${d} dpi ${d>=300?'(ótima)':d>=200?'(aceitável — o ideal é 300)':'(baixa — pode borrar)'}`:'—';
+  { const sd=$('#s_date'); if(sd){ sd.hidden=!ph.taken; if(ph.taken) sd.title='Foto de '+ph.taken.split('-').reverse().join('/'); } }
   $('#s_zoom').value=ph.zoomF; $('#v_pz').textContent=ph.zoomF.toFixed(2)+'×';
   $('#s_rot').value=ph.rot;    $('#v_rot').textContent=ph.rot.toFixed(1)+'°';
   const f=ph.filter;

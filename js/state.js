@@ -13,11 +13,20 @@ function migrateSettings(s){
   const hex=(v,d)=>HEX.test(v)?v:d;
   s.polaroidWidthMm=clamp(num(s.polaroidWidthMm,88),10,400);
   s.frameMm=clamp(num(s.frameMm,6),0,120);
+  s.frameTopMm=clamp(num(s.frameTopMm,s.frameMm),0,120);
+  // projetos antigos: formatos prontos tinham medidas erradas (clássica 88 de
+  // largura com foto 76×76 e 105 de altura, Instax Wide com 99…). Reaplica as
+  // medidas reais do filme uma única vez. (A8)
+  if(s.fmtV!==2){ const F=FORMATS[s.format]; if(F&&!F.custom) Object.assign(s,{polaroidWidthMm:F.w,aspectW:F.aw,aspectH:F.ah,frameMm:F.frame,frameTopMm:F.top,captionMm:F.cap}); else s.frameTopMm=s.frameMm; s.fmtV=2; }
+  s.pdfColor=s.pdfColor==='cmyk'?'cmyk':'rgb';
+  s.printGamma=clamp(num(s.printGamma,1),1,1.4);
+  s.backSide=['none','caption','lines'].includes(s.backSide)?s.backSide:'none';
   s.captionMm=clamp(num(s.captionMm,23),0,160);
   s.aspectW=clamp(num(s.aspectW,1),1,100); s.aspectH=clamp(num(s.aspectH,1),1,100);
   s.radiusMm=clamp(num(s.radiusMm,1.5),0,40);
   s.tiltDeg=clamp(num(s.tiltDeg,0),0,20);
-  s.marginMm=clamp(num(s.marginMm,10),SAFE_MARGIN,60);   // nunca abaixo da margem de segurança
+  s.pageSize=PAGE_SIZES[s.pageSize]?s.pageSize:'a4';
+  s.marginMm=clamp(num(s.marginMm,10),minMargin(s.pageSize),60);   // nunca abaixo da margem de segurança (0 em papel fotográfico)
   s.gapMm=clamp(num(s.gapMm,8),0,60);
   s.markOffset=clamp(num(s.markOffset,2),0,40);
   s.markLen=clamp(num(s.markLen,4),0,40);
@@ -53,7 +62,10 @@ function migrateSettings(s){
   s.cardLine=!!s.cardLine; s.cornerMarks=!!s.cornerMarks;
   s.captionBold=!!s.captionBold; s.captionItalic=!!s.captionItalic;
   s.screenShadow=s.screenShadow!==false;
-  if(!BASE_FONTS.map(f=>f.v).includes(s.captionFont)) s.captionFont=BASE_FONTS[0].v;
+  if(!BASE_FONTS.map(f=>f.v).includes(s.captionFont)){
+    const first=String(s.captionFont||'').split(',')[0].replace(/["']/g,'').trim();
+    s.captionFont=FONT_MIGRATE[first]||BASE_FONTS[0].v;
+  }
   return s;
 }
 const KEY='polaroide-a4-v2';
@@ -121,6 +133,7 @@ function normPhoto(p){
   p.ox=clamp(num(p.ox,0),-95,95); p.oy=clamp(num(p.oy,0),-95,95);
   p.rot=clamp(num(p.rot,0),-45,45);
   p.flipH=!!p.flipH;
+  p.taken=/^\d{4}-\d{2}-\d{2}$/.test(p.taken||'')?p.taken:'';
   p.seed=(typeof p.seed==='number'&&p.seed>=0&&p.seed<=1)?p.seed:Math.random();
   p.natW=clamp(num(p.natW,1000),1,MAX_SIDE); p.natH=clamp(num(p.natH,1000),1,MAX_SIDE);
   const f=(p.filter&&typeof p.filter==='object')?p.filter:{};

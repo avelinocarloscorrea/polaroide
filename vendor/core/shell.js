@@ -128,9 +128,14 @@
      sheet: { w, h (mm), slots: [{x,y,w,h, svg (string da página inteira)}],
               trims: [[x,y,w,h]], ticks: [x,y,w,h]|null, foldX, foldY, label }
      Aninha o SVG real de cada página dentro de um SVG da folha. */
+  /* sheet = { w, h, slots:[{x,y,w,h,svg,num,rot?:180,clip?}], marks?:[[x1,y1,x2,y2]…],
+   *           trims?/ticks? (legado), foldX?, foldY?, trimBox?, bleedBox?, guides?: true }
+   * Mesma geometria da folha do PDF (EPPen.composeSheetPdf). */
   function sheetSVG(sheet) {
     const n = v => Math.round(v * 100) / 100;
     let body = `<rect x="0" y="0" width="${n(sheet.w)}" height="${n(sheet.h)}" fill="#fff"/>`;
+    let clipSeq = 0;
+    const defs = [];
     (sheet.slots || []).forEach(sl => {
       if (!sl.svg) {
         body += `<rect x="${n(sl.x)}" y="${n(sl.y)}" width="${n(sl.w)}" height="${n(sl.h)}" fill="#f3f1ec"/>`;
@@ -138,7 +143,14 @@
       }
       const inner = String(sl.svg).replace(/^<svg\b([^>]*?)\swidth="[^"]*"\s+height="[^"]*"/, '<svg$1')
         .replace(/^<svg\b/, `<svg x="${n(sl.x)}" y="${n(sl.y)}" width="${n(sl.w)}" height="${n(sl.h)}"`);
-      body += inner;
+      let g = inner;
+      if (sl.rot === 180) g = `<g transform="rotate(180 ${n(sl.x + sl.w / 2)} ${n(sl.y + sl.h / 2)})">${g}</g>`;
+      if (sl.clip) {
+        const id = 'epsc' + (++sheetSeq) + '_' + (++clipSeq);
+        defs.push(`<clipPath id="${id}"><rect x="${n(sl.clip.x)}" y="${n(sl.clip.y)}" width="${n(sl.clip.w)}" height="${n(sl.clip.h)}"/></clipPath>`);
+        g = `<g clip-path="url(#${id})">${g}</g>`;
+      }
+      body += g;
       if (sl.num != null) {
         const r = Math.max(4, Math.min(sl.w, sl.h) * 0.065), digits = String(sl.num).length;
         const bw = Math.max(2 * r, r * (0.9 + 0.62 * digits)), bx = sl.x + sl.w - r * 0.6 - bw, by = sl.y + r * 0.6;
@@ -146,8 +158,16 @@
           `<text x="${n(bx + bw / 2)}" y="${n(by + r)}" font-size="${n(r * 1.05)}">${esc(sl.num)}</text></g>`;
       }
     });
-    const L = 5, g = 2.2, sw = 0.35;
-    const seg = (x1, y1, x2, y2) => `<line x1="${n(x1)}" y1="${n(y1)}" x2="${n(x2)}" y2="${n(y2)}" stroke="#222" stroke-width="${sw}"/>`;
+    // guias de pré-impressão: sangria (vermelho) e corte (azul) — só na prévia
+    if (sheet.guides) {
+      const box = (b, c) => b ? `<rect x="${n(b.x)}" y="${n(b.y)}" width="${n(b.w)}" height="${n(b.h)}" fill="none" stroke="${c}" stroke-width="0.35" stroke-dasharray="2 1.4"/>` : '';
+      if (sheet.bleedBox && sheet.trimBox && sheet.bleedBox.w > sheet.trimBox.w + 0.01) body += box(sheet.bleedBox, '#d0443a');
+      (sheet.trimBoxes || (sheet.trimBox ? [sheet.trimBox] : [])).forEach(b => { body += box(b, '#2f6fd0'); });
+    }
+    // prévia: traço mais grosso para ser visível; impressão (print): fio real de 0,1 mm
+    const L = 5, g = 2.2, sw = sheet.print ? 0.1 : 0.35;
+    const seg = (x1, y1, x2, y2) => `<line x1="${n(x1)}" y1="${n(y1)}" x2="${n(x2)}" y2="${n(y2)}" stroke="${sheet.print ? '#000' : '#222'}" stroke-width="${sw}"/>`;
+    (sheet.marks || []).forEach(([x1, y1, x2, y2]) => { body += seg(x1, y1, x2, y2); });
     (sheet.trims || []).forEach(([x, y, w, h]) => {
       [[x, y, -1, -1], [x + w, y, 1, -1], [x, y + h, -1, 1], [x + w, y + h, 1, 1]].forEach(([px, py, dx, dy]) => {
         body += seg(px + dx * g, py, px + dx * (g + L), py) + seg(px, py + dy * g, px, py + dy * (g + L));
@@ -159,11 +179,12 @@
         body += seg(px, py, px + dx * t, py) + seg(px, py, px, py + dy * t);
       });
     }
-    const dash = `stroke="#b4462f" stroke-width="0.5" stroke-dasharray="3 2"`;
+    const dash = sheet.print ? `stroke="#8a8a8a" stroke-width="0.1" stroke-dasharray="1.2 1.2"` : `stroke="#b4462f" stroke-width="0.5" stroke-dasharray="3 2"`;
     if (sheet.foldX != null) body += `<line x1="${n(sheet.foldX)}" y1="0" x2="${n(sheet.foldX)}" y2="${n(sheet.h)}" ${dash}/>`;
     if (sheet.foldY != null) body += `<line x1="0" y1="${n(sheet.foldY)}" x2="${n(sheet.w)}" y2="${n(sheet.foldY)}" ${dash}/>`;
-    return `<svg class="ep-sheet__svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${n(sheet.w)} ${n(sheet.h)}" preserveAspectRatio="xMidYMid meet">${body}</svg>`;
+    return `<svg class="ep-sheet__svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${n(sheet.w)} ${n(sheet.h)}" preserveAspectRatio="xMidYMid meet">${defs.length ? `<defs>${defs.join('')}</defs>` : ''}${body}</svg>`;
   }
+  let sheetSeq = 0;
 
   /* ---------- galeria de modelos com filtro por categoria ----------
      o: { grid, filters (container), items: [{ id, name, desc, meta, cat, thumb() }],

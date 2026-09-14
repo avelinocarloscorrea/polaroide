@@ -43,6 +43,7 @@ const downloadBlob=(blob,name)=>{const a=document.createElement('a');a.href=URL.
 const SAFE_IMG=/^image\/(jpeg|jpg|png|webp|gif|bmp|avif)$/i;
 const MAX_BYTES=45*1024*1024;
 const MAX_SIDE=12000;
+const FULL_SIDE=3600;   // lado maior da imagem guardada para impressão (≥300 dpi até 30 cm)
 const MAX_AREA=140*1000*1000;
 function sanitizeText(v,max=500){
   return String(v == null ? '' : v).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '').slice(0, max);
@@ -118,44 +119,60 @@ function injectIcons(root=document){
 // Papéis de impressão em mm.
 const PAGE_SIZES={
   a4:{w:210,h:297}, letter:{w:215.9,h:279.4}, a3:{w:297,h:420}, a5:{w:148,h:210},
+  f10x15:{w:101.6,h:152.4,photo:true}, f13x18:{w:127,h:177.8,photo:true},
 };
 // Margem mínima de segurança (mm) — nenhuma impressora chega até a borda.
 const SAFE_MARGIN=5;
+// papel fotográfico (10×15, 13×18) sai em impressora sem margem: aceita 0 mm
+const minMargin=pageSize=>(PAGE_SIZES[pageSize]&&PAGE_SIZES[pageSize].photo)?0:SAFE_MARGIN;
+// Medidas REAIS dos filmes (cartão inteiro e janela da foto). frame = borda
+// lateral, top = borda de cima, cap = faixa de baixo. real:true → sai sempre
+// no tamanho exato (o "encaixar na folha" só muda quantos cabem, nunca a medida).
 const FORMATS={
-  classic:  {label:'Polaroid clássico (600)', w:88, aw:1,  ah:1,  frame:6,   cap:23},
-  sx70:     {label:'Polaroid quadrado (SX-70)',w:79, aw:1,  ah:1,  frame:5,   cap:17},
-  wide:     {label:'Polaroid grande',          w:102,aw:1,  ah:1,  frame:6,   cap:24},
-  instaxMini:{label:'Instax Mini',              w:54, aw:46, ah:62, frame:4,   cap:19},
-  instaxSq: {label:'Instax Square',             w:72, aw:1,  ah:1,  frame:5,   cap:18},
-  instaxWide:{label:'Instax Wide',              w:99, aw:99, ah:62, frame:4.5, cap:19},
-  modern:   {label:'Quadrado moderno (borda fina)', w:80, aw:1, ah:1, frame:4, cap:5},
-  postcard: {label:'Retrato 10×15',             w:100,aw:2,  ah:3,  frame:5,   cap:12},
+  classic:  {label:'Polaroid 600 / i-Type — 88 × 107 mm',       w:88,   aw:1,  ah:1,  frame:4.5,  top:6,   cap:22,   real:true},
+  sx70:     {label:'Polaroid SX-70 — 88 × 107 mm',              w:88,   aw:1,  ah:1,  frame:4.5,  top:6,   cap:22,   real:true},
+  wide:     {label:'Polaroid Spectra — 102 × 101 mm',           w:102,  aw:92, ah:73, frame:5,    top:6,   cap:22,   real:true},
+  go:       {label:'Polaroid Go — 54 × 67 mm',                  w:53.9, aw:47, ah:46, frame:3.45, top:4.3, cap:16.3, real:true},
+  instaxMini:{label:'Instax Mini — 54 × 86 mm',                 w:54,   aw:46, ah:62, frame:4,    top:7,   cap:17,   real:true},
+  instaxSq: {label:'Instax Square — 72 × 86 mm',                w:72,   aw:1,  ah:1,  frame:5,    top:7,   cap:17,   real:true},
+  instaxWide:{label:'Instax Wide — 108 × 86 mm',                w:108,  aw:99, ah:62, frame:4.5,  top:7,   cap:17,   real:true},
+  square10: {label:'Quadrado 10 × 10 cm',                       w:102,  aw:1,  ah:1,  frame:5,    top:5,   cap:5,    real:true},
+  postcard: {label:'Retrato 10 × 15 cm',                        w:101.6,aw:2,  ah:3,  frame:5,    top:5,   cap:10,   real:true},
+  modern:   {label:'Quadrado moderno (borda fina, ajustável)',   w:80,   aw:1,  ah:1,  frame:4,    top:4,   cap:5},
   custom:   {label:'Personalizado', custom:true},
 };
 // Fontes da legenda. As 3 primeiras são servidas de assets/fonts/ (mesmo
 // domínio, font-src 'self') e só baixam quando escolhidas. O resto é pilha
 // de fontes do sistema.
+// Fontes da legenda: as MESMAS em qualquer aparelho — vêm do núcleo
+// (vendor/core/fonts, OFL/Apache), servidas do próprio domínio. Antes a lista
+// misturava fontes do sistema (cada computador imprimia diferente) e os
+// arquivos de Caveat/Special Elite/Permanent Marker nem estavam no pacote.
 const BASE_FONTS=[
-  {label:'Manuscrita — Caveat',        v:"'Caveat','Segoe Script','Bradley Hand',cursive"},
-  {label:'Datilografada — Special Elite', v:"'Special Elite','Courier New',monospace"},
-  {label:'Marcador — Permanent Marker', v:"'Permanent Marker','Comic Sans MS',cursive"},
-  {label:'Manuscrita (sistema)',       v:"'Segoe Script','Bradley Hand','Snell Roundhand','Comic Sans MS',cursive"},
-  {label:'Elegante (Playfair)',        v:"'Playfair Display',Georgia,serif"},
-  {label:'Serifada',                   v:"Georgia,'Times New Roman',serif"},
-  {label:'Serifada moderna',           v:"'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif"},
-  {label:'Sem serifa',                 v:"'Helvetica Neue','Segoe UI',Arial,sans-serif"},
-  {label:'Arredondada',                v:"'Trebuchet MS','Segoe UI Rounded','Segoe UI',Verdana,sans-serif"},
-  {label:'Máquina de escrever',        v:"'Courier New',Courier,monospace"},
-  {label:'Condensada',                 v:"'Arial Narrow','Roboto Condensed','Liberation Sans Narrow',Arial,sans-serif"},
-  {label:'Larga / display',            v:"'Franklin Gothic Medium','Arial Black',Impact,sans-serif"},
+  {label:'Manuscrita — Caveat',            v:"'Caveat',cursive"},
+  {label:'Caligrafia — Dancing Script',    v:"'Dancing Script',cursive"},
+  {label:'Datilografada — Special Elite',  v:"'Special Elite',monospace"},
+  {label:'Marcador — Permanent Marker',    v:"'Permanent Marker',cursive"},
+  {label:'Elegante — Playfair Display',    v:"'Playfair Display',serif"},
+  {label:'Clássica — Lora',                v:"'Lora',serif"},
+  {label:'Leitura — Merriweather',         v:"'Merriweather',serif"},
+  {label:'Serifada — Tinos',               v:"'Tinos',serif"},
+  {label:'Moderna — Montserrat',           v:"'Montserrat',sans-serif"},
+  {label:'Sem serifa — Arimo',             v:"'Arimo',sans-serif"},
+  {label:'Máquina de escrever — Cousine',  v:"'Cousine',monospace"},
 ];
+// valores antigos → fonte equivalente do pacote (migração de projetos salvos)
+const FONT_MIGRATE={Caveat:"'Caveat',cursive",'Special Elite':"'Special Elite',monospace",'Permanent Marker':"'Permanent Marker',cursive",
+  'Segoe Script':"'Dancing Script',cursive",'Playfair Display':"'Playfair Display',serif",Georgia:"'Tinos',serif",'Iowan Old Style':"'Lora',serif",
+  'Helvetica Neue':"'Arimo',sans-serif",'Trebuchet MS':"'Montserrat',sans-serif",'Courier New':"'Cousine',monospace",'Arial Narrow':"'Arimo',sans-serif",
+  'Franklin Gothic Medium':"'Montserrat',sans-serif"};
 // Estilos prontos de legenda (aplicam fonte + tamanho + variações de texto).
 const CAPTION_STYLES={
-  manuscrito:  {captionFont:"'Caveat','Segoe Script',cursive",           captionSizePt:17, captionBold:false, captionItalic:false, captionUpper:false, captionSpacing:0,   captionShadow:false},
-  datilografado:{captionFont:"'Special Elite','Courier New',monospace",  captionSizePt:11, captionBold:false, captionItalic:false, captionUpper:false, captionSpacing:0.4, captionShadow:false},
-  marcador:    {captionFont:"'Permanent Marker','Comic Sans MS',cursive", captionSizePt:13, captionBold:false, captionItalic:false, captionUpper:false, captionSpacing:0,   captionShadow:false},
-  etiqueta:    {captionFont:"'Helvetica Neue','Segoe UI',Arial,sans-serif", captionSizePt:10, captionBold:true, captionItalic:false, captionUpper:true, captionSpacing:1.6, captionShadow:false},
-  editorial:   {captionFont:"'Playfair Display',Georgia,serif",          captionSizePt:13, captionBold:false, captionItalic:true,  captionUpper:false, captionSpacing:0.2, captionShadow:false},
+  manuscrito:  {captionFont:"'Caveat',cursive",           captionSizePt:17, captionBold:false, captionItalic:false, captionUpper:false, captionSpacing:0,   captionShadow:false},
+  datilografado:{captionFont:"'Special Elite',monospace",  captionSizePt:11, captionBold:false, captionItalic:false, captionUpper:false, captionSpacing:0.4, captionShadow:false},
+  marcador:    {captionFont:"'Permanent Marker',cursive", captionSizePt:13, captionBold:false, captionItalic:false, captionUpper:false, captionSpacing:0,   captionShadow:false},
+  etiqueta:    {captionFont:"'Montserrat',sans-serif", captionSizePt:10, captionBold:true, captionItalic:false, captionUpper:true, captionSpacing:1.6, captionShadow:false},
+  editorial:   {captionFont:"'Playfair Display',serif",          captionSizePt:13, captionBold:false, captionItalic:true,  captionUpper:false, captionSpacing:0.2, captionShadow:false},
 };
 const CAPTION_STYLE_LABELS={manuscrito:'Manuscrito',datilografado:'Datilografado',marcador:'Marcador',etiqueta:'Etiqueta',editorial:'Editorial'};
 const FILTER0={preset:'original',brightness:1,contrast:1,saturate:1,hue:0,sepia:0,grayscale:0,vignette:0};
@@ -171,7 +188,7 @@ const PRESETS={
 const PRESET_LABELS={original:'Original',bw:'P&B',sepia:'Sépia',vintage:'Vintage',fade:'Desbotado',vivid:'Vívido',cool:'Frio'};
 
 const DEFAULTS={
-  format:'classic', polaroidWidthMm:88, aspectW:1, aspectH:1, frameMm:6, captionMm:23,
+  format:'classic', polaroidWidthMm:88, aspectW:1, aspectH:1, frameMm:4.5, frameTopMm:6, captionMm:22, fmtV:2,
   radiusMm:1.5, tiltDeg:0,
   pageSize:'a4', landscape:false, marginMm:10, gapMm:8,
   autoFit:true, columns:'auto', rows:'auto', align:'center',
@@ -181,6 +198,7 @@ const DEFAULTS={
   tape:'none', tapeColor:'#e7dfce', filterPreset:'original',
   cardColor:'#ffffff', pageBg:'#ffffff', pageBg2:'#e9e2d3', bgGradient:false, bgAngle:160,
   screenShadow:true, acrylic:false, exportDPI:300,
+  pdfColor:'rgb', printGamma:1, backSide:'none',
 };
 const COLOR_DEFAULTS={cardColor:'#ffffff',pageBg:'#ffffff',pageBg2:'#e9e2d3',captionColor:'#222222',cardLineColor:'#c9c9c9',tapeColor:'#e7dfce'};
 const HEX=/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
@@ -190,24 +208,24 @@ const HEX=/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
    cores + legenda. Aplicar redefine tudo (mantém só acrílico e resolução).
    Todos encaixam na folha automaticamente, sem polaroide cortado. */
 const TEMPLATES=[
-  {id:'classico', name:'Polaroid clássico', desc:'A4 · 3×3 · marcas de corte',
-   settings:{format:'classic',autoFit:true,columns:'3',rows:'3',marginMm:10,gapMm:6,cornerMarks:true}},
+  {id:'classico', name:'Polaroid clássico', desc:'A4 · 88 × 107 mm reais · marcas de corte',
+   settings:{format:'classic',autoFit:true,columns:'auto',rows:'auto',marginMm:8,gapMm:12,cornerMarks:true}},
   {id:'memories', name:'Recordações', desc:'torto · fita · fundo bege · manuscrita',
-   settings:{format:'classic',autoFit:true,columns:'2',rows:'3',tiltDeg:3,tape:'tape-2',tapeColor:'#e7dfce',
-     cornerMarks:false,gapMm:11,pageBg:'#efe9dd',captionFont:"'Caveat','Segoe Script','Bradley Hand',cursive",captionSizePt:17}},
+   settings:{format:'classic',autoFit:true,columns:'auto',rows:'auto',tiltDeg:3,tape:'tape-2',tapeColor:'#e7dfce',
+     cornerMarks:false,gapMm:11,pageBg:'#efe9dd',captionFont:"'Caveat',cursive",captionSizePt:17}},
   {id:'scrapbook', name:'Scrapbook', desc:'quadrado · brads · marcador',
-   settings:{format:'sx70',autoFit:true,columns:'2',rows:'3',tiltDeg:4,tape:'brad-4',cornerMarks:false,
-     gapMm:12,pageBg:'#f0e7d6',captionFont:"'Permanent Marker','Comic Sans MS',cursive",captionSizePt:12}},
+   settings:{format:'sx70',autoFit:true,columns:'auto',rows:'auto',tiltDeg:4,tape:'brad-4',cornerMarks:false,
+     gapMm:12,pageBg:'#f0e7d6',captionFont:"'Permanent Marker',cursive",captionSizePt:12}},
   {id:'minimal', name:'Minimalista', desc:'borda fina · sem legenda · contorno',
    settings:{format:'modern',autoFit:true,columns:'3',rows:'4',captionMm:0,gapMm:5,marginMm:12,
      cornerMarks:false,cardLine:true,cardLineColor:'#d9d3c6'}},
   {id:'instax', name:'Instax Mini', desc:'cartela · vários por folha',
-   settings:{format:'instaxMini',autoFit:true,columns:'4',rows:'4',gapMm:5,marginMm:8,cornerMarks:true}},
+   settings:{format:'instaxMini',autoFit:true,columns:'auto',rows:'auto',gapMm:12,marginMm:8,cornerMarks:true}},
   {id:'contato', name:'Folha de contato', desc:'grade miúda · sem legenda',
    settings:{format:'modern',autoFit:true,columns:'6',rows:'8',captionMm:0,gapMm:3,marginMm:8,
      cornerMarks:false,cardLine:true,cardLineColor:'#d9d3c6'}},
-  {id:'retrato', name:'Retrato 10×15', desc:'4 por folha · revelação',
-   settings:{format:'postcard',autoFit:true,columns:'2',rows:'2',gapMm:6,marginMm:10,cornerMarks:true}},
+  {id:'retrato', name:'Retrato 10×15', desc:'papel 10 × 15 · 1 por folha, sem corte',
+   settings:{format:'postcard',autoFit:true,columns:'auto',rows:'auto',pageSize:'f10x15',gapMm:0,marginMm:0,cornerMarks:false}},
 ];
 
 /* ---------- MODELOS DE FOLHA (painel esquerdo) ----------

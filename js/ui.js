@@ -23,13 +23,15 @@ function syncControls(){
   const setR=(id,val,txt)=>{ $(id).value=val; $(id.replace('#c_','#v_').replace('#f_','#v_')).textContent=txt; };
   $('#c_format').value=s.format;
   const eff=geom().polW;
-  const wDerived = s.autoFit && s.columns!=='auto' && s.rows!=='auto';
+  const wDerived = fitMode() && s.columns!=='auto' && s.rows!=='auto';
   $('#c_w').value=s.polaroidWidthMm;
   $('#v_w').textContent = wDerived ? eff.toFixed(0)+' mm (encaixado)' : s.polaroidWidthMm+' mm';
   $('#c_w').disabled = wDerived;
   $('#c_fill').hidden = s.autoFit;
   $('#c_aw').value=s.aspectW; $('#c_ah').value=s.aspectH; $('#c_apreset').value='';
   setR('#c_frame',s.frameMm,s.frameMm+' mm');
+  setR('#c_frameTop',s.frameTopMm,s.frameTopMm+' mm');
+  { const e=$('#c_pdfColor'); if(e) e.value=s.pdfColor; const b=$('#c_backSide'); if(b) b.value=s.backSide; const gm=$('#c_gamma'); if(gm) gm.value=String(s.printGamma); }
   setR('#c_cap',s.captionMm,s.captionMm<=0?'0 mm (sem legenda)':s.captionMm+' mm');
   setR('#c_radius',s.radiusMm,s.radiusMm+' mm');
   setR('#c_tilt',s.tiltDeg,s.tiltDeg+'°');
@@ -67,7 +69,7 @@ function bindRange(id,key,fmt){
   el.addEventListener('input',()=>{
     state.settings[key]=parseFloat(el.value);
     out.textContent=fmt(el.value);
-    if(state.settings.format!=='custom' && ['polaroidWidthMm','frameMm','captionMm'].includes(key)){
+    if(state.settings.format!=='custom' && ['polaroidWidthMm','frameMm','frameTopMm','captionMm'].includes(key)){
       state.settings.format='custom'; $('#c_format').value='custom';
     }
     render(); save();
@@ -75,7 +77,7 @@ function bindRange(id,key,fmt){
 }
 function applyFormat(k){
   const F=FORMATS[k]; if(!F||F.custom){ state.settings.format='custom'; return; }
-  Object.assign(state.settings,{format:k,polaroidWidthMm:F.w,aspectW:F.aw,aspectH:F.ah,frameMm:F.frame,captionMm:F.cap});
+  Object.assign(state.settings,{format:k,polaroidWidthMm:F.w,aspectW:F.aw,aspectH:F.ah,frameMm:F.frame,frameTopMm:F.top,captionMm:F.cap});
 }
 
 // TEMPLATE (tela inicial) = configuração completa; redefine tudo
@@ -149,12 +151,12 @@ function formatThumbSVG(id){
   const F=FORMATS[id]; if(!F||F.custom) return '';
   const aw=F.aw||1, ah=F.ah||1;
   const photoW=58, photoH=photoW*(ah/aw);
-  const frame=Math.max(2,F.frame/F.w*photoW);
+  const frame=Math.max(2,F.frame/F.w*photoW), top=Math.max(2,(F.top||F.frame)/F.w*photoW);
   const cap=F.cap/F.w*photoW;
-  const W=photoW+frame*2, H=photoH+frame*2+cap, R=2;
+  const W=photoW+frame*2, H=photoH+top+cap, R=2;
   return `<svg viewBox="0 0 ${W.toFixed(1)} ${H.toFixed(1)}" aria-hidden="true">
     <rect x=".5" y=".5" width="${(W-1).toFixed(1)}" height="${(H-1).toFixed(1)}" rx="${R}" fill="#fff" stroke="rgba(20,20,20,.15)" stroke-width="1"/>
-    <rect x="${frame.toFixed(1)}" y="${frame.toFixed(1)}" width="${photoW.toFixed(1)}" height="${photoH.toFixed(1)}" fill="var(--brand-soft)"/>
+    <rect x="${frame.toFixed(1)}" y="${top.toFixed(1)}" width="${photoW.toFixed(1)}" height="${photoH.toFixed(1)}" fill="var(--brand-soft)"/>
   </svg>`;
 }
 /* ============ miniatura de efeito (passo "Efeito", guia) ============
@@ -378,6 +380,10 @@ function bindAll(){
   $('#c_format').onchange=e=>{ pushHistory('fmt'); applyFormat(e.target.value); syncControls(); render(); save(); };
   bindRange('#c_w','polaroidWidthMm',v=>v+' mm');
   bindRange('#c_frame','frameMm',v=>v+' mm');
+  bindRange('#c_frameTop','frameTopMm',v=>v+' mm');
+  [['#c_pdfColor','pdfColor',v=>v],['#c_backSide','backSide',v=>v],['#c_gamma','printGamma',v=>+v]].forEach(([id,k,f])=>{ const e=$(id); if(e) e.onchange=()=>{ state.settings[k]=f(e.value); state.settings=migrateSettings(state.settings); save(); }; });
+  { const sd=$('#s_date'); if(sd) sd.onclick=()=>{ const ph=cur(); if(!ph||!ph.taken) return; pushHistory('date');
+      const d=ph.taken.split('-').reverse().join('/'); ph.caption=(ph.caption||'').trim()?ph.caption.trim()+' · '+d:d; save(); render(); }; }
   bindRange('#c_cap','captionMm',v=>+v<=0?'0 mm (sem legenda)':v+' mm');
   bindRange('#c_radius','radiusMm',v=>v+' mm');
   bindRange('#c_tilt','tiltDeg',v=>v+'°');
@@ -447,7 +453,7 @@ function bindAll(){
   $('#b_zin').onclick=()=>{ userZoomed=true; zoom=clamp(zoom+.1,.12,2.4); applyZoom(); };
   $('#b_zout').onclick=()=>{ userZoomed=true; zoom=clamp(zoom-.1,.12,2.4); applyZoom(); };
   $('#b_fit').onclick=fit;
-  $('#b_print').onclick=()=>{ select(null); setTimeout(()=>window.print(),80); };
+  $('#b_print').onclick=()=>{ select(null); setTimeout(printDoc,80); };
   $('#b_pdf').onclick=exportPDF;
   $('#b_png').onclick=exportPNG;
   $('#b_exportCfg').onclick=e=>{ e.stopPropagation(); toggleExportPop(e.currentTarget); };
@@ -481,10 +487,14 @@ function bindAll(){
   }
   $('#m_pdf').onclick=()=>{ mclose(); exportPDF(); };
   $('#m_png').onclick=()=>{ mclose(); exportPNG(); };
-  $('#m_print').onclick=()=>{ mclose(); select(null); setTimeout(()=>window.print(),80); };
+  $('#m_print').onclick=()=>{ mclose(); select(null); setTimeout(printDoc,80); };
   $('#m_history').onclick=()=>{ mclose(); openHistoryPop(); };
   $('#m_new').onclick=()=>{ mclose(); newProject(); };
   $('#m_save').onclick=()=>{ mclose(); exportProject(); };
+  // predefinição: só os ajustes (papel, margens, cores, saída…), sem páginas nem fotos.
+  // Abrir o arquivo em "Abrir projeto…" aplica os ajustes ao documento atual.
+  $('#m_preset').onclick = () => { mclose(); const keep = PRESET_DROP.reduce((o, k) => (delete o[k], o), JSON.parse(JSON.stringify(state.settings)));
+    downloadBlob(new Blob([JSON.stringify({ preset: true, app: 'polaroidestudio', settings: keep })], { type: 'application/json' }), 'predefinicao-polaroide.json'); toast('Predefinição salva.'); };
   $('#m_open').onclick=()=>{ mclose(); $('#file_open').click(); };
   $('#m_help').onclick=()=>{ mclose(); $('#help').showModal(); };
   $('#m_privacy').onclick=()=>{ mclose(); $('#privacy').showModal(); };

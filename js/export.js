@@ -38,7 +38,9 @@ async function ensureFonts(){
     await document.fonts.load(`400 ${state.settings.captionSizePt*4}px "${fam}"`).catch(()=>{});
   }catch(e){}
 }
-async function drawPage(pageIndex,dpi){
+// opts.back: verso da folha (frente e verso, virar pela borda longa) — as
+// posições espelham na horizontal para cada verso cair atrás do seu card.
+async function drawPage(pageIndex,dpi,opts={}){
   const s=state.settings, g=geom(), L=layout();
   const px=mm=>mm*dpi/25.4;
   const cv=document.createElement('canvas');
@@ -54,14 +56,17 @@ async function drawPage(pageIndex,dpi){
   ctx.fillRect(0,0,cv.width,cv.height);
   const slice=state.photos.slice(pageIndex*L.perPage,(pageIndex+1)*L.perPage);
   const blockW=L.cols*g.polW+(L.cols-1)*s.gapMm;
-  const originX=s.align==='center'?(L.PW-blockW)/2:s.marginMm;
+  const A=printArea();
+  const originX=s.align==='center'?(L.PW-blockW)/2:A.m;
   for(let i=0;i<slice.length;i++){
     const ph=slice[i], col=i%L.cols, row=Math.floor(i/L.cols);
-    drawPol(ctx,px,ph,originX+col*(g.polW+s.gapMm),s.marginMm+row*(g.polH+s.gapMm),g,dpi);
+    const x=originX+col*(g.polW+s.gapMm), y=A.m+row*(g.polH+s.gapMm);
+    if(opts.back) drawPolBack(ctx,px,ph,L.PW-x-g.polW,y,g);
+    else drawPol(ctx,px,ph,x,y,g,dpi,markSegs(col,row,L,g));
   }
   return cv;
 }
-function drawPol(ctx,px,ph,xMm,yMm,g,dpi){
+function drawPol(ctx,px,ph,xMm,yMm,g,dpi,marks){
   const s=state.settings, tilt=tiltOf(ph);
   const w=px(g.polW),h=px(g.polH);
   ctx.save();
@@ -71,7 +76,7 @@ function drawPol(ctx,px,ph,xMm,yMm,g,dpi){
 
   roundRect(ctx,0,0,w,h,px(s.radiusMm)); ctx.fillStyle=s.cardColor||'#ffffff'; ctx.fill();
 
-  const wx=px(g.frame),wy=px(g.frame),ww=px(g.winW),wh=px(g.winH);
+  const wx=px(g.frame),wy=px(g.top),ww=px(g.winW),wh=px(g.winH);
   ctx.save(); ctx.beginPath(); ctx.rect(wx,wy,ww,wh); ctx.clip();
   const m=media[ph.id];
   if(m&&m.fullImg){
@@ -101,7 +106,7 @@ function drawPol(ctx,px,ph,xMm,yMm,g,dpi){
     ctx.textAlign='center'; ctx.textBaseline='middle';
     try{ ctx.letterSpacing=((s.captionSpacing||0)*dpi/96)+'px'; }catch(_){}
     if(s.captionShadow){ ctx.shadowColor='rgba(0,0,0,0.30)'; ctx.shadowBlur=Math.max(1,px(0.25)); ctx.shadowOffsetY=Math.max(1,px(0.25)); }
-    wrapText(ctx,cap,w/2,px(g.frame+g.winH)+px(g.cap)/2,w-px(6),fpx*1.16);
+    wrapText(ctx,cap,w/2,px(g.top+g.winH)+px(g.cap)/2,w-px(6),fpx*1.16);
     ctx.shadowColor='transparent'; ctx.shadowBlur=0; ctx.shadowOffsetY=0;
     try{ ctx.letterSpacing='0px'; }catch(_){}
   }
@@ -115,24 +120,42 @@ function drawPol(ctx,px,ph,xMm,yMm,g,dpi){
     drawDecor(ctx,px,g,s.tape,s.tapeColor);
     ctx.restore();
   }
-  ctx.restore();
-
-  if(s.cornerMarks){
-    const o=px(s.markOffset),l=px(s.markLen),x=px(xMm),y=px(yMm);
-    ctx.strokeStyle='#111'; ctx.lineWidth=Math.max(1,px(0.15));
-    const seg=(a,b,c,d)=>{ctx.beginPath();ctx.moveTo(a,b);ctx.lineTo(c,d);ctx.stroke();};
-    seg(x-o-l,y,x-o,y); seg(x,y-o-l,x,y-o);
-    seg(x+w+o,y,x+w+o+l,y); seg(x+w,y-o-l,x+w,y-o);
-    seg(x-o-l,y+h,x-o,y+h); seg(x,y+h+o,x,y+h+o+l);
-    seg(x+w+o,y+h,x+w+o+l,y+h); seg(x+w,y+h+o,x+w,y+h+o+l);
+  // marcas de corte no MESMO espaço inclinado do card (antes ficavam retas
+  // enquanto o card girava — cortar pela marca cortava a foto). (A10)
+  if(s.cornerMarks && marks){
+    ctx.strokeStyle='#111'; ctx.lineWidth=Math.max(1,px(0.12));
+    marks.forEach(([a,b,c,d])=>{ ctx.beginPath(); ctx.moveTo(px(a),px(b)); ctx.lineTo(px(c),px(d)); ctx.stroke(); });
   }
+  ctx.restore();
+}
+// verso do card: legenda e data da foto (ou linhas para escrever à mão)
+function drawPolBack(ctx,px,ph,xMm,yMm,g){
+  const s=state.settings, tilt=-tiltOf(ph);
+  const w=px(g.polW),h=px(g.polH);
+  ctx.save();
+  ctx.translate(px(xMm)+w/2,px(yMm)+h/2);
+  if(tilt) ctx.rotate(tilt*Math.PI/180);
+  ctx.translate(-w/2,-h/2);
+  roundRect(ctx,0,0,w,h,px(s.radiusMm)); ctx.fillStyle=s.cardColor||'#ffffff'; ctx.fill();
+  ctx.fillStyle=s.captionColor; ctx.strokeStyle=s.captionColor; ctx.textAlign='center'; ctx.textBaseline='middle';
+  if(s.backSide==='lines'){
+    ctx.globalAlpha=0.35; ctx.lineWidth=Math.max(1,px(0.15));
+    for(let y=px(g.top+10); y<h-px(8); y+=px(8)){ ctx.beginPath(); ctx.moveTo(px(g.frame+2),y); ctx.lineTo(w-px(g.frame+2),y); ctx.stroke(); }
+    ctx.globalAlpha=1;
+  }else{
+    const cap=(ph.caption||'').trim();
+    ctx.font=`400 ${px(Math.min(g.polW*0.09,6))}px ${s.captionFont}`;
+    if(cap) wrapText(ctx,s.captionUpper?cap.toUpperCase():cap,w/2,h*0.45,w-px(10),px(Math.min(g.polW*0.09,6))*1.2);
+    if(ph.taken){ ctx.font=`400 ${px(3.2)}px 'Arimo',sans-serif`; ctx.globalAlpha=0.7; ctx.fillText(ph.taken.split('-').reverse().join('/'),w/2,h*0.45+px(Math.min(g.polW*0.09,6))*2.2); ctx.globalAlpha=1; }
+  }
+  ctx.restore();
 }
 // efeitos (fita / grampo / mini brad / percevejo) presos nos cantos da janela
 // da foto, no espaço local já inclinado do polaroide e recortado no card.
 // g = geometria em mm; px converte mm->px.
 function drawDecor(ctx,px,g,mode,color){
   const [kind,where]=mode.split('-');
-  const wx=px(g.frame),wy=px(g.frame),ww=px(g.winW),wh=px(g.winH);
+  const wx=px(g.frame),wy=px(g.top),ww=px(g.winW),wh=px(g.winH);
   const inx=px(1.5);
   const spots = where==='top'
     ? [[wx+ww/2,wy+px(1),-2]]
@@ -193,52 +216,87 @@ function staplePiece(ctx,px,sw,sh){
 
 /* ---------- exportações ---------- */
 
-// PDF mínimo escrito na mão: 1 página por folha, cada uma com um JPEG
-// (DCTDecode) ocupando o MediaBox inteiro. Sem biblioteca. imgs = [{bytes,w,h}]
-// em pixels; wPt/hPt = tamanho da página em pontos (1pt = 1/72 pol).
-function pdfFromImages(imgs,wPt,hPt){
-  const enc=new TextEncoder(); const chunks=[]; let len=0;
-  const out=d=>{ const u=(d instanceof Uint8Array)?d:enc.encode(d); chunks.push(u); len+=u.length; };
-  const off=[]; const N=imgs.length; const total=2+3*N;
-  out('%PDF-1.4\n'); out(new Uint8Array([37,226,227,207,211,10]));
-  const obj=(n,f)=>{ off[n]=len; out(n+' 0 obj\n'); f(); out('\nendobj\n'); };
-  obj(1,()=>out('<< /Type /Catalog /Pages 2 0 R >>'));
-  const kids=[]; for(let i=0;i<N;i++) kids.push((3+i*3)+' 0 R');
-  obj(2,()=>out(`<< /Type /Pages /Kids [${kids.join(' ')}] /Count ${N} >>`));
-  for(let i=0;i<N;i++){
-    const pg=3+i*3, ct=4+i*3, im=5+i*3;
-    const cs=`q\n${wPt.toFixed(2)} 0 0 ${hPt.toFixed(2)} 0 0 cm\n/Im0 Do\nQ`;
-    obj(pg,()=>out(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${wPt.toFixed(2)} ${hPt.toFixed(2)}] `+
-      `/Resources << /XObject << /Im0 ${im} 0 R >> >> /Contents ${ct} 0 R >>`));
-    obj(ct,()=>{ out(`<< /Length ${cs.length} >>\nstream\n`); out(cs); out('\nendstream'); });
-    obj(im,()=>{ out(`<< /Type /XObject /Subtype /Image /Width ${imgs[i].w} /Height ${imgs[i].h} `+
-      `/ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${imgs[i].bytes.length} >>\nstream\n`);
-      out(imgs[i].bytes); out('\nendstream'); });
-  }
-  const xref=len;
-  out(`xref\n0 ${total+1}\n0000000000 65535 f \n`);
-  for(let n=1;n<=total;n++) out(String(off[n]).padStart(10,'0')+' 00000 n \n');
-  out(`trailer\n<< /Size ${total+1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`);
-  const buf=new Uint8Array(len); let p=0; for(const c of chunks){ buf.set(c,p); p+=c.length; }
-  return buf;
+// folhas de saída: frente (e verso, se ligado) na ordem de impressão duplex
+function outputSheets(){
+  const L=layout(), out=[];
+  for(let p=0;p<L.pages;p++){ out.push({p,back:false}); if(state.settings.backSide!=='none') out.push({p,back:true}); }
+  return out;
 }
+// compensação de ganho de ponto: clareia os meios-tons (gamma > 1) direto nos pixels
+function applyGamma(imgData,gamma){
+  if(!gamma||gamma===1) return;
+  const lut=new Uint8Array(256); for(let v=0;v<256;v++) lut[v]=Math.round(255*Math.pow(v/255,1/gamma));
+  const d=imgData.data; for(let i=0;i<d.length;i+=4){ d[i]=lut[d[i]]; d[i+1]=lut[d[i+1]]; d[i+2]=lut[d[i+2]]; }
+}
+// PDF pelo gerador do núcleo (vendor/core/pdf.js): RGB para casa ou CMYK
+// FOGRA39 · PDF/X-4 para gráfica — a mesma saída das outras ferramentas.
 async function exportPDF(){
   if(!state.photos.length){ toast('Adicione fotos primeiro.'); return; }
-  const dpi=exportDPI();
+  const s=state.settings, dpi=exportDPI(), cmyk=s.pdfColor==='cmyk';
   busy('Gerando PDF em '+dpi+' dpi…');
   try{
     await ensureFonts(); await ensureFullImages();
-    const L=layout(), imgs=[];
-    for(let p=0;p<L.pages;p++){
-      const cv=await drawPage(p,dpi);
-      const blob=await new Promise(r=>cv.toBlob(r,'image/jpeg',0.92));
-      imgs.push({bytes:new Uint8Array(await blob.arrayBuffer()),w:cv.width,h:cv.height});
+    const L=layout(), sheets=outputSheets(), images=[], pages=[];
+    const cm=cmyk?await EPPen.loadCmyk():null;
+    const wPt=L.PW/25.4*72, hPt=L.PH/25.4*72;
+    for(let i=0;i<sheets.length;i++){
+      busy(`Folha ${i+1} de ${sheets.length}${cmyk?' · convertendo para CMYK':''}…`);
+      await new Promise(r=>setTimeout(r,0));
+      const cv=await drawPage(sheets[i].p,dpi,{back:sheets[i].back});
+      const ctx=cv.getContext('2d');
+      let bytes;
+      if(cmyk||s.printGamma!==1){
+        const id=ctx.getImageData(0,0,cv.width,cv.height);
+        if(!cmyk) applyGamma(id,s.printGamma);
+        if(cmyk) bytes=EPJpeg.encode(cm.rgbaToCmyk(id.data,cv.width,cv.height,{gamma:s.printGamma}),cv.width,cv.height,4,92);
+        else { ctx.putImageData(id,0,0); bytes=new Uint8Array(await (await new Promise(r=>cv.toBlob(r,'image/jpeg',0.93))).arrayBuffer()); }
+      }else bytes=new Uint8Array(await (await new Promise(r=>cv.toBlob(r,'image/jpeg',0.93))).arrayBuffer());
+      const nm='Im'+(i+1);
+      images.push({name:nm,bytes,dict:`<< /Type /XObject /Subtype /Image /Width ${cv.width} /Height ${cv.height} /ColorSpace ${cmyk?'/DeviceCMYK /Decode [1 0 1 0 1 0 1 0]':'/DeviceRGB'} /BitsPerComponent 8 /Filter /DCTDecode >>`});
+      pages.push({content:`q ${wPt.toFixed(3)} 0 0 ${hPt.toFixed(3)} 0 0 cm /${nm} Do Q`,wPt,hPt});
     }
-    const pdf=pdfFromImages(imgs,L.PW/25.4*72,L.PH/25.4*72);
-    downloadBlob(new Blob([pdf],{type:'application/pdf'}),'polaroides.pdf');
-    toast('PDF gerado: '+L.pages+' folha(s).');
+    busy('Montando o arquivo…');
+    const pdf=await EPPdf.build({pages,images,fonts:{resolve:()=>null},deflate:null,
+      meta:{title:'Polaroides',creator:'Polaroide Studio — Esmeralda Paper'},
+      pdfx:cm?{icc:cm.icc,identifier:'FOGRA39',info:'Coated FOGRA39 (ISO 12647-2:2004)'}:null});
+    downloadBlob(new Blob([pdf],{type:'application/pdf'}),cmyk?'polaroides-grafica-CMYK.pdf':'polaroides.pdf');
+    toast('PDF'+(cmyk?' para gráfica (CMYK · PDF/X-4)':'')+': '+sheets.length+' página(s)'+(s.backSide!=='none'?' (frente e verso)':'')+'.');
   }catch(e){ console.error(e); toast('Erro ao gerar PDF.'); }
   unbusy();
+}
+// Impressão pelo MESMO renderizador do PDF (antes imprimia o DOM da tela, que
+// podia diferir do arquivo: fontes, filtros e marcas). (A11)
+async function printDoc(){
+  if(!state.photos.length){ toast('Adicione fotos primeiro.'); return; }
+  const dpi=Math.min(300,exportDPI());
+  busy('Preparando impressão…');
+  try{
+    await ensureFonts(); await ensureFullImages();
+    const L=layout(), sheets=outputSheets();
+    const old=document.getElementById('printRoot'); if(old) old.remove();
+    const root=document.createElement('div'); root.id='printRoot';
+    const urls=[];
+    for(const sh of sheets){
+      const cv=await drawPage(sh.p,dpi,{back:sh.back});
+      if(state.settings.printGamma!==1){ const c=cv.getContext('2d'), id=c.getImageData(0,0,cv.width,cv.height); applyGamma(id,state.settings.printGamma); c.putImageData(id,0,0); }
+      const url=URL.createObjectURL(await new Promise(r=>cv.toBlob(r,'image/jpeg',0.93)));
+      urls.push(url);
+      const img=document.createElement('img'); img.className='psheet'; img.alt=''; img.src=url;
+      img.style.width=L.PW+'mm'; img.style.height=(L.PH-0.2)+'mm';
+      root.appendChild(img);
+    }
+    document.body.appendChild(root);
+    await Promise.all([...root.querySelectorAll('img')].map(im=>im.decode().catch(()=>{})));
+    const [PW,PH]=pageDims();
+    try{ pageSheet.replaceSync(`@media print{@page{size:${PW}mm ${PH}mm;margin:0} body>*:not(#printRoot){display:none!important} #printRoot{display:block!important} #printRoot .psheet{display:block;break-after:page;page-break-after:always} #printRoot .psheet:last-child{break-after:auto;page-break-after:auto}} @media screen{#printRoot{display:none}}`); }catch(e){}
+    unbusy();
+    let done=false;
+    const cleanup=()=>{ if(done) return; done=true; root.remove(); urls.forEach(u=>URL.revokeObjectURL(u)); applyVars(); removeEventListener('afterprint',onAfter); };
+    const onAfter=()=>setTimeout(cleanup,4000);
+    addEventListener('afterprint',onAfter); setTimeout(cleanup,120000);
+    toast(`Impressão: ${sheets.length} página(s) — escala 100%, margens Nenhuma${state.settings.backSide!=='none'?', frente e verso pela borda longa':''}.`);
+    window.print();
+  }catch(e){ console.error(e); toast('Erro ao preparar a impressão.'); unbusy(); }
 }
 async function exportPNG(){
   if(!state.photos.length){ toast('Adicione fotos primeiro.'); return; }
@@ -267,12 +325,17 @@ async function exportProject(){
   }catch(e){ console.error(e); toast('Erro ao salvar o projeto.'); }
   unbusy();
 }
+const PRESET_DROP=[];
 async function importProject(file){
   if(file.size>250*1024*1024){ alert('Arquivo de projeto grande demais.'); return; }
   busy('Abrindo projeto…');
   try{
     const d=JSON.parse(await file.text());
     if(!d||typeof d!=='object'||Array.isArray(d)) throw new Error('estrutura');
+    if(d.preset===true&&d.settings&&typeof d.settings==='object'){
+      pushHistory('preset'); state.settings=migrateSettings({...state.settings,...d.settings});
+      syncControls(); applyVars(); render(); save(); fit(); toast('Predefinição aplicada.'); unbusy(); return;
+    }
     const raw=Array.isArray(d.photos)?d.photos.slice(0,400):[];
     Object.keys(media).forEach(k=>delete media[k]);
     state={settings:migrateSettings({...DEFAULTS,...(d.settings&&typeof d.settings==='object'?d.settings:{})}),photos:[]};

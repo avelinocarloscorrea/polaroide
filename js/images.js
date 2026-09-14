@@ -47,18 +47,40 @@ async function bakeImage(src){
   const w=bmp.width||bmp.naturalWidth, h=bmp.height||bmp.naturalHeight;
   if(!w||!h) throw new Error('Imagem inválida.');
   if(w>MAX_SIDE||h>MAX_SIDE||w*h>MAX_AREA) throw new Error('Imagem com dimensões excessivas.');
-  const [full,preview]=await Promise.all([toBlob(bmp,3000,0.92),toBlob(bmp,1400,0.82)]);
+  const [full,preview]=await Promise.all([toBlob(bmp,FULL_SIDE,0.93),toBlob(bmp,1400,0.82)]);
   if(bmp.close) bmp.close();
   return {full,preview,natW:w,natH:h};
 }
+// data da foto (EXIF DateTimeOriginal), lida do arquivo ORIGINAL antes de o
+// redesenho no canvas descartar os metadados. Só a data — nada de GPS.
+async function exifDate(file){
+  try{
+    if(!/jpe?g/i.test(file.type||file.name||'')) return '';
+    const u=new Uint8Array(await file.slice(0,256*1024).arrayBuffer());
+    if(u[0]!==0xFF||u[1]!==0xD8) return '';
+    let p=2;
+    while(p<u.length-4){
+      if(u[p]!==0xFF) return '';
+      const mk=u[p+1], len=(u[p+2]<<8)|u[p+3];
+      if(mk===0xE1 && String.fromCharCode(u[p+4],u[p+5],u[p+6],u[p+7])==='Exif'){
+        const seg=new TextDecoder('latin1').decode(u.subarray(p+10,p+2+len));
+        const m=/(\d{4}):(\d{2}):(\d{2}) \d{2}:\d{2}:\d{2}/.exec(seg);
+        return m&&+m[1]>1900?`${m[1]}-${m[2]}-${m[3]}`:'';
+      }
+      if(mk===0xDA) return '';
+      p+=2+len;
+    }
+  }catch(e){}
+  return '';
+}
 async function processFile(file){
-  const {full,preview,natW,natH}=await bakeImage(file);
+  const [{full,preview,natW,natH},taken]=await Promise.all([bakeImage(file),exifDate(file)]);
   const id=uid();
   const rec={full,preview,natW,natH,name:safeName(file.name)};
   if(idbOK){ try{ await DB.set(id,rec); }catch(e){ idbFail(e); } }
   hydrate(id,rec);
   const fp=(state.settings&&PRESETS[state.settings.filterPreset])?state.settings.filterPreset:'original';
-  return {id,caption:'',zoomF:1,ox:0,oy:0,rot:0,flipH:false,seed:Math.random(),natW,natH,filter:{...PRESETS[fp],preset:fp}};
+  return {id,caption:'',zoomF:1,ox:0,oy:0,rot:0,flipH:false,seed:Math.random(),natW,natH,taken,filter:{...PRESETS[fp],preset:fp}};
 }
 function acceptable(f){
   const t=f.type||'';

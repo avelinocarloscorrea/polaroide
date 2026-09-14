@@ -89,6 +89,6 @@
   #mtabs button.on{color:var(--brand)}
   #mtabs button:active{background:var(--brand-soft)}
 
-  #toast{bottom:auto;top:calc(56px + env(safe-area-inset-top,0px));max-width:calc(100vw - 24px);z-index:80}
+  #toast{bottom:auto!important;top:calc(56px + env(safe-area-inset-top,0px));max-width:calc(100vw - 24px);height:auto;z-index:80}
   #busy{z-index:95}
 }

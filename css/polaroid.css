@@ -1,6 +1,6 @@
 /* css/polaroid.css  (o card, a janela da foto, a legenda, alças) */
 .pol{position:relative;background:var(--cardBg,#fff);flex:none;box-sizing:border-box;
-  padding:var(--frame) var(--frame) 0 var(--frame);border-radius:var(--radius);box-shadow:var(--polShadow,none)}
+  padding:var(--frameTop,var(--frame)) var(--frame) 0 var(--frame);border-radius:var(--radius);box-shadow:var(--polShadow,none)}
 .pol.sel{outline:2px solid var(--brand)!important;outline-offset:3px}
 .pol .marks{position:absolute;inset:0;pointer-events:none;overflow:visible}
 .win{position:relative;width:100%;aspect-ratio:var(--winAspect);overflow:hidden;background:#ececec;cursor:grab;touch-action:none}

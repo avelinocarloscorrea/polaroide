@@ -35,17 +35,18 @@
 <meta name="twitter:title" content="Polaroide Studio — monte polaroides prontos para imprimir">
 <meta name="twitter:description" content="Monte polaroides numa folha pronta para imprimir, sem cadastro e sem enviar suas fotos a servidor nenhum.">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/arimo-latin-400-normal.woff2">
-<link rel="stylesheet" href="css/base.css?v=260914001752">
-<link rel="stylesheet" href="css/layout.css?v=260914001752">
-<link rel="stylesheet" href="css/polaroid.css?v=260914001752">
-<link rel="stylesheet" href="css/effects.css?v=260914001752">
-<link rel="stylesheet" href="css/components.css?v=260914001752">
-<link rel="stylesheet" href="css/util.css?v=260914001752">
-<link rel="stylesheet" href="css/print.css?v=260914001752">
-<link rel="stylesheet" href="css/m-shell.css?v=260914001752">
-<link rel="stylesheet" href="css/m-panels.css?v=260914001752">
-<link rel="stylesheet" href="css/m-sheet.css?v=260914001752">
-<link rel="stylesheet" href="vendor/core/shell.css?v=260914001752">
+<link rel="stylesheet" href="css/base.css?v=260914021041">
+<link rel="stylesheet" href="css/layout.css?v=260914021041">
+<link rel="stylesheet" href="css/polaroid.css?v=260914021041">
+<link rel="stylesheet" href="css/effects.css?v=260914021041">
+<link rel="stylesheet" href="css/components.css?v=260914021041">
+<link rel="stylesheet" href="css/util.css?v=260914021041">
+<link rel="stylesheet" href="css/print.css?v=260914021041">
+<link rel="stylesheet" href="css/m-shell.css?v=260914021041">
+<link rel="stylesheet" href="css/m-panels.css?v=260914021041">
+<link rel="stylesheet" href="css/m-sheet.css?v=260914021041">
+<link rel="stylesheet" href="vendor/core/fonts/fonts.css?v=260914021041">
+<link rel="stylesheet" href="vendor/core/shell.css?v=260914021041">
 </head>
 <body>
 <div id="app">
@@ -112,8 +113,9 @@
         </div>
         <div class="grp-block">
           <div class="grp-title">Moldura</div>
-          <label>Borda branca <span class="v" id="v_frame"></span><input type="range" id="c_frame" min="1" max="20" step="0.5"></label>
-          <label>Faixa da legenda <span class="v" id="v_cap"></span><input type="range" id="c_cap" min="0" max="44" step="0.5"></label>
+          <label>Borda branca <span class="v" id="v_frame"></span><input type="range" id="c_frame" min="1" max="20" step="0.05"></label>
+          <label>Borda de cima <span class="v" id="v_frameTop"></span><input type="range" id="c_frameTop" min="1" max="20" step="0.05"></label>
+          <label>Faixa da legenda <span class="v" id="v_cap"></span><input type="range" id="c_cap" min="0" max="44" step="0.05"></label>
           <label>Cantos arredondados <span class="v" id="v_radius"></span><input type="range" id="c_radius" min="0" max="8" step="0.5"></label>
           <label>Inclinação aleatória <span class="v" id="v_tilt"></span><input type="range" id="c_tilt" min="0" max="8" step="0.5"></label>
         </div>
@@ -133,6 +135,8 @@
               <option value="letter">Carta (216 × 279 mm)</option>
               <option value="a3">A3 (297 × 420 mm)</option>
               <option value="a5">A5 (148 × 210 mm)</option>
+              <option value="f10x15">Foto 10 × 15 cm (sem margem)</option>
+              <option value="f13x18">Foto 13 × 18 cm (sem margem)</option>
             </select></label>
           <label class="row"><input type="checkbox" id="c_landscape"> Folha deitada (paisagem)</label>
         </div>
@@ -315,6 +319,7 @@
       <div class="aside-title"><span data-i="image"></span> Foto selecionada</div>
       <img id="s_thumb" alt="">
       <div class="dpibar"><span class="dot" id="s_dot"></span><span id="s_dpi"></span></div>
+      <button id="s_date" class="wfull ghost" hidden>Pôr a data da foto na legenda</button>
 
       <label class="mob-only">Legenda
         <input type="text" id="s_caption" maxlength="500" placeholder="(em branco)" autocomplete="off"></label>
@@ -498,6 +503,7 @@
   <button id="m_new" data-i="filenew">Novo projeto…</button>
   <button id="m_save" data-i="save">Salvar projeto (.json)</button>
   <button id="m_open" data-i="folder">Abrir projeto…</button>
+  <button id="m_preset" data-i="save">Salvar predefinição (só ajustes)</button>
   <button id="m_history" data-i="clock">Histórico de alterações</button>
   <div class="msep"></div>
   <div class="menu-h">Exportar</div>
@@ -542,12 +548,24 @@
           <div id="xp_cut" class="ep-cards compact"></div>
         </div>
         <div class="xp-sec">
+          <div class="xp-h">Arquivo para</div>
+          <select id="c_pdfColor" class="xp-src"><option value="rgb">Casa (RGB)</option><option value="cmyk">Gráfica (CMYK)</option></select>
+          <div id="xp_color"></div>
+          <span class="fld-lbl">Verso (frente e verso)</span>
+          <select id="c_backSide" class="xp-src"><option value="none">Sem verso</option><option value="caption">Legenda e data</option><option value="lines">Linhas para escrever</option></select>
+          <div id="xp_back"></div>
+        </div>
+        <div class="xp-sec">
           <div class="xp-h">Qualidade do PDF</div>
           <select id="c_dpi" class="xp-src">
             <option value="200">200 dpi</option><option value="300">300 dpi</option><option value="450">450 dpi</option><option value="600">600 dpi</option>
           </select>
           <div id="xp_dpi"></div>
+          <span class="fld-lbl">Compensar ganho de ponto (papel absorvente escurece a foto)</span>
+          <select id="c_gamma" class="xp-src"><option value="1">Não</option><option value="1.1">Leve</option><option value="1.2">Forte</option></select>
+          <div id="xp_gamma"></div>
           <p class="hint" id="xp_dpiHint"></p>
+          <button type="button" id="b_calib" class="wfull ghost">Baixar folha de calibração (PDF)</button>
         </div>
         <div class="xp-sec">
           <div class="xp-h">Na hora de imprimir</div>
@@ -607,21 +625,28 @@
   </div>
 </dialog>
 
-<script defer src="vendor/core/shell.js?v=260914001752"></script>
-<script defer src="js/config.js?v=260914001752"></script>
-<script defer src="js/state.js?v=260914001752"></script>
-<script defer src="js/images.js?v=260914001752"></script>
-<script defer src="js/layout.js?v=260914001752"></script>
-<script defer src="js/render.js?v=260914001752"></script>
-<script defer src="js/history.js?v=260914001752"></script>
-<script defer src="js/export.js?v=260914001752"></script>
-<script defer src="js/ui.js?v=260914001752"></script>
-<script defer src="js/wizard.js?v=260914001752"></script>
-<script defer src="js/m-core.js?v=260914001752"></script>
-<script defer src="js/m-panels.js?v=260914001752"></script>
-<script defer src="js/m-sheet.js?v=260914001752"></script>
-<script defer src="js/m-install.js?v=260914001752"></script>
-<script defer src="js/events.js?v=260914001752"></script>
-<script defer src="js/shell-ui.js?v=260914001752"></script>
+<script defer src="vendor/core/shell.js?v=260914021041"></script>
+<script defer src="vendor/core/fonts/metrics.js?v=260914021041"></script>
+<script defer src="vendor/core/ttf.js?v=260914021041"></script>
+<script defer src="vendor/core/jpeg.js?v=260914021041"></script>
+<script defer src="vendor/core/color.js?v=260914021041"></script>
+<script defer src="vendor/core/pdf.js?v=260914021041"></script>
+<script defer src="vendor/core/pen.js?v=260914021041"></script>
+<script defer src="vendor/core/print.js?v=260914021041"></script>
+<script defer src="js/config.js?v=260914021041"></script>
+<script defer src="js/state.js?v=260914021041"></script>
+<script defer src="js/images.js?v=260914021041"></script>
+<script defer src="js/layout.js?v=260914021041"></script>
+<script defer src="js/render.js?v=260914021041"></script>
+<script defer src="js/history.js?v=260914021041"></script>
+<script defer src="js/export.js?v=260914021041"></script>
+<script defer src="js/ui.js?v=260914021041"></script>
+<script defer src="js/wizard.js?v=260914021041"></script>
+<script defer src="js/m-core.js?v=260914021041"></script>
+<script defer src="js/m-panels.js?v=260914021041"></script>
+<script defer src="js/m-sheet.js?v=260914021041"></script>
+<script defer src="js/m-install.js?v=260914021041"></script>
+<script defer src="js/events.js?v=260914021041"></script>
+<script defer src="js/shell-ui.js?v=260914021041"></script>
 </body>
 </html>

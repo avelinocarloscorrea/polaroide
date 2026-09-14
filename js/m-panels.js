@@ -112,7 +112,7 @@ function mBindPanels(){
   mSeg('#mx_dpi',v=>{ state.settings.exportDPI=+v; syncControls(); save(); });
   $('#mx_pdf').onclick=()=>{ if(typeof exportPDF==='function') exportPDF(); };
   $('#mx_png').onclick=()=>{ if(typeof exportPNG==='function') exportPNG(); };
-  $('#mx_print').onclick=()=>{ if(typeof select==='function') select(null); setTimeout(()=>window.print(),80); };
+  $('#mx_print').onclick=()=>{ if(typeof select==='function') select(null); setTimeout(printDoc,80); };
   $('#mx_save').onclick=()=>{ if(typeof exportProject==='function') exportProject(); };
   $('#mx_open').onclick=()=>{ const f=$('#file_open'); if(f) f.click(); };
 

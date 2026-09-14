@@ -276,13 +276,15 @@
       </figure>
 
       <ul>
-        <li><strong>Modelo pronto</strong> — Polaroid clássico (600), quadrado SX-70, grande,
-          Instax Mini/Square/Wide, quadrado moderno, retrato 10×15, ou Personalizado.</li>
+        <li><strong>Modelo pronto</strong> — medidas <strong>reais</strong> dos filmes: Polaroid 600/i-Type e SX-70 (88 × 107 mm, foto 79 × 79),
+          Spectra (102 × 101), Go (54 × 67), Instax Mini (54 × 86, foto 46 × 62), Square (72 × 86), Wide (108 × 86, foto 99 × 62),
+          quadrado 10 × 10 cm, retrato 10 × 15 cm, quadrado moderno ou Personalizado. Os formatos reais saem sempre no tamanho exato;
+          o encaixe na folha só decide quantos cabem.</li>
         <li><strong>Largura</strong> do card inteiro (em mm). Com <strong>Encaixar as fotos na
           folha</strong> ligado (seção 9) essa largura passa a ser calculada pela grade — o
           controle mostra o valor final e fica travado quando colunas e linhas são fixas.</li>
         <li><strong>Proporção da foto</strong> (L : A) — 1:1, 4:3, 3:2… ou valores livres.</li>
-        <li><strong>Borda branca</strong> — a moldura ao redor da foto.</li>
+        <li><strong>Borda branca</strong> — a moldura dos lados; <strong>Borda de cima</strong> — a de cima (nos filmes reais ela é diferente das laterais).</li>
         <li><strong>Faixa da legenda</strong> — altura da tira branca de baixo (0 = sem faixa).</li>
         <li><strong>Cantos arredondados</strong> e <strong>Inclinação aleatória</strong> (deixa
           cada polaroide levemente torto, estilo colagem).</li>
@@ -360,8 +362,8 @@
           feito pelo próprio programa — o resultado é sempre igual, sem depender do navegador.</div>
         <div class="card"><h4>PNG</h4>Exporta <strong>só a folha atual</strong> como imagem
           (útil para anexar ou pré-visualizar).</div>
-        <div class="card"><h4>Imprimir</h4>Abre a janela de impressão do navegador. Use quando
-          for imprimir direto, sem passar por arquivo.</div>
+        <div class="card"><h4>Imprimir</h4>Monta as folhas com o mesmo motor do PDF e abre a
+          janela de impressão do navegador. Use quando for imprimir direto.</div>
         <div class="card"><h4>Qualidade</h4>Na janela <strong>Imprimir e baixar</strong>:
           Rascunho (200&nbsp;dpi), Impressão (300 — o padrão), Alta (450), Máxima (600).</div>
       </div>
@@ -374,6 +376,17 @@
         <img src="assets/guia/04-exportar.png" alt="Janela Imprimir e baixar com a prévia das folhas, o tipo de corte e a qualidade" loading="lazy" width="1440" height="900">
         <figcaption>Imprimir e baixar: prévia real, verificação, papel, guia de corte e qualidade.</figcaption>
       </figure>
+      <h3>Arquivo para a gráfica, verso e calibração</h3>
+      <ul>
+        <li><strong>Arquivo para → Gráfica (CMYK)</strong>: PDF/X-4 com as fotos convertidas para CMYK pelo perfil FOGRA39.</li>
+        <li><strong>Verso</strong>: legenda e data da foto (ou linhas para escrever) atrás de cada polaroide, na posição espelhada — imprima frente e verso virando pela borda longa.</li>
+        <li><strong>Compensar ganho de ponto</strong>: clareia os meios-tons para papel que absorve tinta.</li>
+        <li><strong>Resolução</strong>: o selo mostra os dpi reais da foto no tamanho impresso — verde a partir de 300 dpi, amarelo de 200 a 299, vermelho abaixo de 200.</li>
+        <li><strong>Data da foto</strong>: se a foto tiver a data de captura (EXIF), o botão <em>Pôr a data da foto na legenda</em> aparece no painel da foto. Só a data é lida; o resto dos metadados, como a localização, é descartado.</li>
+        <li><strong>Papel 10 × 15 e 13 × 18</strong> aceitam margem 0 (impressoras de foto sem borda).</li>
+        <li><strong>Folha de calibração</strong>: régua de 100 mm e escala de cinza para conferir a impressora antes.</li>
+        <li><strong>Imprimir</strong> usa o mesmo desenho do PDF, com as mesmas fontes, filtros e marcas.</li>
+      </ul>
       <h3>Ajustes ao imprimir direto</h3>
       <p>Na janela de impressão do navegador:</p>
       <ul>

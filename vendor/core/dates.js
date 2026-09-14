@@ -409,6 +409,9 @@
     for (var i = 0; i < lines.length && out.length < max; i++) {
       var raw = lines[i].trim();
       if (!raw) continue;
+      // recorrentes: "toda segunda Aula de inglês", "todo dia 5 Aluguel"
+      var rec = parseRecurring(raw);
+      if (rec) { out.push(rec); continue; }
       // separadores: ; , tab, ou "espaço após o primeiro token de data"
       var parts = raw.split(/\s*[;,\t]\s*/);
       var dateTok, rest;
@@ -437,12 +440,30 @@
     return out;
   }
 
+  var DOW_WORDS = { domingo: 0, segunda: 1, terca: 2, "terça": 2, quarta: 3, quinta: 4, sexta: 5, sabado: 6, "sábado": 6,
+    dom: 0, seg: 1, ter: 2, qua: 3, qui: 4, sex: 5, sab: 6, "sáb": 6 };
+  function parseRecurring(raw) {
+    var m = raw.match(/^tod[ao]s?\s+(?:as\s+|os\s+)?(domingo|segunda|ter[cç]a|quarta|quinta|sexta|s[aá]bado|dom|seg|ter|qua|qui|sex|s[aá]b)s?(?:-feiras?)?\b\s*[;,:\-\u2013\u2014]?\s*([\s\S]+)$/i);
+    if (m) {
+      var t = cleanTitle(m[2]);
+      if (t) return { recurring: true, rule: "weekly", dow: DOW_WORDS[m[1].toLowerCase()], title: t, year: null, month: null, day: null, ymd: null };
+    }
+    m = raw.match(/^todo\s+(?:m[eê]s\s+)?(?:no\s+)?dia\s+(\d{1,2})\b\s*[;,:\-\u2013\u2014]?\s*([\s\S]+)$/i);
+    if (m && +m[1] >= 1 && +m[1] <= 31) {
+      var t2 = cleanTitle(m[2]);
+      if (t2) return { recurring: true, rule: "monthly", day: +m[1], title: t2, year: null, month: null, ymd: null };
+    }
+    return null;
+  }
+
   // Indexa eventos por 'MM-DD' (só os recorrentes, sem ano) e por 'AAAA-MM-DD'
   // (os de data fixa), para consulta rápida ao desenhar um mês/semana/dia.
   // Um evento de data fixa NÃO se repete no aniversário — só cai no ano dele.
   function indexEvents(events) {
-    var byMd = Object.create(null), byYmd = Object.create(null);
+    var byMd = Object.create(null), byYmd = Object.create(null), weekly = [[], [], [], [], [], [], []], monthly = Object.create(null);
     (events || []).forEach(function (e) {
+      if (e.rule === "weekly") { weekly[e.dow].push(e.title); return; }
+      if (e.rule === "monthly") { (monthly[e.day] || (monthly[e.day] = [])).push(e.title); return; }
       if (e.ymd) {
         (byYmd[e.ymd] || (byYmd[e.ymd] = [])).push(e.title);
       } else {
@@ -456,10 +477,64 @@
       on: function (dt) {
         var ymd = typeof dt === "string" ? dt : dateToYmd(dt);
         var md = ymd.slice(5);
-        return [].concat(byYmd[ymd] || [], byMd[md] || []);
+        var d = typeof dt === "string" ? ymdToDate(dt) : dt;
+        return [].concat(byYmd[ymd] || [], byMd[md] || [], d ? (weekly[d.getDay()] || []) : [], d ? (monthly[d.getDate()] || []) : []);
       }
     };
   }
+
+  /* ===================== fases da lua ===================== */
+  // Jean Meeus, "Astronomical Algorithms", cap. 49 (termos principais — erro
+  // típico de poucos minutos). Datas no fuso de Brasília (UTC−3) por padrão.
+  // phase: 0 nova, 1 quarto crescente, 2 cheia, 3 quarto minguante.
+  function moonPhaseJDE(k, phase) {
+    var rad = Math.PI / 180, T = k / 1236.85, T2 = T * T, T3 = T2 * T, T4 = T3 * T;
+    var jde = 2451550.09766 + 29.530588861 * k + 0.00015437 * T2 - 0.000000150 * T3 + 0.00000000073 * T4;
+    var E = 1 - 0.002516 * T - 0.0000074 * T2;
+    var M = (2.5534 + 29.10535670 * k - 0.0000014 * T2 - 0.00000011 * T3) * rad;
+    var Mp = (201.5643 + 385.81693528 * k + 0.0107582 * T2 + 0.00001238 * T3 - 0.000000058 * T4) * rad;
+    var F = (160.7108 + 390.67050284 * k - 0.0016118 * T2 - 0.00000227 * T3 + 0.000000011 * T4) * rad;
+    var O = (124.7746 - 1.56375588 * k + 0.0020672 * T2 + 0.00000215 * T3) * rad;
+    var s = Math.sin, c;
+    if (phase === 0 || phase === 2) {
+      var n = phase === 0;
+      c = (n ? -0.40720 : -0.40614) * s(Mp) + (n ? 0.17241 : 0.17302) * E * s(M) + (n ? 0.01608 : 0.01614) * s(2 * Mp) +
+        (n ? 0.01039 : 0.01043) * s(2 * F) + (n ? 0.00739 : 0.00734) * E * s(Mp - M) - (n ? 0.00514 : 0.00515) * E * s(Mp + M) +
+        (n ? 0.00208 : 0.00209) * E * E * s(2 * M) - 0.00111 * s(Mp - 2 * F) - 0.00057 * s(Mp + 2 * F) + 0.00056 * E * s(2 * Mp + M) -
+        0.00042 * s(3 * Mp) + 0.00042 * E * s(M + 2 * F) + 0.00038 * E * s(M - 2 * F) - 0.00024 * E * s(2 * Mp - M) - 0.00017 * s(O);
+    } else {
+      c = -0.62801 * s(Mp) + 0.17172 * E * s(M) - 0.01183 * E * s(Mp + M) + 0.00862 * s(2 * Mp) + 0.00804 * s(2 * F) +
+        0.00454 * E * s(Mp - M) + 0.00204 * E * E * s(2 * M) - 0.00180 * s(Mp - 2 * F) - 0.00070 * s(Mp + 2 * F) - 0.00040 * s(3 * Mp) -
+        0.00034 * E * s(2 * Mp - M) + 0.00032 * E * s(M + 2 * F) + 0.00032 * E * s(M - 2 * F) - 0.00028 * E * E * s(Mp + 2 * M) +
+        0.00027 * E * s(2 * Mp + M) - 0.00017 * s(O);
+      var cos = Math.cos;
+      var W = 0.00306 - 0.00038 * E * cos(M) + 0.00026 * cos(Mp) - 0.00002 * cos(Mp - M) + 0.00002 * cos(Mp + M) + 0.00002 * cos(2 * F);
+      c += phase === 1 ? W : -W;
+    }
+    return jde + c;
+  }
+  // fases entre duas datas (inclusive) → [{ ymd, date (Date local com hora), phase }]
+  function moonPhases(from, to, utcOffsetH) {
+    var off = utcOffsetH == null ? -3 : utcOffsetH;
+    var a = from instanceof Date ? from : ymdToDate(from), b = to instanceof Date ? to : ymdToDate(to);
+    var yearFrac = a.getFullYear() + (dayOfYear(a) - 1) / 365.25;
+    var k0 = Math.floor((yearFrac - 2000) * 12.3685) - 1;
+    var out = [], end = +b + 864e5;
+    for (var k = k0; ; k++) {
+      var done = false;
+      for (var p = 0; p < 4; p++) {
+        var jde = moonPhaseJDE(k + p / 4, p);
+        var ms = (jde - 2440587.5) * 864e5 - 69e3 + off * 3600e3;   // TT→UTC (ΔT≈69 s) e fuso
+        var u = new Date(ms);
+        var local = new Date(u.getUTCFullYear(), u.getUTCMonth(), u.getUTCDate(), u.getUTCHours(), u.getUTCMinutes());
+        if (+local >= end) { done = true; break; }
+        if (+local >= +a) out.push({ ymd: dateToYmd(local), date: local, phase: p });
+      }
+      if (done) break;
+    }
+    return out;
+  }
+  var MOON_PT = ["Lua nova", "Quarto crescente", "Lua cheia", "Quarto minguante"];
 
   /* ===================== variáveis dinâmicas de texto ===================== */
 
@@ -549,6 +624,10 @@
     indexEvents: indexEvents,
     // variáveis
     applyVars: applyVars,
+    // lua
+    moonPhases: moonPhases,
+    MOON_PT: MOON_PT,
+    parseRecurring: parseRecurring,
     VAR_NAMES: VAR_NAMES,
     MONTHS_PT: MONTHS_PT,
     DOW_PT: DOW_PT,
